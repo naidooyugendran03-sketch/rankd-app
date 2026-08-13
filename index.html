@@ -199,6 +199,7 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 <div class="phone" id="app">
@@ -301,22 +302,16 @@ body {
   <div style="text-align:center;padding:32px 16px 20px;">
     <div style="font-size:48px;margin-bottom:16px;">&#128274;</div>
     <div style="font-size:20px;font-weight:800;margin-bottom:4px;">Welcome Back</div>
-    <div style="font-size:13px;color:var(--text-muted);">One code. Stay signed in for 30 days.</div>
+    <div style="font-size:13px;color:var(--text-muted);">Enter your number and PIN</div>
   </div>
 
   <label class="form-label">Mobile Number</label>
   <input type="tel" class="form-input" id="siMobile" placeholder="+27 82 000 0000" value="+27 " style="width:calc(100% - 32px);margin-bottom:10px;">
 
-  <div class="deep-banner" style="margin:0 16px 16px;font-size:12px;">
-    <strong>&#128172; WhatsApp:</strong> We'll send your code via WhatsApp (free). Or choose SMS if you prefer.
-  </div>
+  <label class="form-label">PIN</label>
+  <input type="password" class="form-input" id="siPin" placeholder="4-digit PIN" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="width:calc(100% - 32px);margin-bottom:16px;letter-spacing:8px;font-size:20px;text-align:center;">
 
-  <div style="display:flex;gap:8px;margin:0 16px 16px;">
-    <button class="seg-btn active" id="opt-whatsapp" onclick="setOtpChannel('whatsapp')" style="flex:1;">&#128172; WhatsApp</button>
-    <button class="seg-btn" id="opt-sms" onclick="setOtpChannel('sms')" style="flex:1;">&#128241; SMS</button>
-  </div>
-
-  <button class="btn-gold" onclick="sendSignInOtp()">SEND CODE</button>
+  <button class="btn-gold" onclick="signInWithPin()">SIGN IN</button>
 
   <div style="text-align:center;padding:20px 16px;">
     <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Don't have an account?</div>
