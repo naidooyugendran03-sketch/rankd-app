@@ -198,6 +198,7 @@ body {
 .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
+<base target="_blank">
 </head>
 <body>
 <div class="phone" id="app">
@@ -283,6 +284,9 @@ body {
     <div style="font-size:13px;color:var(--text-sec);margin-bottom:16px;">Someone sent you a WhatsApp link? Tap here.</div>
     <button class="btn-outline" onclick="handleDeepLinkFlow()">I HAVE A CHALLENGE LINK</button>
   </div>
+  <div style="text-align:center;padding:8px 16px;font-size:11px;color:var(--text-muted);">
+    API: <span style="color:var(--gold);">rankd-api-t52y.onrender.com</span>
+  </div>
 
   <div style="text-align:center;padding:16px;">
     <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Already have an account?</div>
@@ -358,10 +362,6 @@ body {
     <option>Northern Cape</option>
   </select>
 
-  <div class="deep-banner" style="margin:0 16px 12px;font-size:12px;">
-    <strong>&#128172; WhatsApp:</strong> Verification code sent via WhatsApp. No SMS charges.
-  </div>
-
   <button class="btn-gold" style="margin-top:8px;" onclick="submitSignUp()">CREATE ACCOUNT</button>
 
   <div style="text-align:center;padding:16px;">
@@ -369,32 +369,7 @@ body {
   </div>
 </div>
 
-<!-- SIGN IN OTP -->
-<div class="screen" id="scr-signInOtp">
-  <div class="back-bar"><button class="back-btn" onclick="go('signIn')">&#8592;</button><div class="back-title">Verify</div></div>
-  <div style="text-align:center;padding:40px 16px;">
-    <div style="font-size:48px;margin-bottom:16px;">&#128172;</div>
-    <div style="font-size:18px;font-weight:700;margin-bottom:6px;">Check WhatsApp</div>
-    <div style="font-size:13px;color:var(--text-sec);margin-bottom:8px;">Code sent to <span id="siOtpNumber">+27 82 555 0142</span></div>
-    <div style="font-size:12px;color:var(--gold);margin-bottom:24px;">&#9889; Mock: enter 000000</div>
 
-    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:24px;">
-      <input type="text" maxlength="1" class="form-input" style="width:48px;text-align:center;font-size:22px;padding:14px 0;" oninput="if(this.value)this.nextElementSibling?.focus()" onkeydown="moveOtp(this,0,event)">
-      <input type="text" maxlength="1" class="form-input" style="width:48px;text-align:center;font-size:22px;padding:14px 0;" oninput="if(this.value)this.nextElementSibling?.focus()" onkeydown="moveOtp(this,1,event)">
-      <input type="text" maxlength="1" class="form-input" style="width:48px;text-align:center;font-size:22px;padding:14px 0;" oninput="if(this.value)this.nextElementSibling?.focus()" onkeydown="moveOtp(this,2,event)">
-      <input type="text" maxlength="1" class="form-input" style="width:48px;text-align:center;font-size:22px;padding:14px 0;" oninput="if(this.value)this.nextElementSibling?.focus()" onkeydown="moveOtp(this,3,event)">
-      <input type="text" maxlength="1" class="form-input" style="width:48px;text-align:center;font-size:22px;padding:14px 0;" oninput="if(this.value)this.nextElementSibling?.focus()" onkeydown="moveOtp(this,4,event)">
-      <input type="text" maxlength="1" class="form-input" style="width:48px;text-align:center;font-size:22px;padding:14px 0;" onkeydown="moveOtp(this,5,event)">
-    </div>
-
-    <button class="btn-gold" onclick="verifySignInOtp()">SIGN IN</button>
-    <button class="btn-text" style="margin-top:12px;" onclick="sendSignInOtp()">Resend Code</button>
-
-    <div style="margin-top:20px;padding:12px;background:rgba(212,160,23,0.05);border:1px solid rgba(212,160,23,0.15);border-radius:10px;">
-      <div style="font-size:12px;color:var(--text-sec);">&#128274; You'll stay signed in for <strong style="color:var(--gold);">30 days</strong> on this device.</div>
-    </div>
-  </div>
-</div>
 
 <!-- PIN SETUP -->
 <div class="screen" id="scr-pinSetup">
@@ -1240,22 +1215,8 @@ body {
   <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:12px;">Already have RANKD? <span style="color:var(--gold);cursor:pointer;" onclick="go('home')">Sign In</span></div>
 </div>
 
-<!-- OTP -->
-<div class="screen" id="scr-otp">
-  <div style="text-align:center;padding:50px 16px;">
-    <div style="font-size:48px;margin-bottom:16px;">&#128274;</div>
-    <div style="font-size:18px;font-weight:700;margin-bottom:6px;">Verify Mobile</div>
-    <div style="font-size:13px;color:var(--text-sec);margin-bottom:28px;">Code sent to <span id="otpNumber">+27 82 555 0199</span></div>
-    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:28px;">
-      <input type="text" maxlength="1" class="form-input" style="width:56px;text-align:center;font-size:22px;padding:14px 0;" value="5" onkeydown="moveOtp(this,0,event)">
-      <input type="text" maxlength="1" class="form-input" style="width:56px;text-align:center;font-size:22px;padding:14px 0;" value="2" onkeydown="moveOtp(this,1,event)">
-      <input type="text" maxlength="1" class="form-input" style="width:56px;text-align:center;font-size:22px;padding:14px 0;" value="9" onkeydown="moveOtp(this,2,event)">
-      <input type="text" maxlength="1" class="form-input" style="width:56px;text-align:center;font-size:22px;padding:14px 0;" value="1" onkeydown="moveOtp(this,3,event)">
-    </div>
-    <button class="btn-gold" onclick="go('matchActive')">VERIFY &amp; ACCEPT</button>
-    <button class="btn-text" style="margin-top:12px;">Resend Code</button>
-  </div>
-</div>
+<!-- OTP (REMOVED - now goes straight to match) -->
+<div class="screen" id="scr-otp" style="display:none;"></div>
 
 <!-- NOTIFICATIONS -->
 <div class="screen" id="scr-notifications">
@@ -1683,7 +1644,7 @@ body {
 
 const API_BASE = window.location.hostname === 'localhost' 
   ? 'http://localhost:8000' 
-  : 'https://rankd-api.up.railway.app';
+  : 'https://rankd-api-t52y.onrender.com';
 
 // ——— STATE ———
 let STATE = {
@@ -1719,6 +1680,10 @@ async function api(endpoint, method='GET', body=null, needsAuth=true) {
     return data;
   } catch (err) {
     console.error('API Error:', err);
+    // Better error for user
+    if (err.message === 'Failed to fetch') {
+      throw new Error('Cannot connect to server. Check your internet or try again.');
+    }
     throw err;
   }
 }
@@ -1824,56 +1789,45 @@ function handleDeepLinkFlow() {
   }
 }
 
-let otpChannel = 'whatsapp';
-
-function setOtpChannel(channel) {
-  otpChannel = channel;
-  document.getElementById('opt-whatsapp').classList.toggle('active', channel === 'whatsapp');
-  document.getElementById('opt-sms').classList.toggle('active', channel === 'sms');
-}
-
-async function sendSignInOtp() {
+async function signInWithPin() {
   const mobile = document.getElementById('siMobile').value.trim();
+  const pin = document.getElementById('siPin').value.trim();
+
   if (!mobile || mobile.length < 10) {
-    alert('Please enter a valid mobile number.');
+    alert('Please enter your mobile number.');
     return;
   }
-  setLoading(true);
-  try {
-    await api('/auth/otp/send?mobile_number=' + encodeURIComponent(mobile) + '&channel=' + otpChannel, 'GET', null, false);
-    setLoading(false);
-    document.getElementById('siOtpNumber').textContent = mobile;
-    go('signInOtp');
-  } catch (err) {
-    setLoading(false);
-    alert(err.message || 'Failed to send OTP');
+  if (!pin || pin.length !== 4) {
+    alert('Please enter your 4-digit PIN.');
+    return;
   }
-}
 
-async function verifySignInOtp() {
-  const mobile = document.getElementById('siMobile').value.trim();
   setLoading(true);
   try {
-    const data = await api('/auth/login', 'POST', { mobile_number: mobile, otp_code: '000000' }, false);
+    // Login with mobile
+    const data = await api('/auth/login', 'POST', { mobile_number: mobile }, false);
     setAuth(data.token, data.player);
-    setLoading(false);
 
-    // Check if PIN is already set
-    const pinStatus = await api('/auth/pin/status');
-    if (pinStatus.has_pin) {
+    // Verify PIN
+    const pinData = await api('/auth/pin/verify', 'POST', { pin: pin }, false);
+
+    if (pinData.token) {
+      setAuth(pinData.token, data.player);
       localStorage.setItem('rankd_has_pin', 'true');
-      go('pinUnlock');
-    } else {
-      // First time on this device — set PIN
-      pinBuffer = '';
-      pinConfirmBuffer = '';
-      pinMode = 'create';
-      updatePinDots();
-      go('pinSetup');
+      setLoading(false);
+      go('home');
     }
   } catch (err) {
     setLoading(false);
-    alert(err.message || 'Invalid code');
+    if (err.message && err.message.includes('not found')) {
+      alert('No account found with this number.');
+    } else if (err.message && err.message.includes('Incorrect')) {
+      alert('Wrong PIN. Try again.');
+      document.getElementById('siPin').value = '';
+      document.getElementById('siPin').focus();
+    } else {
+      alert(err.message || 'Sign in failed');
+    }
   }
 }
 
@@ -1893,11 +1847,11 @@ async function submitSignUp() {
     const data = await api('/auth/signup', 'POST', {
       first_name: firstName, last_name: lastName, mobile_number: mobile,
       username: username.replace('@', ''), city: city, province: province,
-      country: 'South Africa', otp_code: '000000'
+      country: 'South Africa'
     }, false);
     setAuth(data.token, data.player);
     setLoading(false);
-    // New user — set PIN first
+    // New user — set PIN
     pinBuffer = '';
     pinConfirmBuffer = '';
     pinMode = 'create';
@@ -2043,7 +1997,6 @@ async function submitGuestSignup() {
     province: province,
     country: 'South Africa',
     street_address: address || null,
-    otp_code: '000000',
     invite_token: STATE.inviteToken || null
   };
 
@@ -2051,7 +2004,15 @@ async function submitGuestSignup() {
     setLoading(true);
     const data = await api('/auth/signup', 'POST', payload, false);
     setAuth(data.token, data.player);
+    setLoading(false);
 
+    // Set PIN first, then go to match
+    pinBuffer = '';
+    pinConfirmBuffer = '';
+    pinMode = 'create';
+    updatePinDots();
+
+    // Store match info for after PIN
     if (data.match_id) {
       STATE.currentMatch = { 
         id: data.match_id, 
@@ -2061,13 +2022,9 @@ async function submitGuestSignup() {
         format: STATE.invite?.format_value || 5
       };
       localStorage.setItem('rankd_match', JSON.stringify(STATE.currentMatch));
-      setLoading(false);
-      renderMatchActive();
-      go('matchActive');
-    } else {
-      setLoading(false);
-      go('home');
     }
+
+    go('pinSetup');
   } catch (err) {
     setLoading(false);
     alert('Signup failed: ' + err.message);
