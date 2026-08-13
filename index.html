@@ -1653,14 +1653,16 @@ let shareCardData = {};
 
 // ——— API ———
 async function api(endpoint, method='GET', body=null, needsAuth=true) {
-  const url = API_BASE + endpoint;
+  let url = API_BASE + endpoint;
+  // Backend expects token as query parameter, not Authorization header
+  if (needsAuth && STATE.token) {
+    const sep = url.includes('?') ? '&' : '?';
+    url += `${sep}token=${encodeURIComponent(STATE.token)}`;
+  }
   const opts = { 
     method, 
     headers: { 'Content-Type': 'application/json' } 
   };
-  if (needsAuth && STATE.token) {
-    opts.headers['Authorization'] = `Bearer ${STATE.token}`;
-  }
   if (body) opts.body = JSON.stringify(body);
 
   try {
