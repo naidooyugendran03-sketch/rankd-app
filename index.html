@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#050505">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -45,13 +48,15 @@ body {
 .splash-wrap { position: relative; height: 100%; display: flex; flex-direction: column; }
 .splash-img {
   position: absolute; inset: 0;
-  background: url('splash-bg.png') center top / cover no-repeat;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1200 30%, #0a0a0a 70%, #050505 100%);
   z-index: 0;
+  pointer-events: none;
 }
 .splash-overlay {
   position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(5,5,5,0.3) 0%, rgba(5,5,5,0.6) 40%, rgba(5,5,5,0.95) 70%, var(--black) 100%);
   z-index: 1;
+  pointer-events: none;
 }
 .splash-content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; padding: 24px; }
 .splash-status { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
@@ -199,8 +204,28 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 <base target="_blank">
+<noscript><style>.screen{display:block!important;}#scr-splash{display:block!important;}</style><div style="position:fixed;top:0;left:0;right:0;background:red;color:white;padding:10px;text-align:center;z-index:9999;font-size:14px;">JavaScript is disabled. Please enable JavaScript to use RANKD.</div></noscript>
+<base target="_blank">
 </head>
-<body>
+<body ontouchstart="">
+<script>
+// Mobile touch fix
+window.addEventListener('touchstart', function() {}, {passive: true});
+</script>
+<script>
+// Immediate JS test
+window.jsLoaded = false;
+try {
+  document.addEventListener('DOMContentLoaded', function() {
+    var test = document.getElementById('js-test');
+    if (test) { test.textContent = 'JS OK'; test.style.background = '#2ecc71'; test.style.opacity = '1'; }
+    window.jsLoaded = true;
+  });
+} catch(e) {
+  var test = document.getElementById('js-test');
+  if (test) { test.textContent = 'JS ERR'; test.style.opacity = '1'; }
+}
+</script>
 <div class="phone" id="app">
 
 <!-- LOADING OVERLAY -->
@@ -227,11 +252,13 @@ body {
 </div>
 
 <!-- SPLASH -->
-<div class="screen active" id="scr-splash" style="position:relative;">
+<div class="screen active" id="scr-splash" style="position:relative;min-height:100vh;">
   <div class="splash-wrap">
-    <div class="splash-img"></div>
+    <div class="splash-img" onerror="this.style.background='linear-gradient(180deg,#1a1a1a,#050505)'"></div>
     <div class="splash-overlay"></div>
     <div class="splash-content">
+    <div style="position:fixed;top:4px;left:4px;background:var(--gold);color:var(--black);padding:3px 8px;border-radius:4px;font-size:9px;font-weight:900;z-index:999;letter-spacing:1px;">V3</div>
+    <div id="js-test" style="position:fixed;top:4px;right:4px;background:#ff4757;color:white;padding:4px 8px;border-radius:4px;font-size:10px;font-weight:700;z-index:100;opacity:0;transition:opacity 0.3s;">JS ERROR</div>
       
       <div class="splash-logo">
         <div class="splash-logo-text">RANK<span>D</span></div>
@@ -252,8 +279,8 @@ body {
         <div class="splash-feature-divider"></div>
         <div class="splash-feature"><div class="splash-feature-icon">&#128200;</div><div class="splash-feature-label">Climb The<br>Ranks</div></div>
       </div>
-      <button class="btn-gold" onclick="go('authChoice')">&#9889; GET STARTED</button>
-      <button class="btn-dark" onclick="go('signIn')">SIGN IN &#8594;</button>
+      <button class="btn-gold" onclick="alert('Button works! Navigating...');document.getElementById('scr-splash').style.display='none';document.getElementById('scr-authChoice').style.display='block';document.getElementById('nav').style.display='none';window.scrollTo(0,0);">&#9889; GET STARTED</button>
+      <button class="btn-dark" onclick="var s=document.querySelectorAll('.screen');s.forEach(function(e){e.classList.remove('active');e.style.display='none';});var a=document.getElementById('scr-signIn');if(a){a.classList.add('active');a.style.display='block';}var n=document.getElementById('nav');if(n)n.style.display='none';window.scrollTo(0,0);">SIGN IN &#8594;</button>
       <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:var(--text-muted);margin-bottom:16px;"><span>&#128737;</span> Trusted by pool players across South Africa</div>
       
     </div>
@@ -285,13 +312,13 @@ body {
 
   <div style="text-align:center;padding:16px;">
     <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Already have an account?</div>
-    <button class="btn-text" onclick="go('signIn')" style="color:var(--gold);font-weight:700;">Sign In Instead</button>
+    <button class="btn-text" onclick="document.getElementById('scr-authChoice').style.display='none';document.getElementById('scr-signIn').style.display='block';window.scrollTo(0,0);" style="color:var(--gold);font-weight:700;">Sign In Instead</button>
   </div>
 </div>
 
 <!-- SIGN IN -->
 <div class="screen" id="scr-signIn">
-  <div class="back-bar"><button class="back-btn" onclick="go('authChoice')">&#8592;</button><div class="back-title">Sign In</div></div>
+  <div class="back-bar"><button class="back-btn" onclick="var s=document.querySelectorAll('.screen');s.forEach(function(e){e.classList.remove('active');e.style.display='none';});var a=document.getElementById('scr-authChoice');if(a){a.classList.add('active');a.style.display='block';}var n=document.getElementById('nav');if(n)n.style.display='none';window.scrollTo(0,0);">&#8592;</button><div class="back-title">Sign In</div></div>
 
   <div style="text-align:center;padding:32px 16px 20px;">
     <div style="font-size:48px;margin-bottom:16px;">&#128274;</div>
@@ -315,7 +342,7 @@ body {
 
 <!-- SIGN UP -->
 <div class="screen" id="scr-signUp">
-  <div class="back-bar"><button class="back-btn" onclick="go('authChoice')">&#8592;</button><div class="back-title">Create Account</div></div>
+  <div class="back-bar"><button class="back-btn" onclick="var s=document.querySelectorAll('.screen');s.forEach(function(e){e.classList.remove('active');e.style.display='none';});var a=document.getElementById('scr-authChoice');if(a){a.classList.add('active');a.style.display='block';}var n=document.getElementById('nav');if(n)n.style.display='none';window.scrollTo(0,0);">&#8592;</button><div class="back-title">Create Account</div></div>
 
   <div style="text-align:center;padding:24px 16px 16px;">
     <div style="font-size:22px;font-weight:800;margin-bottom:4px;">Get RANKD</div>
@@ -2647,6 +2674,28 @@ document.addEventListener('DOMContentLoaded', () => {
   // No token — show splash
   go('splash');
 });
+</script>
+<script>
+// Emergency fallback: ensure splash buttons work even if main script fails
+(function() {
+  var btn = document.querySelector('.splash-content .btn-gold');
+  if (btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var screens = document.querySelectorAll('.screen');
+      screens.forEach(function(s) { s.classList.remove('active'); });
+      var auth = document.getElementById('scr-authChoice');
+      if (auth) {
+        auth.classList.add('active');
+        auth.style.display = 'block';
+      }
+      var nav = document.getElementById('nav');
+      if (nav) nav.style.display = 'none';
+      window.scrollTo(0,0);
+    });
+  }
+})();
 </script>
 </body>
 </html>
