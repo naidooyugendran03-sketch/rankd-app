@@ -1654,16 +1654,18 @@ let shareCardData = {};
 // ——— API ———
 async function api(endpoint, method='GET', body=null, needsAuth=true) {
   let url = API_BASE + endpoint;
-  // Backend expects token as query parameter, not Authorization header
-  if (needsAuth && STATE.token) {
-    const sep = url.includes('?') ? '&' : '?';
-    url += `${sep}token=${encodeURIComponent(STATE.token)}`;
-  }
   const opts = { 
     method, 
     headers: { 'Content-Type': 'application/json' } 
   };
+  // Send token BOTH as query param AND Authorization header (backend accepts either)
+  if (needsAuth && STATE.token) {
+    const sep = url.includes('?') ? '&' : '?';
+    url += `${sep}token=${encodeURIComponent(STATE.token)}`;
+    opts.headers['Authorization'] = `Bearer ${STATE.token}`;
+  }
   if (body) opts.body = JSON.stringify(body);
+  console.log('API CALL:', method, url, 'token?', !!STATE.token);
 
   try {
     const res = await fetch(url, opts);
@@ -2555,18 +2557,20 @@ function updateUnlockDots() {
 }
 
 async function submitPinSetup(pin) {
+  console.log('submitPinSetup called, token:', STATE.token ? 'YES' : 'NO');
   setLoading(true);
   try {
-    await api('/auth/pin/set', 'POST', { pin: pin });
+    const result = await api('/auth/pin/set', 'POST', { pin: pin });
+    console.log('PIN set success:', result);
     setLoading(false);
     localStorage.setItem('rankd_has_pin', 'true');
-    // Check if we came from signup with an active match
     if (STATE.currentMatch) {
       go('matchActive');
     } else {
       go('home');
     }
   } catch (err) {
+    console.error('PIN set error:', err.message);
     setLoading(false);
     document.getElementById('pin-error').textContent = err.message || 'Failed to set PIN';
     pinBuffer = '';
