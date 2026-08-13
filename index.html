@@ -2464,6 +2464,139 @@ setInterval(() => {
   if (el) el.textContent = h + ':' + m;
 }, 1000);
 
+
+// ——— PIN KEYPAD FUNCTIONS ———
+let pinBuffer = '';
+let pinConfirmBuffer = '';
+let pinMode = 'create'; // 'create' or 'confirm'
+
+function pinPress(digit) {
+  if (pinBuffer.length < 4) {
+    pinBuffer += digit;
+    updatePinDots();
+  }
+  if (pinBuffer.length === 4) {
+    if (pinMode === 'create') {
+      if (pinConfirmBuffer === '') {
+        pinConfirmBuffer = pinBuffer;
+        pinBuffer = '';
+        pinMode = 'confirm';
+        updatePinDots();
+        document.getElementById('pin-error').textContent = 'Confirm your PIN';
+      } else {
+        if (pinBuffer === pinConfirmBuffer) {
+          // PIN confirmed — save it
+          submitPinSetup(pinBuffer);
+        } else {
+          document.getElementById('pin-error').textContent = 'PINs do not match. Try again.';
+          pinBuffer = '';
+          pinConfirmBuffer = '';
+          pinMode = 'create';
+          updatePinDots();
+        }
+      }
+    } else if (pinMode === 'unlock') {
+      submitPinUnlock(pinBuffer);
+    }
+  }
+}
+
+function pinBackspace() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+}
+
+function pinClear() {
+  pinBuffer = '';
+  updatePinDots();
+}
+
+function updatePinDots() {
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('pin-dot-' + i);
+    if (dot) {
+      dot.style.background = i <= pinBuffer.length ? 'var(--gold)' : 'transparent';
+    }
+  }
+}
+
+// ——— UNLOCK PIN FUNCTIONS ———
+let unlockBuffer = '';
+
+function unlockPress(digit) {
+  if (unlockBuffer.length < 4) {
+    unlockBuffer += digit;
+    updateUnlockDots();
+  }
+  if (unlockBuffer.length === 4) {
+    submitPinUnlock(unlockBuffer);
+  }
+}
+
+function unlockBackspace() {
+  unlockBuffer = unlockBuffer.slice(0, -1);
+  updateUnlockDots();
+}
+
+function unlockClear() {
+  unlockBuffer = '';
+  updateUnlockDots();
+}
+
+function updateUnlockDots() {
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('unlock-dot-' + i);
+    if (dot) {
+      dot.style.background = i <= unlockBuffer.length ? 'var(--gold)' : 'transparent';
+    }
+  }
+}
+
+async function submitPinSetup(pin) {
+  setLoading(true);
+  try {
+    await api('/auth/pin/set', 'POST', { pin: pin });
+    setLoading(false);
+    localStorage.setItem('rankd_has_pin', 'true');
+    // Check if we came from signup with an active match
+    if (STATE.currentMatch) {
+      go('matchActive');
+    } else {
+      go('home');
+    }
+  } catch (err) {
+    setLoading(false);
+    document.getElementById('pin-error').textContent = err.message || 'Failed to set PIN';
+    pinBuffer = '';
+    pinConfirmBuffer = '';
+    pinMode = 'create';
+    updatePinDots();
+  }
+}
+
+async function submitPinUnlock(pin) {
+  setLoading(true);
+  try {
+    const pinData = await api('/auth/pin/verify', 'POST', { pin: pin }, false);
+    if (pinData.token) {
+      setAuth(pinData.token, STATE.player);
+      localStorage.setItem('rankd_has_pin', 'true');
+      setLoading(false);
+      go('home');
+    }
+  } catch (err) {
+    setLoading(false);
+    document.getElementById('unlock-error').textContent = err.message || 'Wrong PIN';
+    unlockBuffer = '';
+    updateUnlockDots();
+  }
+}
+
+function forgotPin() {
+  clearAuth();
+  go('signIn');
+}
+
 // ——— INIT ———
 document.addEventListener('DOMContentLoaded', () => {
   // Check for deep link first
