@@ -1803,7 +1803,7 @@ async function signInWithPin() {
     setAuth(data.token, data.player);
 
     // Verify PIN
-    const pinData = await api('/auth/pin/verify', 'POST', { pin: pin }, false);
+    const pinData = await api('/auth/pin/verify', 'POST', { pin: pin }, true);
 
     if (pinData.token) {
       setAuth(pinData.token, data.player);
@@ -2583,7 +2583,7 @@ async function submitPinSetup(pin) {
 async function submitPinUnlock(pin) {
   setLoading(true);
   try {
-    const pinData = await api('/auth/pin/verify', 'POST', { pin: pin }, false);
+    const pinData = await api('/auth/pin/verify', 'POST', { pin: pin }, true);
     if (pinData.token) {
       setAuth(pinData.token, STATE.player);
       localStorage.setItem('rankd_has_pin', 'true');
