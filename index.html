@@ -199,6 +199,7 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 <div class="phone" id="app">
@@ -1797,8 +1798,8 @@ async function signInWithPin() {
     const data = await api('/auth/login', 'POST', { mobile_number: mobile }, false);
     setAuth(data.token, data.player);
 
-    // Verify PIN
-    const pinData = await api('/auth/pin/verify', 'POST', { pin: pin }, false);
+    // Verify PIN — pass token as query param (backend expects this, not Authorization header)
+    const pinData = await api(`/auth/pin/verify?token=${encodeURIComponent(data.token)}`, 'POST', { pin: pin }, false);
 
     if (pinData.token) {
       setAuth(pinData.token, data.player);
@@ -1848,7 +1849,18 @@ async function submitSignUp() {
     go('pinSetup');
   } catch (err) {
     setLoading(false);
-    alert(err.message || 'Signup failed');
+    const msg = err.message || '';
+    if (msg.includes('already registered') || msg.includes('already registered') || msg.includes('409')) {
+      // Number exists — offer to sign in
+      if (confirm('This mobile number is already registered.\n\nSign in instead?')) {
+        document.getElementById('siMobile').value = mobile;
+        go('signIn');
+      }
+    } else if (msg.includes('Username taken') || msg.includes('username')) {
+      alert('That username is taken. Try another one.');
+    } else {
+      alert(err.message || 'Signup failed. Try again.');
+    }
   }
 }
 
