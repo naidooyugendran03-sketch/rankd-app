@@ -200,6 +200,8 @@ body {
 </style>
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
+<base target="_blank">
 </head>
 <body>
 <div class="phone" id="app">
@@ -503,7 +505,7 @@ body {
         <div class="avatar">JP</div>
         <div style="flex:1;"><div style="font-weight:700;">Jason Pillay</div><div style="font-size:12px;color:var(--text-muted);">@jaypool &#8226; PMB #4</div></div>
         <div style="font-size:18px;font-weight:800;color:var(--gold);">1,911</div>
-        <button style="padding:8px 14px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;" onclick="event.stopPropagation();setOpponentAndChallenge('jaypool', 'Jason Pillay', 1911)">CHALLENGE</button>
+        <button style="padding:8px 14px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;" onclick="event.stopPropagation();setOpponentAndChallenge('demo-jason', 'jaypool', 'Jason Pillay', 1911)">CHALLENGE</button>
       </div>
     </div>
     <div class="card" style="margin-bottom:10px;">
@@ -620,7 +622,7 @@ body {
     <div class="row-between"><span class="row-label">Tournament</span><span class="row-value">2 &#8212; 3</span></div>
     <div class="row-between"><span class="row-label">Friendly</span><span class="row-value">1 &#8212; 1</span></div>
     <div class="row-between"><span class="row-label">Last 10</span><span class="row-value">6 &#8212; 4</span></div>
-    <div class="row-between"><span class="row-label">By Venue (The Rack)</span><span class="row-value">28 &#8212; 24</span></div>
+    <div class="row-between"><span class="row-label">By Venue</span><span class="row-value">28 &#8212; 24</span></div>
   </div>
   <div class="card">
     <div class="card-title">Rivalry Stats</div>
@@ -649,7 +651,7 @@ body {
   <div class="card" style="margin-bottom:12px;">
     <div class="row-between"><span class="row-label">Match Type</span><span class="row-value" style="color:var(--gold);">RANKD Challenge &#11088;</span></div>
     <div class="row-between" style="align-items:center;"><span class="row-label">Format</span><div class="segmented"><button class="seg-btn">1</button><button class="seg-btn">3</button><button class="seg-btn active">5</button><button class="seg-btn">7</button><button class="seg-btn">9</button></div></div>
-    <div class="row-between"><span class="row-label">Venue</span><span class="row-value">The Rack &#9662;</span></div>
+    <div class="row-between"><span class="row-label">Venue</span><span class="row-value" id="match-setup-venue">Time Out Restaurant & Bar &#9662;</span></div>
   </div>
   <button class="btn-gold" onclick="go('matchActive')">SEND CHALLENGE</button>
 </div>
@@ -665,7 +667,7 @@ body {
           <div style="font-size:20px;font-weight:800;color:var(--text-muted);">VS</div>
           <div style="text-align:center;"><div class="avatar" style="width:56px;height:56px;font-size:20px;margin:0 auto 4px;">JP</div><div style="font-size:14px;font-weight:700;">Jason</div><div style="font-size:12px;color:var(--gold);font-weight:700;">1,911</div></div>
         </div>
-        <div style="font-size:12px;color:var(--text-sec);">Best of 5 &#8226; The Rack &#8226; RANKD Challenge</div>
+        <div style="font-size:12px;color:var(--text-sec);">Best of 5 &#8226; <span id="match-active-venue">Time Out Restaurant & Bar</span> &#8226; RANKD Challenge</div>
       </div>
       <div class="card" style="margin-bottom:14px;">
         <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px;">Play your match, then submit the result.</div>
@@ -751,7 +753,7 @@ body {
       <div><div style="font-size:36px;font-weight:900;">5 &#8212; 3</div></div>
       <div style="text-align:center;"><div class="avatar" style="width:56px;height:56px;font-size:20px;margin:0 auto 6px;">JP</div><div style="font-weight:700;">Jason</div><div style="font-size:12px;color:var(--danger);font-weight:700;">1,911 &#8594; 1,898</div></div>
     </div>
-    <div style="font-size:13px;color:var(--text-sec);margin-bottom:4px;">The Rack &#8226; 12 Aug 2026 &#8226; 21:34</div>
+    <div style="font-size:13px;color:var(--text-sec);margin-bottom:4px;">Time Out Restaurant & Bar &#8226; 12 Aug 2026 &#8226; 21:34</div>
     <div style="font-size:12px;color:var(--text-muted);">Best of 5 &#8226; Rated</div>
   </div>
   <div class="card">
@@ -808,8 +810,9 @@ body {
 <div class="screen" id="scr-nights">
   <div style="font-size:20px;font-weight:800;margin:16px;">&#127921; RANKD Nights</div>
   <div class="night-card" style="cursor:pointer;" onclick="go('nightDetail')">
-    <div style="font-size:16px;font-weight:700;margin-bottom:4px;">The Rack</div>
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px;">Time Out Restaurant & Bar</div>
     <div style="font-size:13px;color:var(--text-sec);margin-bottom:10px;">Friday &#8226; 18:00&#8211;23:00 &#8226; FREE ENTRY</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">17 Stella Rd, Northdale, Pietermaritzburg, 3201</div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
       <div style="display:flex;">
         <div class="avatar avatar-sm" style="margin-left:0;border:2px solid var(--black);z-index:4;">J</div>
@@ -819,15 +822,25 @@ body {
       </div>
       <div style="font-size:13px;color:var(--text-muted);">42 going</div>
     </div>
-    <div style="font-size:12px;color:var(--text-sec);margin-bottom:12px;">#3 Jason (1,981) &#8226; #7 Bradley (1,887) &#8226; #12 Kyle (1,821) attending</div>
     <button style="width:100%;padding:12px;background:var(--gold);color:var(--black);border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">I'M GOING</button>
   </div>
   <div class="night-card">
-    <div style="font-size:16px;font-weight:700;margin-bottom:4px;">Cue Masters</div>
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px;">Allandale Steak Den</div>
     <div style="font-size:13px;color:var(--text-sec);margin-bottom:10px;">Saturday &#8226; 19:00&#8211;00:00 &#8226; R20 Entry</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">67 Manuel Rd, Allandale, Pietermaritzburg, 3201</div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
       <div style="display:flex;"><div class="avatar avatar-sm" style="margin-left:0;border:2px solid var(--black);">S</div><div class="avatar avatar-sm" style="margin-left:-10px;border:2px solid var(--black);">T</div></div>
       <div style="font-size:13px;color:var(--text-muted);">18 going</div>
+    </div>
+    <button style="width:100%;padding:12px;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">I'M GOING</button>
+  </div>
+  <div class="night-card">
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px;">Club Woodlander</div>
+    <div style="font-size:13px;color:var(--text-sec);margin-bottom:10px;">Thursday &#8226; 18:00&#8211;22:00 &#8226; FREE ENTRY</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">110 Allandale Dr, Rosedale, Pietermaritzburg, 3201</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <div style="display:flex;"><div class="avatar avatar-sm" style="margin-left:0;border:2px solid var(--black);">M</div><div class="avatar avatar-sm" style="margin-left:-10px;border:2px solid var(--black);">L</div></div>
+      <div style="font-size:13px;color:var(--text-muted);">24 going</div>
     </div>
     <button style="width:100%;padding:12px;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">I'M GOING</button>
   </div>
@@ -835,11 +848,12 @@ body {
 
 <!-- NIGHT DETAIL -->
 <div class="screen" id="scr-nightDetail">
-  <div class="back-bar"><button class="back-btn" onclick="go('nights')">&#8592;</button><div class="back-title">The Rack</div></div>
+  <div class="back-bar"><button class="back-btn" onclick="go('nights')">&#8592;</button><div class="back-title">Venue</div></div>
   <div style="text-align:center;padding:16px;">
     <div style="font-size:28px;margin-bottom:8px;">&#127921;</div>
-    <div style="font-size:20px;font-weight:800;">RANKD Night</div>
+    <div style="font-size:20px;font-weight:800;">Time Out Restaurant & Bar</div>
     <div style="font-size:13px;color:var(--text-sec);margin-bottom:4px;">Friday, 18 Aug &#8226; 18:00&#8211;23:00</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">17 Stella Rd, Northdale, Pietermaritzburg, 3201</div>
     <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:16px;">FREE ENTRY</div>
     <div style="display:flex;justify-content:center;gap:24px;margin-bottom:16px;">
       <div style="text-align:center;"><div style="font-size:24px;font-weight:800;">42</div><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;">Going</div></div>
@@ -1040,7 +1054,7 @@ body {
   <div class="card" style="margin-bottom:12px;">
     <div class="row-between"><span class="row-label">Match Type</span><span class="row-value">RANKD Challenge &#11088;</span></div>
     <div class="row-between" style="align-items:center;"><span class="row-label">Format</span><div class="segmented"><button class="seg-btn">1</button><button class="seg-btn">3</button><button class="seg-btn active">5</button><button class="seg-btn">7</button></div></div>
-    <div class="row-between"><span class="row-label">Venue</span><span class="row-value">The Rack &#9662;</span></div>
+    <div class="row-between"><span class="row-label">Venue</span><span class="row-value" id="challenge-setup-venue">Time Out Restaurant & Bar &#9662;</span></div>
   </div>
   <div class="deep-banner" style="margin-bottom:12px;">
     <strong>How it works:</strong> Bradley sends a WhatsApp link. They tap, sign up in 60 seconds, and the match begins.
@@ -1065,7 +1079,7 @@ body {
         <div style="font-size:20px;font-weight:800;color:var(--text-muted);">VS</div>
         <div style="text-align:center;"><div class="avatar" style="margin:0 auto 6px;background:var(--border);color:var(--text-muted);">?</div><div style="font-weight:700;">You</div><div style="font-size:13px;color:var(--text-muted);font-weight:700;">&#8212;</div></div>
       </div>
-      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;"><div style="font-weight:700;color:white;margin-bottom:4px;">Ranked Match &#8226; Best of 5</div><div>The Rack &#8226; Tonight</div></div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;"><div style="font-weight:700;color:white;margin-bottom:4px;">Ranked Match &#8226; Best of 5</div><div>Time Out Restaurant & Bar &#8226; Tonight</div></div>
       <button class="btn-gold" onclick="go('guestSignup')">ACCEPT CHALLENGE</button>
     </div>
     <div style="text-align:center;font-size:12px;color:var(--text-muted);padding:0 16px;">No app download required. Works in your browser.</div>
@@ -1291,7 +1305,7 @@ body {
     <div style="background:rgba(212,160,23,0.05);border:1px solid rgba(212,160,23,0.15);border-radius:10px;padding:12px;">
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">What you see</div>
       <div style="font-size:22px;font-weight:900;color:var(--gold);margin-bottom:2px;">1,583</div>
-      <div style="font-size:12px;color:var(--text-sec);">&#9679; PROVISIONAL &#8226; Number is live but settling</div>
+      <div style="font-size:12px;color:var(--text-sec);">&#9679; PROVISIONALLY RANKED &#8226; Number is live but settling</div>
     </div>
   </div>
 
@@ -1386,18 +1400,25 @@ body {
   <div class="card" style="margin-bottom:12px;">
     <div class="card-title">Venue</div>
     <div id="venue-list" style="display:flex;flex-direction:column;gap:8px;">
-      <div class="match-type-option selected" onclick="selectVenue(this, 'the-rack')" data-venue="the-rack">
+      <div class="match-type-option selected" onclick="selectVenue(this, 'time-out')" data-venue="time-out">
         <div class="match-type-icon">&#127921;</div>
         <div style="flex:1;">
-          <div class="match-type-label">The Rack</div>
-          <div class="match-type-desc">45 Chief Albert Luthuli St, PMB</div>
+          <div class="match-type-label">Time Out Restaurant & Bar</div>
+          <div class="match-type-desc">17 Stella Rd, Northdale, PMB</div>
         </div>
       </div>
-      <div class="match-type-option" onclick="selectVenue(this, 'cue-masters')" data-venue="cue-masters">
+      <div class="match-type-option" onclick="selectVenue(this, 'allandale-steak')" data-venue="allandale-steak">
         <div class="match-type-icon" style="background:rgba(0,212,170,0.1);color:var(--teal);">&#127921;</div>
         <div style="flex:1;">
-          <div class="match-type-label">Cue Masters</div>
-          <div class="match-type-desc">18 Boom St, PMB</div>
+          <div class="match-type-label">Allandale Steak Den</div>
+          <div class="match-type-desc">67 Manuel Rd, Allandale, PMB</div>
+        </div>
+      </div>
+      <div class="match-type-option" onclick="selectVenue(this, 'club-woodlander')" data-venue="club-woodlander">
+        <div class="match-type-icon" style="background:rgba(212,160,23,0.1);color:var(--gold);">&#127921;</div>
+        <div style="flex:1;">
+          <div class="match-type-label">Club Woodlander</div>
+          <div class="match-type-desc">110 Allandale Dr, Rosedale, PMB</div>
         </div>
       </div>
       <div class="match-type-option" onclick="selectVenue(this, 'other')" data-venue="other">
@@ -1455,7 +1476,7 @@ body {
 
   <div class="card" style="text-align:center;padding:14px;margin-bottom:12px;">
     <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">They proposed:</div>
-    <div style="font-size:16px;font-weight:700;margin-bottom:4px;">The Rack &#8226; Friday 19:00</div>
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px;" id="counter-proposed-line">TBD</div>
     <div style="font-size:12px;color:var(--text-muted);">Your counter:</div>
   </div>
 
@@ -1468,7 +1489,9 @@ body {
     <label class="form-label">Venue (optional)</label>
     <select class="select-input" id="counterVenue" style="width:calc(100% - 32px);">
       <option value="">Same venue</option>
-      <option value="the-rack">The Rack</option>
+      <option value="time-out">Time Out Restaurant & Bar</option>
+      <option value="allandale-steak">Allandale Steak Den</option>
+      <option value="club-woodlander">Club Woodlander</option>
       <option value="cue-masters">Cue Masters</option>
       <option value="other">Other</option>
     </select>
@@ -1487,7 +1510,7 @@ body {
 
     <div class="card" style="text-align:left;margin-bottom:16px;">
       <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">YOUR CHALLENGE</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span>&#127921;</span><span id="cw-venue" style="font-size:14px;font-weight:700;">The Rack</span></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span>&#127921;</span><span id="cw-venue" style="font-size:14px;font-weight:700;">TBD</span></div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span>&#128197;</span><span id="cw-datetime" style="font-size:14px;">Friday, 15 Aug &#8226; 19:00</span></div>
       <div style="display:flex;align-items:center;gap:8px;"><span>&#9874;</span><span style="font-size:14px;">RANKD Challenge &#8226; Best of 5</span></div>
     </div>
@@ -1531,6 +1554,30 @@ let STATE = {
 
 let currentScreen = 'splash';
 let shareCardData = {};
+let selectedVenue = 'time-out';
+
+const VENUE_MAP = {
+  'time-out': 'Time Out Restaurant & Bar',
+  'allandale-steak': 'Allandale Steak Den',
+  'club-woodlander': 'Club Woodlander'
+};
+
+function getVenueName(venueId) {
+  if (!venueId || venueId === 'other') return 'TBD';
+  return VENUE_MAP[venueId] || venueId;
+}
+
+function formatStatus(status) {
+  if (status === 'PROVISIONAL') return 'PROVISIONALLY RANKED';
+  if (status === 'ESTABLISHED') return 'ESTABLISHED';
+  return status || 'UNRANKD';
+}
+
+function selectVenue(el, venueId) {
+  document.querySelectorAll('#venue-list .match-type-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedVenue = venueId;
+}
 
 // ——— API ———
 async function api(endpoint, method='GET', body=null, needsAuth=true) {
@@ -1750,6 +1797,13 @@ async function submitSignUp() {
 // ——— SCREEN NAVIGATION ———
 const navScreens = ['home','challenge','search','rankings','nights','profile','notifications','leagues','pendingChallenges'];
 
+function renderCounterProposal() {
+  const el = document.getElementById('counter-proposed-line');
+  if (el && currentCounterProposal) {
+    el.textContent = `${currentCounterProposal.venue} • ${currentCounterProposal.dateTime}`;
+  }
+}
+
 function go(screen) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById('scr-' + screen);
@@ -1776,6 +1830,7 @@ function go(screen) {
   if (screen === 'pendingChallenges') loadPendingChallenges();
   if (screen === 'challengeSetup') renderChallengeSetup();
   if (screen === 'joinLeague' && currentLeagueId) loadLeagueDetail(currentLeagueId);
+  if (screen === 'counterProposal') renderCounterProposal();
   if (screen === 'leagueManage') loadLeagueManagement();
   if (screen === 'howItWorks') renderHowItWorks();
   if (screen === 'qrProfile') setTimeout(generateProfileQR, 300);
@@ -1787,16 +1842,16 @@ let currentRankingScope = 'pmb';
 
 // Demo players for early days - remove when real player base grows
 const DEMO_PLAYERS = [
-  { player_id: 'demo-jason', name: 'Jason Pillay', username: 'jaypool', rating: 2031, city: 'PMB', matches: 312 },
-  { player_id: 'demo-kyle', name: 'Kyle Naidoo', username: 'kylepool', rating: 1988, city: 'PMB', matches: 198 },
-  { player_id: 'demo-ryan', name: 'Ryan Govender', username: 'ryg', rating: 1954, city: 'PMB', matches: 276 },
-  { player_id: 'demo-mike', name: 'Mike Peters', username: 'mikep', rating: 1921, city: 'PMB', matches: 156 },
-  { player_id: 'demo-andre', name: 'Andre Pretorius', username: 'andre', rating: 1905, city: 'PMB', matches: 134 },
-  { player_id: 'demo-dave', name: 'Dave Miller', username: 'dave', rating: 1888, city: 'PMB', matches: 112 },
-  { player_id: 'demo-lee', name: 'Lee Thompson', username: 'lee', rating: 1875, city: 'PMB', matches: 98 },
-  { player_id: 'demo-siya', name: 'Siya Mthembu', username: 'siya', rating: 1854, city: 'PMB', matches: 187 },
-  { player_id: 'demo-thabo', name: 'Thabo Dlamini', username: 'thabo', rating: 1842, city: 'PMB', matches: 203 },
-  { player_id: 'demo-nzulu', name: 'Nkosinathi Zulu', username: 'nzulu', rating: 1721, city: 'PMB', matches: 89 }
+  { player_id: 'demo-jason', name: 'Jason Pillay', username: 'jaypool', rating: 2031, city: 'PMB', matches: 312, status: 'ESTABLISHED' },
+  { player_id: 'demo-kyle', name: 'Kyle Naidoo', username: 'kylepool', rating: 1988, city: 'PMB', matches: 198, status: 'ESTABLISHED' },
+  { player_id: 'demo-ryan', name: 'Ryan Govender', username: 'ryg', rating: 1954, city: 'PMB', matches: 276, status: 'ESTABLISHED' },
+  { player_id: 'demo-mike', name: 'Mike Peters', username: 'mikep', rating: 1921, city: 'PMB', matches: 156, status: 'ESTABLISHED' },
+  { player_id: 'demo-andre', name: 'Andre Pretorius', username: 'andre', rating: 1905, city: 'PMB', matches: 134, status: 'ESTABLISHED' },
+  { player_id: 'demo-dave', name: 'Dave Miller', username: 'dave', rating: 1888, city: 'PMB', matches: 112, status: 'ESTABLISHED' },
+  { player_id: 'demo-lee', name: 'Lee Thompson', username: 'lee', rating: 1875, city: 'PMB', matches: 98, status: 'PROVISIONAL' },
+  { player_id: 'demo-siya', name: 'Siya Mthembu', username: 'siya', rating: 1854, city: 'PMB', matches: 187, status: 'ESTABLISHED' },
+  { player_id: 'demo-thabo', name: 'Thabo Dlamini', username: 'thabo', rating: 1842, city: 'PMB', matches: 203, status: 'ESTABLISHED' },
+  { player_id: 'demo-nzulu', name: 'Nkosinathi Zulu', username: 'nzulu', rating: 1721, city: 'PMB', matches: 89, status: 'PROVISIONAL' }
 ];
 
 async function loadRankings(scope) {
@@ -1864,6 +1919,7 @@ async function loadRankings(scope) {
     if (STATE.player) {
       myRank = allPlayers.findIndex(p => p.player_id === STATE.player.id || p.is_you || p.username === STATE.player.username) + 1;
     }
+    window._myLeaderboardRank = myRank;
 
     if (allPlayers.length === 0) {
       container.innerHTML = '<div class="empty-state"><div style="font-size:32px;margin-bottom:8px;">&#127942;</div><div style="font-size:14px;font-weight:700;">No rankings yet</div><div style="font-size:12px;color:var(--text-muted);">Be the first to get RANKD!</div></div>';
@@ -1879,31 +1935,44 @@ async function loadRankings(scope) {
       const bgStyle = isYou ? 'background:rgba(212,160,23,0.04);margin:0 8px;border-radius:8px;' : '';
       const matches = p.matches || 0;
 
-      // 5-spot rule: can only challenge up to 5 spots above you
+      // 5-spot rule from leaderboard: can only challenge up to 5 spots ABOVE you
+      // Players BELOW you can always be challenged
+      // Players MORE than 5 spots above you are locked
       let challengeBtn = '';
       if (isYou) {
         challengeBtn = '<div style="font-size:11px;color:var(--text-muted);white-space:nowrap;">YOU</div>';
-      } else if (myRank && (rank - myRank) > 0 && (rank - myRank) <= 5) {
-        challengeBtn = `<button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="challengeFromRankings(${rank}, '${escapeHtml(p.username)}', '${escapeHtml(p.name)}', ${p.rating || 800})">&#9874; CHALLENGE</button>`;
-      } else if (myRank && rank < myRank) {
+      } else if (myRank && rank < myRank && (myRank - rank) > 5) {
+        // More than 5 spots ABOVE you — LOCKED
         challengeBtn = `<button style="padding:6px 12px;background:var(--border);color:var(--text-muted);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:not-allowed;white-space:nowrap;" disabled title="You can only challenge up to 5 spots above you">&#128274;</button>`;
       } else {
-        challengeBtn = `<button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="challengeFromRankings(${rank}, '${escapeHtml(p.username)}', '${escapeHtml(p.name)}', ${p.rating || 800})">&#9874; CHALLENGE</button>`;
+        // Within 5 spots above, OR below you — FREE TO CHALLENGE
+        challengeBtn = `<button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="challengeFromRankings(${rank}, '${escapeHtml(p.player_id)}', '${escapeHtml(p.username)}', '${escapeHtml(p.name)}', ${p.rating || 800})">&#9874; CHALLENGE</button>`;
       }
 
       return `
-        <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);${bgStyle}">
+        <div id="ranking-row-${rank}" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);${bgStyle}">
           <div style="width:32px;text-align:center;font-size:15px;font-weight:800;color:${rankColor};">${rank}</div>
           <div class="avatar avatar-sm" style="${isYou ? 'border:2px solid var(--gold);' : ''}">${initial}</div>
           <div style="flex:1;">
             <div style="font-size:14px;font-weight:700;">${escapeHtml(p.name)} ${isYou ? '<span style="color:var(--gold);font-size:11px;">(YOU)</span>' : ''}${isDemo ? '<span style="color:var(--text-muted);font-size:10px;margin-left:4px;">&#8226; DEMO</span>' : ''}</div>
             <div style="font-size:10px;color:var(--text-muted);">@${escapeHtml(p.username)} ${p.city ? '&#8226; ' + escapeHtml(p.city) : ''} ${matches ? '&#8226; ' + matches + ' matches' : ''}</div>
+            <div style="font-size:9px;margin-top:2px;"><span style="color:${p.status === 'ESTABLISHED' ? 'var(--success)' : (p.status === 'PROVISIONAL' ? 'var(--gold)' : 'var(--text-muted)')};">&#9679; ${formatStatus(p.status)}</span></div>
           </div>
           <div style="font-size:15px;font-weight:800;color:var(--gold);">${(p.rating || 0).toLocaleString()}</div>
           ${challengeBtn}
         </div>
       `;
     }).join('');
+
+    // Auto-scroll to user's rank
+    if (myRank) {
+      setTimeout(() => {
+        const userRow = document.getElementById(`ranking-row-${myRank}`);
+        if (userRow) {
+          userRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
 
   } catch (err) {
     console.error('Rankings load error:', err);
@@ -1922,7 +1991,7 @@ function switchRankingTab(btn, scope) {
   loadRankings(scope);
 }
 
-function renderHome() {
+async function renderHome() {
   if (!STATE.player) return;
   const p = STATE.player;
   const isPlacement = p.status === 'UNRANKD' && (p.placement_matches || 0) < (p.placement_total || 10);
@@ -1950,41 +2019,50 @@ function renderHome() {
   const ratingLabel = document.getElementById('home-rating-label');
   const rankDisplay = document.getElementById('home-rank-display');
 
-  // Calculate rank from demo players + real players
-  let currentRank = 1;
-  const myRating = p.public_rating || 800;
-  // Count how many demo players are above me
-  const demoAbove = DEMO_PLAYERS.filter(d => d.rating > myRating).length;
-  currentRank = demoAbove + 1;
+  // Fetch real leaderboard for accurate rank
+  let currentRank = '—';
+  try {
+    const city = p.city || 'Pietermaritzburg';
+    const data = await api(`/leaderboards/city?city=${encodeURIComponent(city)}`, 'GET', null, true);
+    const allPlayers = [...(data.players || [])];
+    DEMO_PLAYERS.forEach(demo => {
+      if (!allPlayers.some(ap => ap.username === demo.username)) allPlayers.push(demo);
+    });
+    if (!allPlayers.some(ap => ap.player_id === p.id || ap.username === p.username)) {
+      allPlayers.push({ player_id: p.id, username: p.username, rating: p.public_rating || 800 });
+    }
+    allPlayers.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    const myIdx = allPlayers.findIndex(ap => ap.player_id === p.id || ap.username === p.username);
+    currentRank = myIdx >= 0 ? myIdx + 1 : '—';
+  } catch (e) {
+    // fallback: demo-only estimate
+    const myRating = p.public_rating || 800;
+    currentRank = DEMO_PLAYERS.filter(d => d.rating > myRating).length + 1;
+  }
 
   if (ratingLabel) {
     if (isPlacement) {
       ratingLabel.textContent = `${p.placement_matches || 0} / ${p.placement_total || 10} MATCHES`;
-      if (rankDisplay) {
-        rankDisplay.textContent = `PMB #${currentRank}`;
-        rankDisplay.style.display = 'block';
-      }
     } else {
       ratingLabel.textContent = 'RANKD';
-      if (rankDisplay) {
-        rankDisplay.textContent = `PMB #${currentRank}`;
-        rankDisplay.style.display = 'block';
-      }
     }
+  }
+  if (rankDisplay) {
+    rankDisplay.textContent = `PMB #${currentRank}`;
+    rankDisplay.style.display = 'block';
   }
 
   // Status badge
-  const statusBadge = document.getElementById('home-status-badge');
   const statusText = document.getElementById('home-status-text');
-  if (statusText) statusText.textContent = p.status || 'UNRANKD';
+  if (statusText) statusText.textContent = formatStatus(p.status);
 
-  // Ranks (placeholder until leaderboard API is connected)
+  // Rank cards — PMB from leaderboard, KZN/SA from player data or placeholder
   const rankPmb = document.getElementById('home-rank-pmb');
   const rankKzn = document.getElementById('home-rank-kzn');
   const rankSa = document.getElementById('home-rank-sa');
-  if (rankPmb) rankPmb.textContent = '—';
-  if (rankKzn) rankKzn.textContent = '—';
-  if (rankSa) rankSa.textContent = '—';
+  if (rankPmb) rankPmb.textContent = currentRank !== '—' ? `#${currentRank}` : '—';
+  if (rankKzn) rankKzn.textContent = p.rank_kzn ? `#${p.rank_kzn}` : '—';
+  if (rankSa) rankSa.textContent = p.rank_sa ? `#${p.rank_sa}` : '—';
 
   // Check for pending challenges
   try {
@@ -2014,7 +2092,7 @@ function renderProfile() {
   if (rating) rating.textContent = (p.public_rating || 0).toLocaleString();
 
   const status = document.getElementById('profile-status');
-  if (status) status.innerHTML = `<span>&#9679;</span> ${p.status || 'UNRANKD'}`;
+  if (status) status.innerHTML = `<span>&#9679;</span> ${formatStatus(p.status)}`;
 
   // League card
   const leagueName = document.getElementById('profile-league-name');
@@ -2022,11 +2100,30 @@ function renderProfile() {
   if (leagueName) leagueName.textContent = 'No League';
   if (leagueStatus) leagueStatus.textContent = 'Tap to browse or create a league';
 
-  // Stats are placeholder until real data from API
+  // Stats from player data
   const wins = document.getElementById('profile-wins');
   const losses = document.getElementById('profile-losses');
-  if (wins) wins.textContent = '0';
-  if (losses) losses.textContent = '0';
+  const winrate = document.getElementById('profile-winrate');
+  const opponents = document.getElementById('profile-opponents');
+  if (wins) wins.textContent = p.wins || 0;
+  if (losses) losses.textContent = p.losses || 0;
+  if (opponents) opponents.textContent = p.unique_opponents || 0;
+  if (winrate) {
+    const total = (p.wins || 0) + (p.losses || 0);
+    winrate.textContent = total > 0 ? ((p.wins || 0) / total * 100).toFixed(1) + '%' : '—';
+  }
+
+  // League card
+  const leagueName = document.getElementById('profile-league-name');
+  const leagueStatus = document.getElementById('profile-league-status');
+  const leagueCard = document.getElementById('profile-league-card');
+  if (p.league_name) {
+    if (leagueName) leagueName.textContent = p.league_name;
+    if (leagueStatus) leagueStatus.textContent = p.league_team ? `${p.league_team} • ${p.league_division || 'Division'}` : 'Tap to view league';
+  } else {
+    if (leagueName) leagueName.textContent = 'No League';
+    if (leagueStatus) leagueStatus.textContent = 'Tap to browse or create a league';
+  }
 }
 
 function renderGuestLanding(invite) {
@@ -2055,7 +2152,7 @@ function renderGuestLanding(invite) {
       </div>
       <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;">
         <div style="font-weight:700;color:white;margin-bottom:4px;">Ranked Match &#8226; Best of ${format}</div>
-        <div>Tap below to get RANKD and play</div>
+        <div>${getVenueName(invite.venue_id)} &#8226; Tonight</div>
       </div>
       <button class="btn-gold" onclick="go('guestSignup')">ACCEPT CHALLENGE</button>
     </div>
@@ -2280,7 +2377,7 @@ async function createGuestInvite() {
     const data = await api('/invites/guest', 'POST', {
       context: 'RANKD_CHALLENGE',
       format_value: 5,
-      venue_id: null
+      venue_id: selectedVenue === 'other' ? null : selectedVenue
     });
     setLoading(false);
 
@@ -2309,20 +2406,61 @@ function selectMatchType(el) {
 function handleQRUpload(input) {
   const file = input.files[0];
   if (!file) return;
+  const preview = document.getElementById('qr-preview-text');
+  preview.textContent = 'Reading QR...';
+
   const reader = new FileReader();
-  reader.onload = function(e) {
-    document.getElementById('qr-preview-text').textContent = 'QR Uploaded';
-    // In a real app, decode the QR image here
-    // For now, alert the user to use manual entry
-    alert('QR upload received. Full QR scanning coming soon — use manual code entry below for now.');
+  reader.onload = async function(e) {
+    try {
+      const img = new Image();
+      img.onload = async function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+
+        if ('BarcodeDetector' in window) {
+          const detector = new BarcodeDetector({ formats: ['qr_code'] });
+          const codes = await detector.detect(canvas);
+          if (codes.length > 0) {
+            preview.textContent = 'QR Found!';
+            handleQRResult(codes[0].rawValue);
+            return;
+          }
+        }
+        preview.textContent = 'Could not read QR. Please enter the code manually below.';
+      };
+      img.src = e.target.result;
+    } catch (err) {
+      preview.textContent = 'Error reading image. Use manual entry below.';
+    }
   };
   reader.readAsDataURL(file);
 }
 
+function handleQRResult(rawValue) {
+  let target = rawValue;
+  try {
+    const url = new URL(rawValue);
+    const player = url.searchParams.get('player');
+    if (player) target = player;
+  } catch (e) {
+    // not a URL, use raw value
+  }
+  const input = document.getElementById('qr-manual-code');
+  if (input) input.value = target;
+  searchByRankdCodeManual(target);
+}
+
 async function searchByRankdCode() {
   const code = document.getElementById('qr-manual-code').value.trim().toUpperCase();
-  if (code.length < 4) {
-    alert('Please enter a valid RANKD code (at least 4 characters)');
+  await searchByRankdCodeManual(code);
+}
+
+async function searchByRankdCodeManual(code) {
+  if (code.length < 3) {
+    alert('Please enter at least 3 characters.');
     return;
   }
   setLoading(true);
@@ -2331,10 +2469,10 @@ async function searchByRankdCode() {
     setLoading(false);
     if (players && players.length > 0) {
       const p = players[0];
-      setOpponentAndChallenge(p.username, p.first_name + ' ' + p.last_name, p.public_rating || 800);
-      go('matchType');
+      setOpponentAndChallenge(p.player_id || p.id, p.username, p.first_name + ' ' + p.last_name, p.public_rating || 800);
+      go('challengeSetup');
     } else {
-      alert('No player found with that RANKD code. Check the code and try again.');
+      alert('No player found. Check the code or invite them to sign up.');
     }
   } catch (err) {
     setLoading(false);
@@ -2444,7 +2582,7 @@ async function filterPlayers() {
               <div style="font-size:12px;color:var(--text-muted);">@${escapeHtml(p.username)} ${location ? '&#8226; ' + location : ''}</div>
             </div>
             <div style="font-size:18px;font-weight:800;color:var(--gold);">${p.public_rating || 800}</div>
-            <button style="padding:8px 14px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;" onclick="event.stopPropagation();setOpponentAndChallenge('${escapeHtml(p.username)}', '${escapeHtml(p.first_name + ' ' + p.last_name)}', ${p.public_rating || 800})">CHALLENGE</button>
+            <button style="padding:8px 14px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;" onclick="event.stopPropagation();setOpponentAndChallenge('${escapeHtml(p.player_id || p.id)}', '${escapeHtml(p.username)}', '${escapeHtml(p.first_name + ' ' + p.last_name)}', ${p.public_rating || 800})">CHALLENGE</button>
           </div>
         </div>
       `;
@@ -2480,28 +2618,26 @@ const allRivalries = [
   { id:'neil', name:'Neil Adams', handle:'@neil', location:'PMB #48', rating:1467, wins:0, losses:2, total:2, lastPlayed:'25 Apr', streak:'L2' }
 ];
 
-async function challengeFromRankings(oppRank, username, name, rating) {
-  // Get user's current rank from the YOU entry or default to 8 for demo
-  const myRankEl = document.getElementById('rankings-you-rank');
-  const myRank = myRankEl && myRankEl.textContent !== '--' ? parseInt(myRankEl.textContent) : 8;
-  const rankDiff = oppRank - myRank;
+async function challengeFromRankings(oppRank, playerId, username, name, rating) {
+  const myRank = window._myLeaderboardRank || 1;
 
-  // Rankings page: can only challenge up to 5 spots above you
-  if (rankDiff > 5) {
-    alert(`You can only challenge up to 5 spots above you.\n\nThey are #${oppRank}, you are #${myRank}.\n\nBeat players closer to you first!`);
-    return;
+  if (oppRank < myRank) {
+    const spotsAbove = myRank - oppRank;
+    if (spotsAbove > 5) {
+      alert(`You can only challenge up to 5 spots above you.\n\nThey are #${oppRank}, you are #${myRank}.\n\nBeat players closer to you first!`);
+      return;
+    }
   }
 
-  // Set opponent and go to challenge setup
   STATE.currentOpponent = { 
-    id: username, 
+    id: playerId, 
+    username: username,
     name: name, 
     rating: rating,
     rank: oppRank 
   };
   localStorage.setItem('rankd_opponent', JSON.stringify(STATE.currentOpponent));
 
-  // Pre-fill challenge setup
   const csOppName = document.getElementById('cs-opp-name');
   const csOppRating = document.getElementById('cs-opp-rating');
   const csYourRating = document.getElementById('cs-your-rating');
@@ -2511,7 +2647,6 @@ async function challengeFromRankings(oppRank, username, name, rating) {
     csYourRating.textContent = (STATE.player.public_rating || 0).toLocaleString();
   }
 
-  // Set default date to tomorrow
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const challengeDate = document.getElementById('challengeDate');
@@ -2522,8 +2657,13 @@ async function challengeFromRankings(oppRank, username, name, rating) {
   go('challengeSetup');
 }
 
-function setOpponentAndChallenge(username, name, rating) {
-  STATE.currentOpponent = { id: username, name: name, rating: rating };
+function setOpponentAndChallenge(playerId, username, name, rating) {
+  STATE.currentOpponent = { 
+    id: playerId, 
+    username: username,
+    name: name, 
+    rating: rating 
+  };
   localStorage.setItem('rankd_opponent', JSON.stringify(STATE.currentOpponent));
   go('challengeSetup');
 }
@@ -2550,6 +2690,13 @@ function renderChallengeSetup() {
   if (challengeTime && !challengeTime.value) {
     challengeTime.value = '19:00';
   }
+  // Ensure default venue is selected visually
+  const defaultVenue = document.querySelector('#venue-list .match-type-option[data-venue="time-out"]');
+  if (defaultVenue) {
+    document.querySelectorAll('#venue-list .match-type-option').forEach(o => o.classList.remove('selected'));
+    defaultVenue.classList.add('selected');
+    selectedVenue = 'time-out';
+  }
 }
 
 function renderHowItWorks() {
@@ -2569,7 +2716,7 @@ function renderHowItWorks() {
     nextMilestone = `${total - matches} matches to Provisional`;
     activeCard = 'how-card-unrankd';
   } else if (status === 'PROVISIONAL') {
-    phaseTitle = 'PROVISIONAL';
+    phaseTitle = 'PROVISIONALLY RANKED';
     phaseSub = `${matches} matches &#8226; RANKD settling`;
     progressPct = Math.min(100, ((matches - 10) / 10) * 100 + 50);
     nextMilestone = `${Math.max(0, 20 - matches)} matches to Established`;
@@ -2842,10 +2989,80 @@ async function loadLeagueDetail(leagueId) {
 
 async function loadLeagueManagement() {
   if (!STATE.player) return;
-  // This would fetch the creator's league and pending requests
-  // For now, placeholder until backend endpoints are ready
-  const pendingList = document.getElementById('league-pending-list');
-  if (pendingList) pendingList.innerHTML = '<div class="empty-state">Feature coming soon</div>';
+  setLoading(true);
+  try {
+    const data = await api('/leagues/my', 'GET', null, true);
+    setLoading(false);
+    const manageName = document.getElementById('manage-league-name');
+    if (manageName) manageName.textContent = data.name || 'Your League';
+
+    // Pending requests
+    const pendingList = document.getElementById('league-pending-list');
+    if (pendingList) {
+      if (!data.pending_requests || data.pending_requests.length === 0) {
+        pendingList.innerHTML = '<div class="empty-state">No pending requests</div>';
+      } else {
+        pendingList.innerHTML = data.pending_requests.map(r => `
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+            <div class="avatar avatar-sm">${(r.player_name || '?').charAt(0)}</div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:700;">${escapeHtml(r.player_name || 'Unknown')}</div>
+              <div style="font-size:10px;color:var(--text-muted);">@${escapeHtml(r.username || '')}</div>
+            </div>
+            <button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer;" onclick="approveJoinRequest('${r.player_id}')">APPROVE</button>
+            <button style="padding:6px 12px;background:transparent;color:var(--danger);border:1px solid var(--danger);border-radius:6px;font-size:11px;font-weight:800;cursor:pointer;" onclick="rejectJoinRequest('${r.player_id}')">REJECT</button>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Current players
+    const playersList = document.getElementById('league-players-list');
+    if (playersList) {
+      if (!data.players || data.players.length === 0) {
+        playersList.innerHTML = '<div class="empty-state">No players yet. Invite them!</div>';
+      } else {
+        playersList.innerHTML = data.players.map(r => `
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+            <div class="avatar avatar-sm">${(r.player_name || '?').charAt(0)}</div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:700;">${escapeHtml(r.player_name || 'Unknown')}</div>
+              <div style="font-size:10px;color:var(--text-muted);">${r.team ? escapeHtml(r.team) : 'No team'}</div>
+            </div>
+            <div style="font-size:12px;color:var(--gold);font-weight:800;">${(r.rating || 0).toLocaleString()}</div>
+          </div>
+        `).join('');
+      }
+    }
+  } catch (err) {
+    setLoading(false);
+    const pendingList = document.getElementById('league-pending-list');
+    if (pendingList) pendingList.innerHTML = '<div class="empty-state">Could not load league data.</div>';
+  }
+}
+
+async function approveJoinRequest(playerId) {
+  setLoading(true);
+  try {
+    await api('/leagues/approve', 'POST', { player_id: playerId }, true);
+    setLoading(false);
+    loadLeagueManagement();
+  } catch (err) {
+    setLoading(false);
+    alert(err.message || 'Failed to approve.');
+  }
+}
+
+async function rejectJoinRequest(playerId) {
+  setLoading(true);
+  try {
+    await api('/leagues/reject', 'POST', { player_id: playerId }, true);
+    setLoading(false);
+    loadLeagueManagement();
+  } catch (err) {
+    setLoading(false);
+    alert(err.message || 'Failed to reject.');
+  }
 }
 
 function goToLeagueDetail(leagueId) {
@@ -2887,6 +3104,7 @@ function renderEditProfile() {
 
 // ——— NOTIFICATIONS & CHALLENGES ———
 let currentChallengeMatchId = null;
+let currentCounterProposal = null;
 
 async function loadNotifications() {
   const container = document.getElementById('notifications-list');
@@ -2922,7 +3140,7 @@ async function loadNotifications() {
           </div>
           <div style="display:flex;gap:8px;">
             <button class="btn-gold" style="flex:1;" onclick="respondToChallenge('${n.match_id}', 'accept')">ACCEPT</button>
-            <button class="btn-outline" style="flex:1;" onclick="respondToChallenge('${n.match_id}', 'counter')">COUNTER</button>
+            <button class="btn-outline" style="flex:1;" onclick="goToCounter('${n.match_id}', '${escapeHtml(fromName)}', '${escapeHtml(venue)}', '${escapeHtml(dateTime)}')">COUNTER</button>
             <button class="btn-danger" style="flex:1;padding:14px 8px;font-size:12px;" onclick="respondToChallenge('${n.match_id}', 'decline')">DECLINE</button>
           </div>
         </div>
@@ -2969,7 +3187,7 @@ async function loadPendingChallenges() {
           </div>
           <div style="display:flex;gap:8px;">
             <button class="btn-gold" style="flex:1;" onclick="respondToChallenge('${n.match_id}', 'accept')">ACCEPT</button>
-            <button class="btn-outline" style="flex:1;" onclick="goToCounter('${n.match_id}', '${escapeHtml(fromName)}')">COUNTER</button>
+            <button class="btn-outline" style="flex:1;" onclick="goToCounter('${n.match_id}', '${escapeHtml(fromName)}', '${escapeHtml(venue)}', '${escapeHtml(dateTime)}')">COUNTER</button>
             <button class="btn-danger" style="flex:1;padding:14px 8px;font-size:12px;" onclick="respondToChallenge('${n.match_id}', 'decline')">DECLINE</button>
           </div>
         </div>
@@ -2991,9 +3209,7 @@ async function respondToChallenge(matchId, action) {
       result = await api(`/matches/${matchId}/decline`, 'POST', {}, true);
       alert('Challenge declined.');
     } else if (action === 'counter') {
-      // Store match ID and go to counter screen
-      currentChallengeMatchId = matchId;
-      go('counterProposal');
+      // Handled by goToCounter directly
       setLoading(false);
       return;
     }
@@ -3005,8 +3221,9 @@ async function respondToChallenge(matchId, action) {
   }
 }
 
-function goToCounter(matchId, opponentName) {
+function goToCounter(matchId, opponentName, venue, dateTime) {
   currentChallengeMatchId = matchId;
+  currentCounterProposal = { opponentName, venue: venue || 'TBD', dateTime: dateTime || 'TBD' };
   go('counterProposal');
 }
 
@@ -3052,17 +3269,19 @@ async function sendChallenge() {
   const proposed = new Date(date + 'T' + time);
   setLoading(true);
   try {
+    const venuePayload = selectedVenue === 'other' ? null : selectedVenue;
     const result = await api('/matches', 'POST', {
       opponent_id: STATE.currentOpponent.id,
       context: 'RANKD_CHALLENGE',
       format_value: 5,
-      proposed_datetime: proposed.toISOString()
+      proposed_datetime: proposed.toISOString(),
+      venue_id: venuePayload
     }, true);
     setLoading(false);
 
     // Show waiting screen
     document.getElementById('cw-opp-name').textContent = STATE.currentOpponent.name;
-    document.getElementById('cw-venue').textContent = 'The Rack';
+    document.getElementById('cw-venue').textContent = getVenueName(selectedVenue);
     document.getElementById('cw-datetime').textContent = proposed.toLocaleString('en-ZA', {weekday:'long', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
     go('challengeWaiting');
   } catch (err) {
