@@ -455,6 +455,7 @@ body {
       <div id="home-player-name" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:4px;margin-bottom:8px;">Loading...</div>
       <div id="home-rating-display" style="font-size:56px;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-variant-numeric:tabular-nums;">--</div>
       <div id="home-rating-label" style="font-size:10px;color:var(--text-muted);letter-spacing:5px;text-transform:uppercase;margin-bottom:14px;">RANKD</div>
+      <div id="home-rank-display" style="font-size:14px;font-weight:800;color:var(--gold);margin-bottom:10px;display:none;"></div>
       <div style="display:flex;justify-content:center;gap:28px;margin-bottom:10px;">
         <div style="text-align:center;"><div id="home-rank-pmb" style="font-size:18px;font-weight:800;">--</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;">PMB</div></div>
         <div style="text-align:center;"><div id="home-rank-kzn" style="font-size:18px;font-weight:800;">--</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;">KZN</div></div>
@@ -795,127 +796,9 @@ body {
     <button class="seg-btn" style="white-space:nowrap;" onclick="switchRankingTab(this,'sa')">South Africa</button>
     <button class="seg-btn" style="white-space:nowrap;" onclick="switchRankingTab(this,'venue')">Venue</button>
   </div>
-
-  <!-- #1 Jason -->
-  <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);">
-    <div style="width:32px;text-align:center;font-size:15px;font-weight:800;color:var(--gold);">1</div>
-    <div class="avatar avatar-sm">J</div>
-    <div style="flex:1;">
-      <div style="font-size:14px;font-weight:700;">Jason Pillay</div>
-      <div style="font-size:10px;color:var(--text-muted);">@jaypool &#8226; 312 matches</div>
-    </div>
-    <div style="font-size:15px;font-weight:800;color:var(--gold);">2,031</div>
-    <button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="challengeFromRankings(1, 'jaypool', 'Jason Pillay', 2031)">&#9874; CHALLENGE</button>
+  <div id="rankings-list">
+    <div class="empty-state">Loading rankings...</div>
   </div>
-
-  <!-- #2 Kyle -->
-  <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);">
-    <div style="width:32px;text-align:center;font-size:15px;font-weight:800;color:var(--gold);">2</div>
-    <div class="avatar avatar-sm">K</div>
-    <div style="flex:1;">
-      <div style="font-size:14px;font-weight:700;">Kyle Naidoo</div>
-      <div style="font-size:10px;color:var(--text-muted);">@kylepool &#8226; 198 matches</div>
-    </div>
-    <div style="font-size:15px;font-weight:800;color:var(--gold);">1,988</div>
-    <button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="challengeFromRankings(2, 'kylepool', 'Kyle Naidoo', 1988)">&#9874; CHALLENGE</button>
-  </div>
-
-  <!-- #3 Ryan -->
-  <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);">
-    <div style="width:32px;text-align:center;font-size:15px;font-weight:800;color:var(--gold);">3</div>
-    <div class="avatar avatar-sm">R</div>
-    <div style="flex:1;">
-      <div style="font-size:14px;font-weight:700;">Ryan Govender</div>
-      <div style="font-size:10px;color:var(--text-muted);">@ryg &#8226; 276 matches</div>
-    </div>
-    <div style="font-size:15px;font-weight:800;color:var(--gold);">1,954</div>
-    <button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="challengeFromRankings(3, 'ryg', 'Ryan Govender', 1954)">&#9874; CHALLENGE</button>
-  </div>
-
-  <!-- #4 -->
-  <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);">
-    <div style="width:32px;text-align:center;font-size:15px;font-weight:800;color:var(--text-muted);">4</div>
-    <div class="avatar avatar-sm">M</div>
-    <div style="flex:1;">
-      <div style="font-size:14px;font-weight:700;">Mike Peters</div>
-      <div style="font-size:10px;color:var(--text-muted);">@mikep &#8226; 156 matches</div>
-    </div>
-    <div style="font-size:15px;font-weight:800;color:var(--gold);">1,921</div>
-    <button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="challengeFromRankings(4, 'mikep', 'Mike Peters', 1921)">&#9874; CHALLENGE</button>
-  </div>
-
-  <!-- #5 -->
-  <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);">
-    <div style="width:32px;text-align:center;font-size:15px;font-weight:800;color:var(--text-muted);">5</div>
-    <div class="avatar avatar-sm">A</div>
-    <div style="flex:1;">
-      <div style="font-size:14px;font-weight:700;">Andre Pretorius</div>
-      <div style="font-size:10px;color:var(--text-muted);">@andre &#8226; 134 matches</div>
-    </div>
-    <div style="font-size:15px;font-weight:800;color:var(--gold);">1,905</div>
-    <button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="challengeFromRankings(5, 'andre', 'Andre Pretorius', 1905)">&#9874; CHALLENGE</button>
-  </div>
-
-  <!-- #6 -->
-  <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);">
-    <div style="width:32px;text-align:center;font-size:15px;font-weight:800;color:var(--text-muted);">6</div>
-    <div class="avatar avatar-sm">D</div>
-    <div style="flex:1;">
-      <div style="font-size:14px;font-weight:700;">Dave Miller</div>
-      <div style="font-size:10px;color:var(--text-muted);">@dave &#8226; 112 matches</div>
-    </div>
-    <div style="font-size:15px;font-weight:800;color:var(--gold);">1,888</div>
-    <button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="challengeFromRankings(6, 'dave', 'Dave Miller', 1888)">&#9874; CHALLENGE</button>
-  </div>
-
-  <!-- #7 -->
-  <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);">
-    <div style="width:32px;text-align:center;font-size:15px;font-weight:800;color:var(--text-muted);">7</div>
-    <div class="avatar avatar-sm">L</div>
-    <div style="flex:1;">
-      <div style="font-size:14px;font-weight:700;">Lee Thompson</div>
-      <div style="font-size:10px;color:var(--text-muted);">@lee &#8226; 98 matches</div>
-    </div>
-    <div style="font-size:15px;font-weight:800;color:var(--gold);">1,875</div>
-    <button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="challengeFromRankings(7, 'lee', 'Lee Thompson', 1875)">&#9874; CHALLENGE</button>
-  </div>
-
-  <!-- #8 YOU (Dynamic) -->
-  <div id="rankings-you" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(212,160,23,0.04);margin:0 8px;border-radius:8px;">
-    <div id="rankings-you-rank" style="width:32px;text-align:center;font-size:15px;font-weight:800;color:var(--gold);">8</div>
-    <div class="avatar avatar-sm" id="rankings-you-avatar" style="border:2px solid var(--gold);">?</div>
-    <div style="flex:1;">
-      <div id="rankings-you-name" style="font-size:14px;font-weight:700;">You</div>
-      <div id="rankings-you-handle" style="font-size:10px;color:var(--text-muted);">--</div>
-    </div>
-    <div id="rankings-you-rating" style="font-size:15px;font-weight:800;color:var(--gold);">--</div>
-    <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;">YOU</div>
-  </div>
-
-  <!-- #9 -->
-  <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);">
-    <div style="width:32px;text-align:center;font-size:15px;font-weight:800;color:var(--text-muted);">9</div>
-    <div class="avatar avatar-sm">S</div>
-    <div style="flex:1;">
-      <div style="font-size:14px;font-weight:700;">Siya Mthembu</div>
-      <div style="font-size:10px;color:var(--text-muted);">@siya &#8226; 187 matches</div>
-    </div>
-    <div style="font-size:15px;font-weight:800;color:var(--gold);">1,854</div>
-    <button style="padding:6px 12px;background:var(--border);color:var(--text-muted);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:not-allowed;white-space:nowrap;" disabled title="You can only challenge up to 5 spots above you">&#128274;</button>
-  </div>
-
-  <!-- #10 -->
-  <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);">
-    <div style="width:32px;text-align:center;font-size:15px;font-weight:800;color:var(--text-muted);">10</div>
-    <div class="avatar avatar-sm">T</div>
-    <div style="flex:1;">
-      <div style="font-size:14px;font-weight:700;">Thabo Dlamini</div>
-      <div style="font-size:10px;color:var(--text-muted);">@thabo &#8226; 203 matches</div>
-    </div>
-    <div style="font-size:15px;font-weight:800;color:var(--gold);">1,842</div>
-    <button style="padding:6px 12px;background:var(--border);color:var(--text-muted);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:not-allowed;white-space:nowrap;" disabled title="You can only challenge up to 5 spots above you">&#128274;</button>
-  </div>
-
   <div style="padding:12px 16px;font-size:11px;color:var(--text-muted);text-align:center;">
     &#128274; = You can only challenge up to 5 spots above you on the leaderboard. Search or QR scan lets you play anyone.
   </div>
@@ -1900,20 +1783,143 @@ function go(screen) {
 }
 
 // ——— RENDERERS ———
+let currentRankingScope = 'pmb';
+
+// Demo players for early days - remove when real player base grows
+const DEMO_PLAYERS = [
+  { player_id: 'demo-jason', name: 'Jason Pillay', username: 'jaypool', rating: 2031, city: 'PMB', matches: 312 },
+  { player_id: 'demo-kyle', name: 'Kyle Naidoo', username: 'kylepool', rating: 1988, city: 'PMB', matches: 198 },
+  { player_id: 'demo-ryan', name: 'Ryan Govender', username: 'ryg', rating: 1954, city: 'PMB', matches: 276 },
+  { player_id: 'demo-mike', name: 'Mike Peters', username: 'mikep', rating: 1921, city: 'PMB', matches: 156 },
+  { player_id: 'demo-andre', name: 'Andre Pretorius', username: 'andre', rating: 1905, city: 'PMB', matches: 134 },
+  { player_id: 'demo-dave', name: 'Dave Miller', username: 'dave', rating: 1888, city: 'PMB', matches: 112 },
+  { player_id: 'demo-lee', name: 'Lee Thompson', username: 'lee', rating: 1875, city: 'PMB', matches: 98 },
+  { player_id: 'demo-siya', name: 'Siya Mthembu', username: 'siya', rating: 1854, city: 'PMB', matches: 187 },
+  { player_id: 'demo-thabo', name: 'Thabo Dlamini', username: 'thabo', rating: 1842, city: 'PMB', matches: 203 },
+  { player_id: 'demo-nzulu', name: 'Nkosinathi Zulu', username: 'nzulu', rating: 1721, city: 'PMB', matches: 89 }
+];
+
+async function loadRankings(scope) {
+  currentRankingScope = scope || 'pmb';
+  const container = document.getElementById('rankings-list');
+  if (!container) return;
+
+  // KZN and South Africa tabs show Coming Soon
+  if (scope === 'kzn' || scope === 'sa') {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div style="font-size:48px;margin-bottom:16px;">&#127758;</div>
+        <div style="font-size:18px;font-weight:800;margin-bottom:8px;">Coming Soon</div>
+        <div style="font-size:13px;color:var(--text-muted);max-width:260px;margin:0 auto;line-height:1.5;">
+          ${scope === 'kzn' ? 'KwaZulu-Natal' : 'South Africa'} rankings will be available once more players join RANKD.
+        </div>
+        <div style="font-size:12px;color:var(--gold);margin-top:12px;">For now, check the PMB leaderboard!</div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = '<div class="empty-state">Loading rankings...</div>';
+
+  try {
+    const city = STATE.player?.city || 'Pietermaritzburg';
+    const scopeParam = 'city';
+    const cityParam = `&city=${encodeURIComponent(city)}`;
+
+    const data = await api(`/leaderboards/${scopeParam}?${cityParam}`, 'GET', null, true);
+    const realPlayers = data.players || [];
+
+    // Combine real players + demo players
+    let allPlayers = [...realPlayers];
+
+    // Add demo players (filter out any that match real usernames to avoid duplicates)
+    const realUsernames = new Set(realPlayers.map(p => p.username));
+    DEMO_PLAYERS.forEach(demo => {
+      if (!realUsernames.has(demo.username)) {
+        allPlayers.push(demo);
+      }
+    });
+
+    // Insert current user if not already in list
+    if (STATE.player) {
+      const alreadyInList = allPlayers.some(p => p.player_id === STATE.player.id || p.username === STATE.player.username);
+      if (!alreadyInList) {
+        allPlayers.push({
+          player_id: STATE.player.id,
+          name: `${STATE.player.first_name || 'You'} ${STATE.player.last_name || ''}`.trim(),
+          username: STATE.player.username,
+          rating: STATE.player.public_rating || 800,
+          city: STATE.player.city,
+          is_you: true,
+          matches: STATE.player.matches_played || 0
+        });
+      }
+    }
+
+    // Sort by rating descending
+    allPlayers.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+
+    // Find user's rank
+    let myRank = null;
+    if (STATE.player) {
+      myRank = allPlayers.findIndex(p => p.player_id === STATE.player.id || p.is_you || p.username === STATE.player.username) + 1;
+    }
+
+    if (allPlayers.length === 0) {
+      container.innerHTML = '<div class="empty-state"><div style="font-size:32px;margin-bottom:8px;">&#127942;</div><div style="font-size:14px;font-weight:700;">No rankings yet</div><div style="font-size:12px;color:var(--text-muted);">Be the first to get RANKD!</div></div>';
+      return;
+    }
+
+    container.innerHTML = allPlayers.map((p, idx) => {
+      const rank = idx + 1;
+      const isYou = p.player_id === STATE.player?.id || p.is_you || p.username === STATE.player?.username;
+      const isDemo = p.player_id && p.player_id.toString().startsWith('demo-');
+      const initial = (p.name || '?').charAt(0);
+      const rankColor = rank <= 3 ? 'var(--gold)' : 'var(--text-muted)';
+      const bgStyle = isYou ? 'background:rgba(212,160,23,0.04);margin:0 8px;border-radius:8px;' : '';
+      const matches = p.matches || 0;
+
+      // 5-spot rule: can only challenge up to 5 spots above you
+      let challengeBtn = '';
+      if (isYou) {
+        challengeBtn = '<div style="font-size:11px;color:var(--text-muted);white-space:nowrap;">YOU</div>';
+      } else if (myRank && (rank - myRank) > 0 && (rank - myRank) <= 5) {
+        challengeBtn = `<button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="challengeFromRankings(${rank}, '${escapeHtml(p.username)}', '${escapeHtml(p.name)}', ${p.rating || 800})">&#9874; CHALLENGE</button>`;
+      } else if (myRank && rank < myRank) {
+        challengeBtn = `<button style="padding:6px 12px;background:var(--border);color:var(--text-muted);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:not-allowed;white-space:nowrap;" disabled title="You can only challenge up to 5 spots above you">&#128274;</button>`;
+      } else {
+        challengeBtn = `<button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="challengeFromRankings(${rank}, '${escapeHtml(p.username)}', '${escapeHtml(p.name)}', ${p.rating || 800})">&#9874; CHALLENGE</button>`;
+      }
+
+      return `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);${bgStyle}">
+          <div style="width:32px;text-align:center;font-size:15px;font-weight:800;color:${rankColor};">${rank}</div>
+          <div class="avatar avatar-sm" style="${isYou ? 'border:2px solid var(--gold);' : ''}">${initial}</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:700;">${escapeHtml(p.name)} ${isYou ? '<span style="color:var(--gold);font-size:11px;">(YOU)</span>' : ''}${isDemo ? '<span style="color:var(--text-muted);font-size:10px;margin-left:4px;">&#8226; DEMO</span>' : ''}</div>
+            <div style="font-size:10px;color:var(--text-muted);">@${escapeHtml(p.username)} ${p.city ? '&#8226; ' + escapeHtml(p.city) : ''} ${matches ? '&#8226; ' + matches + ' matches' : ''}</div>
+          </div>
+          <div style="font-size:15px;font-weight:800;color:var(--gold);">${(p.rating || 0).toLocaleString()}</div>
+          ${challengeBtn}
+        </div>
+      `;
+    }).join('');
+
+  } catch (err) {
+    console.error('Rankings load error:', err);
+    container.innerHTML = '<div class="empty-state">Could not load rankings. Check connection.</div>';
+  }
+}
+
 function renderRankings() {
-  if (!STATE.player) return;
-  const p = STATE.player;
-  const nameEl = document.getElementById('rankings-you-name');
-  const handleEl = document.getElementById('rankings-you-handle');
-  const ratingEl = document.getElementById('rankings-you-rating');
-  const avatarEl = document.getElementById('rankings-you-avatar');
-  const rankEl = document.getElementById('rankings-you-rank');
-  if (nameEl) nameEl.textContent = p.first_name || 'You';
-  if (handleEl) handleEl.textContent = `@${p.username || '--'} ${p.matches_played ? '&#8226; ' + p.matches_played + ' matches' : ''}`;
-  if (ratingEl) ratingEl.textContent = (p.public_rating || 0).toLocaleString();
-  if (avatarEl) avatarEl.textContent = (p.first_name || '?').charAt(0).toUpperCase();
-  // For demo, keep rank at 8 until real leaderboard API is connected
-  if (rankEl) rankEl.textContent = '8';
+  loadRankings(currentRankingScope);
+}
+
+function switchRankingTab(btn, scope) {
+  const tabs = btn.parentElement.querySelectorAll('.seg-btn');
+  tabs.forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  loadRankings(scope);
 }
 
 function renderHome() {
@@ -1940,13 +1946,30 @@ function renderHome() {
     }
   }
 
-  // Rating label
+  // Rating label + rank
   const ratingLabel = document.getElementById('home-rating-label');
+  const rankDisplay = document.getElementById('home-rank-display');
+
+  // Calculate rank from demo players + real players
+  let currentRank = 1;
+  const myRating = p.public_rating || 800;
+  // Count how many demo players are above me
+  const demoAbove = DEMO_PLAYERS.filter(d => d.rating > myRating).length;
+  currentRank = demoAbove + 1;
+
   if (ratingLabel) {
     if (isPlacement) {
       ratingLabel.textContent = `${p.placement_matches || 0} / ${p.placement_total || 10} MATCHES`;
+      if (rankDisplay) {
+        rankDisplay.textContent = `PMB #${currentRank}`;
+        rankDisplay.style.display = 'block';
+      }
     } else {
       ratingLabel.textContent = 'RANKD';
+      if (rankDisplay) {
+        rankDisplay.textContent = `PMB #${currentRank}`;
+        rankDisplay.style.display = 'block';
+      }
     }
   }
 
@@ -2844,17 +2867,7 @@ function forgotPinFlow() {
   go('signIn');
 }
 
-function switchRankingTab(btn, scope) {
-  // Update active tab styling
-  const tabs = btn.parentElement.querySelectorAll('.seg-btn');
-  tabs.forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
 
-  // For now just show a toast - real API integration would fetch different leaderboard
-  const scopeNames = {pmb: 'Pietermaritzburg', kzn: 'KwaZulu-Natal', sa: 'South Africa', venue: 'Your Venue'};
-  console.log('Switched to', scopeNames[scope] || scope);
-  // In a full implementation, this would call the API and re-render the list
-}
 
 // ——— EDIT PROFILE RENDER ———
 function renderEditProfile() {
