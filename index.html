@@ -438,7 +438,7 @@ body {
   </div>
 
   <div style="text-align:center;padding:0 16px 20px;">
-    <button class="btn-text" onclick="forgotPin()" style="color:var(--text-muted);font-size:13px;">Forgot PIN? Use mobile instead</button>
+    <button class="btn-text" onclick="forgotPinFlow()" style="color:var(--text-muted);font-size:13px;">Forgot PIN? Use mobile instead</button>
   </div>
 </div>
 
@@ -447,7 +447,7 @@ body {
   <div class="header">
     <div class="logo-sm">RANK<span>D</span></div>
     <button style="width:36px;height:36px;border-radius:10px;background:var(--elevated);border:1px solid var(--border);color:white;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;position:relative;" onclick="go('pendingChallenges')">
-      &#128276;<span style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:var(--danger);border-radius:50%;border:2px solid var(--black);"></span>
+      &#128276;<span id="home-pending-badge" style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:var(--danger);border-radius:50%;border:2px solid var(--black);display:none;"></span>
     </button>
   </div>
   <div id="home-content">
@@ -488,7 +488,7 @@ body {
   <div class="back-bar"><button class="back-btn" onclick="go('home')">&#8592;</button><div class="back-title">Who are you playing?</div></div>
   <div class="card" style="cursor:pointer;" onclick="go('search')"><div style="display:flex;align-items:center;gap:14px;"><div class="avatar" style="width:44px;height:44px;font-size:20px;background:rgba(212,160,23,0.1);color:var(--gold);">&#128269;</div><div><div style="font-weight:700;">Search RANKD</div><div style="font-size:12px;color:var(--text-muted);">Find a registered player</div></div></div></div>
   <div class="card" style="cursor:pointer;" onclick="go('qr')"><div style="display:flex;align-items:center;gap:14px;"><div class="avatar" style="width:44px;height:44px;font-size:20px;background:rgba(212,160,23,0.1);color:var(--gold);">&#128247;</div><div><div style="font-weight:700;">Scan QR</div><div style="font-size:12px;color:var(--text-muted);">Scan player's RANKD code</div></div></div></div>
-  <div class="card" style="cursor:pointer;"><div style="display:flex;align-items:center;gap:14px;"><div class="avatar" style="width:44px;height:44px;font-size:20px;background:rgba(212,160,23,0.1);color:var(--gold);">&#9000;</div><div><div style="font-weight:700;">Enter RANKD Code</div><div style="font-size:12px;color:var(--text-muted);">Type their code manually</div></div></div></div>
+  <div class="card" style="cursor:pointer;" onclick="go('qr')"><div style="display:flex;align-items:center;gap:14px;"><div class="avatar" style="width:44px;height:44px;font-size:20px;background:rgba(212,160,23,0.1);color:var(--gold);">&#9000;</div><div><div style="font-weight:700;">Enter RANKD Code</div><div style="font-size:12px;color:var(--text-muted);">Type their code manually</div></div></div></div>
   <div class="card" style="cursor:pointer;border-color:rgba(212,160,23,0.3);" onclick="go('guestInvite')"><div style="display:flex;align-items:center;gap:14px;"><div class="avatar" style="width:44px;height:44px;font-size:20px;background:rgba(240,201,74,0.1);color:var(--gold-light);">&#10024;</div><div><div style="font-weight:700;">Invite New Player</div><div style="font-size:12px;color:var(--text-muted);">They don't have RANKD yet</div></div></div></div>
 </div>
 
@@ -790,10 +790,10 @@ body {
 <div class="screen" id="scr-rankings">
   <div style="font-size:20px;font-weight:800;margin:16px;">&#127942; Rankings</div>
   <div style="display:flex;gap:8px;margin:0 16px 16px;overflow-x:auto;">
-    <button class="seg-btn active" style="white-space:nowrap;">PMB</button>
-    <button class="seg-btn" style="white-space:nowrap;">KZN</button>
-    <button class="seg-btn" style="white-space:nowrap;">South Africa</button>
-    <button class="seg-btn" style="white-space:nowrap;">Venue</button>
+    <button class="seg-btn active" style="white-space:nowrap;" onclick="switchRankingTab(this,'pmb')">PMB</button>
+    <button class="seg-btn" style="white-space:nowrap;" onclick="switchRankingTab(this,'kzn')">KZN</button>
+    <button class="seg-btn" style="white-space:nowrap;" onclick="switchRankingTab(this,'sa')">South Africa</button>
+    <button class="seg-btn" style="white-space:nowrap;" onclick="switchRankingTab(this,'venue')">Venue</button>
   </div>
 
   <!-- #1 Jason -->
@@ -880,15 +880,15 @@ body {
     <button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="challengeFromRankings(7, 'lee', 'Lee Thompson', 1875)">&#9874; CHALLENGE</button>
   </div>
 
-  <!-- #8 YOU (Bradley) -->
-  <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(212,160,23,0.04);margin:0 8px;border-radius:8px;">
-    <div style="width:32px;text-align:center;font-size:15px;font-weight:800;color:var(--gold);">8</div>
-    <div class="avatar avatar-sm" style="border:2px solid var(--gold);">B</div>
+  <!-- #8 YOU (Dynamic) -->
+  <div id="rankings-you" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(212,160,23,0.04);margin:0 8px;border-radius:8px;">
+    <div id="rankings-you-rank" style="width:32px;text-align:center;font-size:15px;font-weight:800;color:var(--gold);">8</div>
+    <div class="avatar avatar-sm" id="rankings-you-avatar" style="border:2px solid var(--gold);">?</div>
     <div style="flex:1;">
-      <div style="font-size:14px;font-weight:700;">Bradley</div>
-      <div style="font-size:10px;color:var(--text-muted);">@bradley &#8226; 219 matches</div>
+      <div id="rankings-you-name" style="font-size:14px;font-weight:700;">You</div>
+      <div id="rankings-you-handle" style="font-size:10px;color:var(--text-muted);">--</div>
     </div>
-    <div style="font-size:15px;font-weight:800;color:var(--gold);">1,869</div>
+    <div id="rankings-you-rating" style="font-size:15px;font-weight:800;color:var(--gold);">--</div>
     <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;">YOU</div>
   </div>
 
@@ -917,7 +917,7 @@ body {
   </div>
 
   <div style="padding:12px 16px;font-size:11px;color:var(--text-muted);text-align:center;">
-    &#128274; = Outside your challenge range. Beat people closer to you to climb.
+    &#128274; = You can only challenge up to 5 spots above you on the leaderboard. Search or QR scan lets you play anyone.
   </div>
 </div>
 
@@ -1014,7 +1014,16 @@ body {
     <div class="card" style="cursor:pointer;" onclick="go('howItWorks')"><div style="display:flex;justify-content:space-between;align-items:center;"><div class="card-title" style="margin:0;">How RANKD Works</div><span style="color:var(--text-muted);">&#8594;</span></div></div>
   <div class="card" style="cursor:pointer;" onclick="go('matchHistory')"><div style="display:flex;justify-content:space-between;align-items:center;"><div class="card-title" style="margin:0;">Match History</div><span style="color:var(--text-muted);">&#8594;</span></div></div>
     <div class="card" style="cursor:pointer;" onclick="go('rivalriesList')"><div style="display:flex;justify-content:space-between;align-items:center;"><div class="card-title" style="margin:0;">Rivalries</div><span style="color:var(--text-muted);">&#8594;</span></div></div>
-    <div class="card"><div class="card-title">League</div><div style="font-size:14px;font-weight:700;">PMB Pool League</div><div style="font-size:12px;color:var(--text-muted);">Sharks &#8226; Premier Division &#8226; 2026</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px;">&#9888; Unverified</div></div>
+    <div class="card" id="profile-league-card" style="cursor:pointer;" onclick="go('leagues')">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div class="card-title" style="margin:0 0 4px;">League</div>
+        <div id="profile-league-name" style="font-size:14px;font-weight:700;">No League</div>
+        <div id="profile-league-status" style="font-size:12px;color:var(--text-muted);">Tap to browse leagues</div>
+      </div>
+      <span style="color:var(--text-muted);font-size:18px;">&#8594;</span>
+    </div>
+  </div>
     <div class="card" style="cursor:pointer;" onclick="go('shareCard')"><div style="display:flex;justify-content:space-between;align-items:center;"><div class="card-title" style="margin:0;">Share Profile</div><span style="color:var(--text-muted);">&#8594;</span></div></div>
     <div class="card" style="cursor:pointer;" onclick="go('qrProfile')"><div style="display:flex;justify-content:space-between;align-items:center;"><div class="card-title" style="margin:0;">My QR Code</div><span style="color:var(--text-muted);">&#8594;</span></div></div>
     <div class="card" style="cursor:pointer;" onclick="go('leagues')"><div style="display:flex;justify-content:space-between;align-items:center;"><div class="card-title" style="margin:0;">Browse Leagues</div><span style="color:var(--text-muted);">&#8594;</span></div></div>
@@ -1110,13 +1119,21 @@ body {
 <!-- QR SCANNER -->
 <div class="screen" id="scr-qr">
   <div class="back-bar"><button class="back-btn" onclick="go('challenge')">&#8592;</button><div class="back-title">Scan QR Code</div></div>
-  <div style="text-align:center;padding:40px 16px;">
+  <div style="text-align:center;padding:24px 16px;">
     <div style="font-size:48px;margin-bottom:16px;">&#128247;</div>
-    <div style="font-size:16px;font-weight:700;margin-bottom:8px;">Point camera at player's QR</div>
-    <div style="font-size:13px;color:var(--text-muted);margin-bottom:32px;">Found on their profile card</div>
-    <div style="width:240px;height:240px;margin:0 auto;border:2px solid var(--gold);border-radius:20px;display:flex;align-items:center;justify-content:center;position:relative;">
+    <div style="font-size:16px;font-weight:700;margin-bottom:8px;">Scan or Upload QR Code</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px;">Found on their profile card</div>
+
+    <div style="width:240px;height:240px;margin:0 auto 20px;border:2px solid var(--gold);border-radius:20px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
       <div style="position:absolute;inset:12px;border:2px dashed rgba(212,160,23,0.4);border-radius:14px;"></div>
-      <div style="font-size:14px;color:var(--text-muted);">Camera preview</div>
+      <div style="font-size:14px;color:var(--text-muted);" id="qr-preview-text">Camera preview</div>
+      <input type="file" id="qr-upload" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;" onchange="handleQRUpload(this)">
+    </div>
+
+    <div class="card" style="margin-bottom:12px;">
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Or type their RANKD Code manually</div>
+      <input type="text" class="form-input" id="qr-manual-code" placeholder="e.g. JPL4K9" style="width:calc(100% - 32px);margin-bottom:10px;text-transform:uppercase;">
+      <button class="btn-gold" onclick="searchByRankdCode()">FIND PLAYER</button>
     </div>
   </div>
 </div>
@@ -1204,25 +1221,8 @@ body {
 <!-- NOTIFICATIONS -->
 <div class="screen" id="scr-notifications">
   <div class="back-bar"><button class="back-btn" onclick="go('home')">&#8592;</button><div class="back-title">Notifications</div></div>
-  <div class="card" style="border-left:3px solid var(--gold);">
-    <div style="font-size:14px;font-weight:700;margin-bottom:4px;">&#9874; Challenge Accepted</div>
-    <div style="font-size:12px;color:var(--text-sec);">Jason accepted your challenge. Match starts at The Rack.</div>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">2 min ago</div>
-  </div>
-  <div class="card" style="border-left:3px solid var(--gold-light);">
-    <div style="font-size:14px;font-weight:700;margin-bottom:4px;">&#128293; You've been passed</div>
-    <div style="font-size:12px;color:var(--text-sec);">Kyle moved above you. You're now PMB #9.</div>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">1 hour ago</div>
-  </div>
-  <div class="card">
-    <div style="font-size:14px;font-weight:700;margin-bottom:4px;">&#127921; RANKD Night Tonight</div>
-    <div style="font-size:12px;color:var(--text-sec);">The Rack &#8226; 18:00. 42 players going.</div>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">3 hours ago</div>
-  </div>
-  <div class="card">
-    <div style="font-size:14px;font-weight:700;margin-bottom:4px;">&#9989; Match Confirmed</div>
-    <div style="font-size:12px;color:var(--text-sec);">Bradley 5&#8211;3 Jason. You're now PMB #7.</div>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">5 hours ago</div>
+  <div id="notifications-list">
+    <div class="empty-state">Loading notifications...</div>
   </div>
 </div>
 
@@ -1231,20 +1231,22 @@ body {
   <div class="back-bar"><button class="back-btn" onclick="go('profile')">&#8592;</button><div class="back-title">Leagues</div></div>
   <div style="font-size:20px;font-weight:800;margin:16px;">&#127942; Browse Leagues</div>
   <input type="text" class="search-box" placeholder="Search leagues by city..." style="margin-bottom:12px;">
-  <div class="league-card" onclick="go('leagueDetail')">
-    <div class="league-name">PMB Pool League</div>
-    <div class="league-meta">Pietermaritzburg &#8226; KwaZulu-Natal &#8226; 48 players</div>
-    <span class="league-badge">Premier Division</span>
-  </div>
-  <div class="league-card">
-    <div class="league-name">Durban 8-Ball Association</div>
-    <div class="league-meta">Durban &#8226; KwaZulu-Natal &#8226; 32 players</div>
-    <span class="league-badge">Open Division</span>
-  </div>
-  <div class="league-card">
-    <div class="league-name">Midlands Social League</div>
-    <div class="league-meta">Howick &#8226; KwaZulu-Natal &#8226; 24 players</div>
-    <span class="league-badge">Social</span>
+  <div id="leagues-list">
+    <div class="league-card" onclick="goToLeagueDetail('pmb-pool-league')">
+      <div class="league-name">PMB Pool League</div>
+      <div class="league-meta">Pietermaritzburg &#8226; KwaZulu-Natal &#8226; 48 players</div>
+      <span class="league-badge">Premier Division</span>
+    </div>
+    <div class="league-card" onclick="goToLeagueDetail('durban-8ball')">
+      <div class="league-name">Durban 8-Ball Association</div>
+      <div class="league-meta">Durban &#8226; KwaZulu-Natal &#8226; 32 players</div>
+      <span class="league-badge">Open Division</span>
+    </div>
+    <div class="league-card" onclick="goToLeagueDetail('midlands-social')">
+      <div class="league-name">Midlands Social League</div>
+      <div class="league-meta">Howick &#8226; KwaZulu-Natal &#8226; 24 players</div>
+      <span class="league-badge">Social</span>
+    </div>
   </div>
   <div style="text-align:center;padding:16px;">
     <button class="btn-outline" style="width:auto;padding:12px 24px;display:inline-flex;" onclick="go('createLeague')">&#11088; CREATE LEAGUE</button>
@@ -1259,7 +1261,7 @@ body {
     <div style="font-size:20px;font-weight:800;">PMB Pool League</div>
     <div style="font-size:13px;color:var(--text-sec);margin-bottom:4px;">Pietermaritzburg &#8226; KwaZulu-Natal</div>
     <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:16px;">48 Players &#8226; Premier Division</div>
-    <button class="btn-gold" style="width:auto;padding:14px 32px;display:inline-flex;" onclick="go('joinLeague')">JOIN LEAGUE</button>
+    <button class="btn-gold" style="width:auto;padding:14px 32px;display:inline-flex;" onclick="goToJoinLeague()">JOIN LEAGUE</button>
   </div>
   <div class="card">
     <div class="card-title">Teams</div>
@@ -1312,20 +1314,41 @@ body {
   <div class="back-bar"><button class="back-btn" onclick="go('leagueDetail')">&#8592;</button><div class="back-title">Join League</div></div>
   <div style="text-align:center;padding:16px;">
     <div style="font-size:28px;margin-bottom:8px;">&#127942;</div>
-    <div style="font-size:18px;font-weight:800;">PMB Pool League</div>
-    <div style="font-size:13px;color:var(--text-sec);margin-bottom:16px;">Premier Division &#8226; 2026</div>
+    <div id="join-league-name" style="font-size:18px;font-weight:800;">Loading...</div>
+    <div id="join-league-meta" style="font-size:13px;color:var(--text-sec);margin-bottom:16px;">--</div>
   </div>
   <div class="card" style="margin-bottom:12px;">
     <div class="card-title">Select Your Team (Optional)</div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
-      <button class="seg-btn active">No Team</button>
-      <button class="seg-btn">Sharks</button>
-      <button class="seg-btn">Tigers</button>
-      <button class="seg-btn">Eagles</button>
+      <button class="seg-btn active" onclick="selectTeam(this, null)">No Team</button>
+      <button class="seg-btn" onclick="selectTeam(this, 'Sharks')">Sharks</button>
+      <button class="seg-btn" onclick="selectTeam(this, 'Tigers')">Tigers</button>
+      <button class="seg-btn" onclick="selectTeam(this, 'Eagles')">Eagles</button>
     </div>
   </div>
-  <button class="btn-gold" onclick="go('profile')">REQUEST TO JOIN</button>
+  <button class="btn-gold" onclick="requestJoinLeague()">REQUEST TO JOIN</button>
   <div style="text-align:center;padding:12px;font-size:11px;color:var(--text-muted);">League admin must approve your request</div>
+</div>
+
+<!-- LEAGUE MANAGEMENT (for creators) -->
+<div class="screen" id="scr-leagueManage">
+  <div class="back-bar"><button class="back-btn" onclick="go('profile')">&#8592;</button><div class="back-title">Manage League</div></div>
+  <div style="text-align:center;padding:16px;">
+    <div style="font-size:28px;margin-bottom:8px;">&#127942;</div>
+    <div id="manage-league-name" style="font-size:18px;font-weight:800;">Your League</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Pending Requests</div>
+    <div id="league-pending-list">
+      <div class="empty-state">No pending requests</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Current Players</div>
+    <div id="league-players-list">
+      <div class="empty-state">No players yet</div>
+    </div>
+  </div>
 </div>
 
 <!-- HOW RANKD WORKS -->
@@ -1467,7 +1490,7 @@ body {
 
 <!-- CHALLENGE SETUP (with Venue + DateTime) -->
 <div class="screen" id="scr-challengeSetup">
-  <div class="back-bar"><button class="back-btn" onclick="go('matchType')">&#8592;</button><div class="back-title">Challenge Details</div></div>
+  <div class="back-bar"><button class="back-btn" onclick="go('search')">&#8592;</button><div class="back-title">Challenge Details</div></div>
 
   <div class="card" style="text-align:center;padding:14px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:8px;">
@@ -1530,24 +1553,6 @@ body {
 
   <div id="pending-challenges-list">
     <!-- Dynamically populated -->
-    <div class="card" style="border-left:3px solid var(--gold);">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-        <div class="avatar">B</div>
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:700;">Bradley challenged you</div>
-          <div style="font-size:12px;color:var(--text-muted);">RANKD Challenge &#8226; Best of 5</div>
-        </div>
-      </div>
-      <div style="background:var(--black);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:14px;">&#127921;</span><span style="font-size:13px;font-weight:700;">The Rack</span></div>
-        <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:14px;">&#128197;</span><span style="font-size:13px;color:var(--text-sec);">Friday, 15 Aug &#8226; 19:00</span></div>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn-gold" style="flex:1;" onclick="respondChallenge('accept')">ACCEPT</button>
-        <button class="btn-outline" style="flex:1;" onclick="respondChallenge('counter')">COUNTER</button>
-        <button class="btn-danger" style="flex:1;padding:14px 8px;font-size:12px;" onclick="respondChallenge('decline')">DECLINE</button>
-      </div>
-    </div>
   </div>
 
   <div id="no-pending" class="empty-state" style="display:none;">
@@ -1727,8 +1732,17 @@ async function handleDeepLink() {
       return true;
     } catch (err) {
       setLoading(false);
-      alert('Invalid or expired invite link.');
-      return false;
+      console.error('Invite claim failed:', err.message);
+      // Don't block the user — let them sign up anyway and we'll match them later
+      alert('Could not verify invite link automatically.\n\nNo problem — create your account and you can still join the match.');
+      STATE.invite = {
+        inviter: { name: link.inviter || 'Someone', rating: 1800 },
+        format_value: 5,
+        match_id: link.match
+      };
+      renderGuestLanding(STATE.invite);
+      go('guestLanding');
+      return true;
     }
   }
 
@@ -1874,12 +1888,34 @@ function go(screen) {
   if (screen === 'profile') renderProfile();
   if (screen === 'rivalriesList') renderRivalries();
   if (screen === 'editProfile') renderEditProfile();
+  if (screen === 'rankings') renderRankings();
+  if (screen === 'notifications') loadNotifications();
+  if (screen === 'pendingChallenges') loadPendingChallenges();
+  if (screen === 'challengeSetup') renderChallengeSetup();
+  if (screen === 'joinLeague' && currentLeagueId) loadLeagueDetail(currentLeagueId);
+  if (screen === 'leagueManage') loadLeagueManagement();
   if (screen === 'howItWorks') renderHowItWorks();
   if (screen === 'qrProfile') setTimeout(generateProfileQR, 300);
   if (screen === 'guestLanding' && STATE.invite) renderGuestLanding(STATE.invite);
 }
 
 // ——— RENDERERS ———
+function renderRankings() {
+  if (!STATE.player) return;
+  const p = STATE.player;
+  const nameEl = document.getElementById('rankings-you-name');
+  const handleEl = document.getElementById('rankings-you-handle');
+  const ratingEl = document.getElementById('rankings-you-rating');
+  const avatarEl = document.getElementById('rankings-you-avatar');
+  const rankEl = document.getElementById('rankings-you-rank');
+  if (nameEl) nameEl.textContent = p.first_name || 'You';
+  if (handleEl) handleEl.textContent = `@${p.username || '--'} ${p.matches_played ? '&#8226; ' + p.matches_played + ' matches' : ''}`;
+  if (ratingEl) ratingEl.textContent = (p.public_rating || 0).toLocaleString();
+  if (avatarEl) avatarEl.textContent = (p.first_name || '?').charAt(0).toUpperCase();
+  // For demo, keep rank at 8 until real leaderboard API is connected
+  if (rankEl) rankEl.textContent = '8';
+}
+
 function renderHome() {
   if (!STATE.player) return;
   const p = STATE.player;
@@ -1926,6 +1962,16 @@ function renderHome() {
   if (rankPmb) rankPmb.textContent = '—';
   if (rankKzn) rankKzn.textContent = '—';
   if (rankSa) rankSa.textContent = '—';
+
+  // Check for pending challenges
+  try {
+    api('/notifications', 'GET', null, true).then(data => {
+      const badge = document.getElementById('home-pending-badge');
+      if (badge && data.pending_count > 0) {
+        badge.style.display = 'block';
+      }
+    }).catch(() => {});
+  } catch(e) {}
 }
 
 function renderProfile() {
@@ -1946,6 +1992,12 @@ function renderProfile() {
 
   const status = document.getElementById('profile-status');
   if (status) status.innerHTML = `<span>&#9679;</span> ${p.status || 'UNRANKD'}`;
+
+  // League card
+  const leagueName = document.getElementById('profile-league-name');
+  const leagueStatus = document.getElementById('profile-league-status');
+  if (leagueName) leagueName.textContent = 'No League';
+  if (leagueStatus) leagueStatus.textContent = 'Tap to browse or create a league';
 
   // Stats are placeholder until real data from API
   const wins = document.getElementById('profile-wins');
@@ -2231,6 +2283,42 @@ function selectMatchType(el) {
   el.classList.add('selected');
 }
 
+function handleQRUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('qr-preview-text').textContent = 'QR Uploaded';
+    // In a real app, decode the QR image here
+    // For now, alert the user to use manual entry
+    alert('QR upload received. Full QR scanning coming soon — use manual code entry below for now.');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function searchByRankdCode() {
+  const code = document.getElementById('qr-manual-code').value.trim().toUpperCase();
+  if (code.length < 4) {
+    alert('Please enter a valid RANKD code (at least 4 characters)');
+    return;
+  }
+  setLoading(true);
+  try {
+    const players = await api('/players/search?q=' + encodeURIComponent(code), 'GET', null, true);
+    setLoading(false);
+    if (players && players.length > 0) {
+      const p = players[0];
+      setOpponentAndChallenge(p.username, p.first_name + ' ' + p.last_name, p.public_rating || 800);
+      go('matchType');
+    } else {
+      alert('No player found with that RANKD code. Check the code and try again.');
+    }
+  } catch (err) {
+    setLoading(false);
+    alert('Search failed. Check your connection.');
+  }
+}
+
 function shareToWhatsApp() {
   const text = `🎱 Challenge me for rank on RANKD!\n\nWhat's your RANKD? I'm rated ${STATE.player?.public_rating || 0}. Think you can beat me?\n\n${window.location.origin}${window.location.pathname}?screen=playerProfile&player=${STATE.player?.username || 'bradley'}`;
   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
@@ -2303,30 +2391,43 @@ function moveOtp(el, idx, e) {
   else if (el.value && idx < inputs.length - 1) { inputs[idx+1].focus(); }
 }
 
-function filterPlayers() {
-  const val = document.getElementById('playerSearchInput').value.toLowerCase();
+async function filterPlayers() {
+  const val = document.getElementById('playerSearchInput').value.trim();
   const results = document.getElementById('playerSearchResults');
-  if (val.length > 0 && !val.includes('jason')) {
-    results.innerHTML = '<div class="empty-state">No players found. Try a RANKD code or invite them.</div>';
-  } else {
-    results.innerHTML = `
-      <div class="card" style="cursor:pointer;margin-bottom:10px;" onclick="go('playerProfile')">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div class="avatar">JP</div>
-          <div style="flex:1;"><div style="font-weight:700;">Jason Pillay</div><div style="font-size:12px;color:var(--text-muted);">@jaypool &#8226; PMB #4</div></div>
-          <div style="font-size:18px;font-weight:800;color:var(--gold);">1,911</div>
-          <button style="padding:8px 14px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;" onclick="event.stopPropagation();setOpponentAndChallenge('jaypool', 'Jason Pillay', 1911)">CHALLENGE</button>
+
+  if (val.length < 2) {
+    results.innerHTML = '<div class="empty-state">Type at least 2 characters to search...</div>';
+    return;
+  }
+
+  results.innerHTML = '<div class="empty-state">Searching...</div>';
+
+  try {
+    const players = await api('/players/search?q=' + encodeURIComponent(val), 'GET', null, true);
+    if (!players || players.length === 0) {
+      results.innerHTML = '<div class="empty-state">No players found. Try a RANKD code or invite them.</div>';
+      return;
+    }
+
+    results.innerHTML = players.map(p => {
+      const initial = (p.first_name || '?').charAt(0);
+      const location = p.city ? p.city + ' #' + (p.rank || '?') : '';
+      return `
+        <div class="card" style="cursor:pointer;margin-bottom:10px;" onclick="go('playerProfile')">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="avatar">${initial}</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;">${escapeHtml(p.first_name + ' ' + p.last_name)}</div>
+              <div style="font-size:12px;color:var(--text-muted);">@${escapeHtml(p.username)} ${location ? '&#8226; ' + location : ''}</div>
+            </div>
+            <div style="font-size:18px;font-weight:800;color:var(--gold);">${p.public_rating || 800}</div>
+            <button style="padding:8px 14px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;" onclick="event.stopPropagation();setOpponentAndChallenge('${escapeHtml(p.username)}', '${escapeHtml(p.first_name + ' ' + p.last_name)}', ${p.public_rating || 800})">CHALLENGE</button>
+          </div>
         </div>
-      </div>
-      <div class="card" style="margin-bottom:10px;">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div class="avatar">JS</div>
-          <div style="flex:1;"><div style="font-weight:700;">Jason Smith</div><div style="font-size:12px;color:var(--text-muted);">@jsmith &#8226; Dbn #12</div></div>
-          <div style="font-size:18px;font-weight:800;color:var(--gold);">1,654</div>
-          <button style="padding:8px 14px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;" onclick="go('matchType')">CHALLENGE</button>
-        </div>
-      </div>
-    `;
+      `;
+    }).join('');
+  } catch (err) {
+    results.innerHTML = '<div class="empty-state">Search failed. Check your connection.</div>';
   }
 }
 
@@ -2357,10 +2458,12 @@ const allRivalries = [
 ];
 
 async function challengeFromRankings(oppRank, username, name, rating) {
-  // Check 5-spot rule client-side first (you're #8, can challenge #3-#7)
-  const myRank = 8; // In real app, this comes from STATE.player.rank
+  // Get user's current rank from the YOU entry or default to 8 for demo
+  const myRankEl = document.getElementById('rankings-you-rank');
+  const myRank = myRankEl && myRankEl.textContent !== '--' ? parseInt(myRankEl.textContent) : 8;
   const rankDiff = oppRank - myRank;
 
+  // Rankings page: can only challenge up to 5 spots above you
   if (rankDiff > 5) {
     alert(`You can only challenge up to 5 spots above you.\n\nThey are #${oppRank}, you are #${myRank}.\n\nBeat players closer to you first!`);
     return;
@@ -2376,17 +2479,22 @@ async function challengeFromRankings(oppRank, username, name, rating) {
   localStorage.setItem('rankd_opponent', JSON.stringify(STATE.currentOpponent));
 
   // Pre-fill challenge setup
-  document.getElementById('cs-opp-name').textContent = name;
-  document.getElementById('cs-opp-rating').textContent = rating.toLocaleString();
-  if (STATE.player) {
-    document.getElementById('cs-your-rating').textContent = (STATE.player.public_rating || 0).toLocaleString();
+  const csOppName = document.getElementById('cs-opp-name');
+  const csOppRating = document.getElementById('cs-opp-rating');
+  const csYourRating = document.getElementById('cs-your-rating');
+  if (csOppName) csOppName.textContent = name;
+  if (csOppRating) csOppRating.textContent = rating.toLocaleString();
+  if (csYourRating && STATE.player) {
+    csYourRating.textContent = (STATE.player.public_rating || 0).toLocaleString();
   }
 
   // Set default date to tomorrow
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  document.getElementById('challengeDate').value = tomorrow.toISOString().split('T')[0];
-  document.getElementById('challengeTime').value = '19:00';
+  const challengeDate = document.getElementById('challengeDate');
+  const challengeTime = document.getElementById('challengeTime');
+  if (challengeDate) challengeDate.value = tomorrow.toISOString().split('T')[0];
+  if (challengeTime) challengeTime.value = '19:00';
 
   go('challengeSetup');
 }
@@ -2394,7 +2502,31 @@ async function challengeFromRankings(oppRank, username, name, rating) {
 function setOpponentAndChallenge(username, name, rating) {
   STATE.currentOpponent = { id: username, name: name, rating: rating };
   localStorage.setItem('rankd_opponent', JSON.stringify(STATE.currentOpponent));
-  go('matchType');
+  go('challengeSetup');
+}
+
+function renderChallengeSetup() {
+  if (!STATE.currentOpponent) return;
+  const opp = STATE.currentOpponent;
+  const csOppName = document.getElementById('cs-opp-name');
+  const csOppRating = document.getElementById('cs-opp-rating');
+  const csYourRating = document.getElementById('cs-your-rating');
+  if (csOppName) csOppName.textContent = opp.name;
+  if (csOppRating) csOppRating.textContent = (opp.rating || 0).toLocaleString();
+  if (csYourRating && STATE.player) {
+    csYourRating.textContent = (STATE.player.public_rating || 0).toLocaleString();
+  }
+  // Set default date/time if empty
+  const challengeDate = document.getElementById('challengeDate');
+  const challengeTime = document.getElementById('challengeTime');
+  if (challengeDate && !challengeDate.value) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    challengeDate.value = tomorrow.toISOString().split('T')[0];
+  }
+  if (challengeTime && !challengeTime.value) {
+    challengeTime.value = '19:00';
+  }
 }
 
 function renderHowItWorks() {
@@ -2632,6 +2764,98 @@ function forgotPin() {
   go('signIn');
 }
 
+let selectedTeam = null;
+let currentLeagueId = null;
+
+function goToJoinLeague() {
+  if (!currentLeagueId) {
+    alert('No league selected.');
+    return;
+  }
+  go('joinLeague');
+}
+
+function selectTeam(btn, team) {
+  selectedTeam = team;
+  const buttons = btn.parentElement.querySelectorAll('.seg-btn');
+  buttons.forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function requestJoinLeague() {
+  if (!currentLeagueId) {
+    alert('No league selected.');
+    return;
+  }
+  setLoading(true);
+  try {
+    await api('/leagues/' + currentLeagueId + '/join', 'POST', {
+      team_name: selectedTeam
+    }, true);
+    setLoading(false);
+    alert('Join request sent! The league admin will review it.');
+    go('leagues');
+  } catch (err) {
+    setLoading(false);
+    alert(err.message || 'Failed to send join request.');
+  }
+}
+
+async function loadLeagueDetail(leagueId) {
+  currentLeagueId = leagueId;
+  setLoading(true);
+  try {
+    const league = await api('/leagues/' + leagueId, 'GET', null, true);
+    setLoading(false);
+    // Update join league screen
+    const nameEl = document.getElementById('join-league-name');
+    const metaEl = document.getElementById('join-league-meta');
+    if (nameEl) nameEl.textContent = league.name || 'Unknown League';
+    if (metaEl) metaEl.textContent = (league.city || '') + (league.is_verified ? '' : ' &#8226; Pending Verification');
+  } catch (err) {
+    setLoading(false);
+  }
+}
+
+async function loadLeagueManagement() {
+  if (!STATE.player) return;
+  // This would fetch the creator's league and pending requests
+  // For now, placeholder until backend endpoints are ready
+  const pendingList = document.getElementById('league-pending-list');
+  if (pendingList) pendingList.innerHTML = '<div class="empty-state">Feature coming soon</div>';
+}
+
+function goToLeagueDetail(leagueId) {
+  currentLeagueId = leagueId;
+  go('leagueDetail');
+}
+
+function forgotPinFlow() {
+  // Clear PIN-related state but keep the user conceptually "known"
+  // They need to sign in with mobile + OTP again, then set a new PIN
+  localStorage.removeItem('rankd_has_pin');
+  localStorage.removeItem('rankd_token');
+  localStorage.removeItem('rankd_player');
+  STATE.token = null;
+  STATE.player = null;
+  unlockBuffer = '';
+  updateUnlockDots();
+  alert('You will sign in with your mobile number and OTP, then set a new PIN.');
+  go('signIn');
+}
+
+function switchRankingTab(btn, scope) {
+  // Update active tab styling
+  const tabs = btn.parentElement.querySelectorAll('.seg-btn');
+  tabs.forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+
+  // For now just show a toast - real API integration would fetch different leaderboard
+  const scopeNames = {pmb: 'Pietermaritzburg', kzn: 'KwaZulu-Natal', sa: 'South Africa', venue: 'Your Venue'};
+  console.log('Switched to', scopeNames[scope] || scope);
+  // In a full implementation, this would call the API and re-render the list
+}
+
 // ——— EDIT PROFILE RENDER ———
 function renderEditProfile() {
   if (!STATE.player) return;
@@ -2646,6 +2870,192 @@ function renderEditProfile() {
   if (user) user.value = p.username ? '@' + p.username : '';
   if (city) city.value = p.city || '';
   if (province) province.value = p.province || '';
+}
+
+// ——— NOTIFICATIONS & CHALLENGES ———
+let currentChallengeMatchId = null;
+
+async function loadNotifications() {
+  const container = document.getElementById('notifications-list');
+  if (!container) return;
+  container.innerHTML = '<div class="empty-state">Loading...</div>';
+
+  try {
+    const data = await api('/notifications', 'GET', null, true);
+    if (!data.notifications || data.notifications.length === 0) {
+      container.innerHTML = '<div class="empty-state"><div style="font-size:48px;margin-bottom:12px;">&#127942;</div><div style="font-size:16px;font-weight:700;">No notifications</div><div style="font-size:13px;color:var(--text-muted);">Check back after playing matches!</div></div>';
+      return;
+    }
+
+    container.innerHTML = data.notifications.map(n => {
+      const borderColor = n.type === 'challenge' ? 'var(--gold)' : 'var(--border)';
+      const icon = n.type === 'challenge' ? '&#9874;' : (n.type === 'counter' ? '&#128172;' : '&#127942;');
+      const fromName = n.from?.name || 'Someone';
+      const venue = n.venue || 'TBD';
+      const dateTime = n.proposed_datetime ? new Date(n.proposed_datetime).toLocaleString('en-ZA', {weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : 'TBD';
+
+      return `
+        <div class="card" style="border-left:3px solid ${borderColor};margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+            <div class="avatar" style="width:40px;height:40px;font-size:16px;">${fromName.charAt(0)}</div>
+            <div style="flex:1;">
+              <div style="font-size:14px;font-weight:700;">${icon} ${fromName} ${n.type === 'challenge' ? 'challenged you' : 'countered your challenge'}</div>
+              <div style="font-size:12px;color:var(--text-muted);">RANKD Challenge &#8226; Best of ${n.format_value || 5}</div>
+            </div>
+          </div>
+          <div style="background:var(--black);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:14px;">&#127921;</span><span style="font-size:13px;font-weight:700;">${escapeHtml(venue)}</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:14px;">&#128197;</span><span style="font-size:13px;color:var(--text-sec);">${dateTime}</span></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-gold" style="flex:1;" onclick="respondToChallenge('${n.match_id}', 'accept')">ACCEPT</button>
+            <button class="btn-outline" style="flex:1;" onclick="respondToChallenge('${n.match_id}', 'counter')">COUNTER</button>
+            <button class="btn-danger" style="flex:1;padding:14px 8px;font-size:12px;" onclick="respondToChallenge('${n.match_id}', 'decline')">DECLINE</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state">Could not load notifications.</div>';
+  }
+}
+
+async function loadPendingChallenges() {
+  const container = document.getElementById('pending-challenges-list');
+  const emptyState = document.getElementById('no-pending');
+  if (!container) return;
+
+  container.innerHTML = '<div class="empty-state">Loading...</div>';
+  if (emptyState) emptyState.style.display = 'none';
+
+  try {
+    const data = await api('/notifications', 'GET', null, true);
+    if (!data.notifications || data.notifications.length === 0) {
+      container.innerHTML = '';
+      if (emptyState) emptyState.style.display = 'block';
+      return;
+    }
+
+    container.innerHTML = data.notifications.map(n => {
+      const fromName = n.from?.name || 'Someone';
+      const venue = n.venue || 'TBD';
+      const dateTime = n.proposed_datetime ? new Date(n.proposed_datetime).toLocaleString('en-ZA', {weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : 'TBD';
+
+      return `
+        <div class="card" style="border-left:3px solid var(--gold);margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+            <div class="avatar">${fromName.charAt(0)}</div>
+            <div style="flex:1;">
+              <div style="font-size:14px;font-weight:700;">${fromName} ${n.type === 'challenge' ? 'challenged you' : 'countered'}</div>
+              <div style="font-size:12px;color:var(--text-muted);">RANKD Challenge &#8226; Best of ${n.format_value || 5}</div>
+            </div>
+          </div>
+          <div style="background:var(--black);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:14px;">&#127921;</span><span style="font-size:13px;font-weight:700;">${escapeHtml(venue)}</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:14px;">&#128197;</span><span style="font-size:13px;color:var(--text-sec);">${dateTime}</span></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-gold" style="flex:1;" onclick="respondToChallenge('${n.match_id}', 'accept')">ACCEPT</button>
+            <button class="btn-outline" style="flex:1;" onclick="goToCounter('${n.match_id}', '${escapeHtml(fromName)}')">COUNTER</button>
+            <button class="btn-danger" style="flex:1;padding:14px 8px;font-size:12px;" onclick="respondToChallenge('${n.match_id}', 'decline')">DECLINE</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state">Could not load challenges.</div>';
+  }
+}
+
+async function respondToChallenge(matchId, action) {
+  setLoading(true);
+  try {
+    let result;
+    if (action === 'accept') {
+      result = await api(`/matches/${matchId}/accept`, 'POST', {}, true);
+      alert('Challenge accepted! Match is on.');
+    } else if (action === 'decline') {
+      result = await api(`/matches/${matchId}/decline`, 'POST', {}, true);
+      alert('Challenge declined.');
+    } else if (action === 'counter') {
+      // Store match ID and go to counter screen
+      currentChallengeMatchId = matchId;
+      go('counterProposal');
+      setLoading(false);
+      return;
+    }
+    setLoading(false);
+    go('home');
+  } catch (err) {
+    setLoading(false);
+    alert(err.message || 'Failed to respond to challenge.');
+  }
+}
+
+function goToCounter(matchId, opponentName) {
+  currentChallengeMatchId = matchId;
+  go('counterProposal');
+}
+
+async function sendCounter() {
+  if (!currentChallengeMatchId) {
+    alert('No challenge selected.');
+    return;
+  }
+  const date = document.getElementById('counterDate').value;
+  const time = document.getElementById('counterTime').value;
+  if (!date || !time) {
+    alert('Please select a date and time.');
+    return;
+  }
+  const proposed = new Date(date + 'T' + time);
+  setLoading(true);
+  try {
+    await api(`/matches/${currentChallengeMatchId}/counter`, 'POST', {
+      match_id: currentChallengeMatchId,
+      proposed_datetime: proposed.toISOString()
+    }, true);
+    setLoading(false);
+    alert('Counter proposal sent!');
+    go('home');
+  } catch (err) {
+    setLoading(false);
+    alert(err.message || 'Failed to send counter.');
+  }
+}
+
+async function sendChallenge() {
+  const date = document.getElementById('challengeDate').value;
+  const time = document.getElementById('challengeTime').value;
+  if (!date || !time) {
+    alert('Please select a date and time for the match.');
+    return;
+  }
+  if (!STATE.currentOpponent) {
+    alert('No opponent selected.');
+    return;
+  }
+
+  const proposed = new Date(date + 'T' + time);
+  setLoading(true);
+  try {
+    const result = await api('/matches', 'POST', {
+      opponent_id: STATE.currentOpponent.id,
+      context: 'RANKD_CHALLENGE',
+      format_value: 5,
+      proposed_datetime: proposed.toISOString()
+    }, true);
+    setLoading(false);
+
+    // Show waiting screen
+    document.getElementById('cw-opp-name').textContent = STATE.currentOpponent.name;
+    document.getElementById('cw-venue').textContent = 'The Rack';
+    document.getElementById('cw-datetime').textContent = proposed.toLocaleString('en-ZA', {weekday:'long', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+    go('challengeWaiting');
+  } catch (err) {
+    setLoading(false);
+    alert(err.message || 'Failed to send challenge.');
+  }
 }
 
 // ——— INIT ———
