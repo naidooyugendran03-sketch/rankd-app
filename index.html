@@ -2273,105 +2273,217 @@ async function renderHome() {
   try {
     const activeData = await api('/matches/my/active', 'GET', null, true);
     const activeMatch = activeData.matches?.[0];
-    if (activeMatch) {
+
+    const existingBanner = document.getElementById('home-active-match-banner');
+
+    if (!activeMatch) {
+      // Remove stale live/paused match from Home
+      if (existingBanner) {
+        existingBanner.remove();
+      }
+
+      STATE.currentMatch = null;
+      localStorage.removeItem('rankd_match');
+
+    } else {
       const homeContent = document.getElementById('home-content');
-      let banner = document.getElementById('home-active-match-banner');
+
+      let banner = existingBanner;
+
       if (!banner) {
         banner = document.createElement('div');
         banner.id = 'home-active-match-banner';
         banner.className = 'card';
-        banner.style.cursor = 'pointer';
         banner.style.marginBottom = '12px';
-        homeContent.insertBefore(banner, homeContent.children[1]);
+
+        homeContent.insertBefore(
+          banner,
+          homeContent.children[1]
+        );
       }
+
       const isLive = activeMatch.status === 'ACTIVE';
+
       const opp = activeMatch.opponent || {};
+
       const bannerAction = isLive
         ? `openLiveMatch('${activeMatch.match_id}')`
         : `resumeMatch('${activeMatch.match_id}')`;
+
       banner.innerHTML = `
-        <div style="display:flex;align-items:center;gap:12px;" onclick="${bannerAction}">
-          <div style="width:40px;height:40px;border-radius:50%;background:${isLive ? 'var(--success)' : 'var(--text-muted)'};display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--black);font-weight:800;">${isLive ? '●' : 'II'}</div>
-          <div style="flex:1;">
-            <div style="font-size:14px;font-weight:700;">${escapeHtml(opp.name || 'Opponent')}</div>
-            <div style="font-size:12px;color:var(--text-muted);">${activeMatch.venue || 'TBD'} &#8226; Race to ${activeMatch.format_value || 5}</div>
+        <div
+          style="display:flex;align-items:center;gap:12px;"
+          onclick="${bannerAction}"
+        >
+          <div style="
+            width:40px;
+            height:40px;
+            border-radius:50%;
+            background:${isLive ? 'var(--success)' : 'var(--text-muted)'};
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:800;
+          ">
+            ${isLive ? '●' : 'II'}
           </div>
+
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:700;">
+              ${escapeHtml(opp.name || 'Opponent')}
+            </div>
+
+            <div style="font-size:12px;color:var(--text-muted);">
+              ${activeMatch.venue || 'TBD'}
+              • Race to ${activeMatch.format_value || 5}
+            </div>
+          </div>
+
           <div style="text-align:right;">
-            <div style="font-size:20px;font-weight:900;color:var(--gold);">${activeMatch.score?.me || 0} – ${activeMatch.score?.opponent || 0}</div>
-            <div style="font-size:10px;color:${isLive ? 'var(--success)' : 'var(--text-muted)'};font-weight:700;">${isLive ? 'LIVE' : 'PAUSED'}</div>
+            <div style="
+              font-size:20px;
+              font-weight:900;
+              color:var(--gold);
+            ">
+              ${activeMatch.score?.me || 0}
+              –
+              ${activeMatch.score?.opponent || 0}
+            </div>
+
+            <div style="
+              font-size:10px;
+              font-weight:700;
+            ">
+              ${isLive ? 'LIVE' : 'PAUSED'}
+            </div>
           </div>
         </div>
       `;
-      const emptyState = document.getElementById('home-empty-state');
-      if (emptyState) emptyState.style.display = 'none';
     }
-  } catch (e) {}
 
-  // Player name
-  const nameEl = document.getElementById('home-player-name');
-  if (nameEl) nameEl.textContent = (p.first_name || 'Player').toUpperCase();
-
-  // Rating display
-  const ratingDisplay = document.getElementById('home-rating-display');
-  if (ratingDisplay) {
-    if (isPlacement && (p.placement_matches || 0) === 0) {
-      ratingDisplay.textContent = 'PLACEMENT';
-      ratingDisplay.style.fontSize = '32px';
-    } else if (isPlacement) {
-      ratingDisplay.textContent = p.public_rating ? p.public_rating.toLocaleString() : '—';
-      ratingDisplay.style.fontSize = '56px';
-    } else {
-      ratingDisplay.textContent = (p.public_rating || 0).toLocaleString();
-      ratingDisplay.style.fontSize = '56px';
-    }
-  }
-
-  // Rating label + rank
-  const ratingLabel = document.getElementById('home-rating-label');
-  const rankDisplay = document.getElementById('home-rank-display');
-
-  // Fetch real leaderboard for accurate rank
-  let currentRank = '—';
-  try {
-    const city = p.city || 'Pietermaritzburg';
-    const data = await api(`/leaderboards/city?city=${encodeURIComponent(city)}`, 'GET', null, true);
-    const allPlayers = [...(data.players || [])];
-    DEMO_PLAYERS.forEach(demo => {
-      if (!allPlayers.some(ap => ap.username === demo.username)) allPlayers.push(demo);
-    });
-    if (!allPlayers.some(ap => ap.player_id === p.id || ap.username === p.username)) {
-      allPlayers.push({ player_id: p.id, username: p.username, rating: p.public_rating || 800 });
-    }
-    allPlayers.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    const myIdx = allPlayers.findIndex(ap => ap.player_id === p.id || ap.username === p.username);
-    currentRank = myIdx >= 0 ? myIdx + 1 : '—';
   } catch (e) {
-    // fallback: demo-only estimate
-    const myRating = p.public_rating || 800;
-    currentRank = DEMO_PLAYERS.filter(d => d.rating > myRating).length + 1;
+    console.error('Active match load failed:', e);
   }
 
-  if (ratingLabel) {
-    if (isPlacement) {
-      ratingLabel.textContent = `${p.placement_matches || 0} / ${p.placement_total || 10} MATCHES`;
-    } else {
-      ratingLabel.textContent = 'RANKD';
+  // Load recent matches
+  try {
+    const historyData = await api('/matches/my/history?limit=5', 'GET', null, true);
+    const matches = historyData.matches || [];
+
+    let recentHtml = '';
+
+    if (matches.length > 0) {
+      recentHtml = `
+        <div style="margin-top:24px;">
+          <div style="
+            font-size:12px;
+            font-weight:700;
+            color:var(--text-muted);
+            margin-bottom:10px;
+            text-transform:uppercase;
+            letter-spacing:0.5px;
+          ">
+            Recent Matches
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            ${matches.map(m => {
+              const isWin = m.result === 'WIN';
+              const isDraw = m.result === 'DRAW';
+              const resultColor = isWin ? 'var(--success)' : (isDraw ? 'var(--gold)' : 'var(--danger)');
+              const ratingText = m.rated
+                ? (m.rating_change >= 0 ? `+${m.rating_change}` : `${m.rating_change}`)
+                : 'NO RATING';
+              const ratingColor = m.rated
+                ? (m.rating_change >= 0 ? 'var(--success)' : 'var(--danger)')
+                : 'var(--text-muted)';
+              const dateStr = m.played_at
+                ? new Date(m.played_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                : '';
+
+              return `
+                <div class="card" style="padding:12px;">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="
+                      font-size:11px;
+                      font-weight:800;
+                      color:${resultColor};
+                      min-width:36px;
+                    ">
+                      ${m.result}
+                    </div>
+                    <div style="flex:1;">
+                      <div style="font-size:13px;font-weight:700;">
+                        ${escapeHtml(p.first_name || 'You')} ${m.score.me} – ${m.score.opponent} ${escapeHtml(m.opponent?.name || 'Opponent')}
+                      </div>
+                      <div style="font-size:11px;color:var(--text-muted);">
+                        ${m.context || 'Match'} • Race to ${m.race_to || 5}
+                      </div>
+                    </div>
+                    <div style="text-align:right;">
+                      <div style="font-size:12px;font-weight:700;color:${ratingColor};">
+                        ${ratingText}
+                      </div>
+                      <div style="font-size:10px;color:var(--text-muted);">
+                        ${dateStr}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <button
+            class="btn btn-secondary"
+            style="margin-top:10px;width:100%;"
+            onclick="go('matches')"
+          >
+            View All Matches
+          </button>
+        </div>
+      `;
     }
-  }
-  if (rankDisplay) {
-    rankDisplay.textContent = `PMB #${currentRank}`;
-    rankDisplay.style.display = 'block';
+
+    const existingRecent = document.getElementById('home-recent-matches');
+    if (existingRecent) {
+      existingRecent.outerHTML = `<div id="home-recent-matches">${recentHtml}</div>`;
+    } else {
+      const homeContent = document.getElementById('home-content');
+      const recentDiv = document.createElement('div');
+      recentDiv.id = 'home-recent-matches';
+      recentDiv.innerHTML = recentHtml;
+      homeContent.appendChild(recentDiv);
+    }
+
+  } catch (e) {
+    console.error('Recent matches load failed:', e);
   }
 
-  // Status badge
-  const statusText = document.getElementById('home-status-text');
-  if (statusText) statusText.textContent = formatStatus(p.status);
-
-  // Rank cards — PMB from leaderboard, KZN/SA from player data or placeholder
-  const rankPmb = document.getElementById('home-rank-pmb');
+  // Update stats
+  const ratingEl = document.getElementById('home-rating');
+  const statusEl = document.getElementById('home-status');
   const rankKzn = document.getElementById('home-rank-kzn');
   const rankSa = document.getElementById('home-rank-sa');
-  if (rankPmb) rankPmb.textContent = currentRank !== '—' ? `#${currentRank}` : '—';
+
+  if (ratingEl) {
+    if (isPlacement) {
+      ratingEl.innerHTML = `<span style="font-size:32px;">—</span>`;
+    } else {
+      ratingEl.textContent = Math.round(p.public_rating || 800);
+    }
+  }
+
+  if (statusEl) {
+    if (isPlacement) {
+      const pm = p.placement_matches || 0;
+      const pt = p.placement_total || 10;
+      statusEl.innerHTML = `
+        <span style="color:var(--gold);font-weight:700;">PLACEMENT ${pm}/${pt}</span>
+      `;
+    } else {
+      statusEl.textContent = p.status || 'UNRANKD';
+    }
+  }
+
   if (rankKzn) rankKzn.textContent = p.rank_kzn ? `#${p.rank_kzn}` : '—';
   if (rankSa) rankSa.textContent = p.rank_sa ? `#${p.rank_sa}` : '—';
 
@@ -3516,11 +3628,26 @@ async function proposeResult() {
 
 async function acceptResult(matchId) {
   setLoading(true);
+
   try {
-    const match = await api(`/matches/${matchId}/result/accept`, 'POST', {}, true);
+    await api(`/matches/${matchId}/result/accept`, 'POST', {}, true);
+
+    // Match is finished — clear stale live match
+    STATE.currentMatch = null;
+    localStorage.removeItem('rankd_match');
+    stopLiveMatchPolling();
+
+    // IMPORTANT: get newly calculated rating/stats
+    const freshPlayer = await api('/players/me', 'GET', null, true);
+
+    STATE.player = freshPlayer;
+    localStorage.setItem('rankd_player', JSON.stringify(freshPlayer));
+
     setLoading(false);
-    alert('Result accepted!');
+
+    alert('Result confirmed!');
     go('home');
+
   } catch (err) {
     setLoading(false);
     alert(err.message || 'Failed to accept result');
