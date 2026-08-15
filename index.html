@@ -2002,6 +2002,9 @@ function renderCounterProposal() {
 }
 
 function go(screen) {
+  if (currentScreen === 'challengeWaiting' && screen !== 'challengeWaiting') {
+    stopChallengePolling();
+  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById('scr-' + screen);
   if (el) el.classList.add('active');
@@ -3107,6 +3110,7 @@ async function startQuickPlay() {
     const now = new Date();
     document.getElementById('cw-datetime').textContent = now.toLocaleString('en-ZA', {weekday:'long', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
     go('challengeWaiting');
+    startChallengePolling();
   } catch (err) {
     setLoading(false);
     alert('Failed to start match: ' + err.message);
@@ -3668,6 +3672,7 @@ async function sendCounter() {
 }
 
 async function cancelChallenge() {
+  stopChallengePolling();
   if (!STATE.currentMatch || !STATE.currentMatch.id) {
     go('home');
     return;
@@ -3846,9 +3851,79 @@ async function sendChallenge() {
     document.getElementById('cw-venue').textContent = getVenueName(selectedVenue);
     document.getElementById('cw-datetime').textContent = proposed.toLocaleString('en-ZA', {weekday:'long', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
     go('challengeWaiting');
+    startChallengePolling();
   } catch (err) {
     setLoading(false);
     alert(err.message || 'Failed to send challenge.');
+  }
+}
+
+// ——— CHALLENGE POLLING ———
+let challengePollTimer = null;
+
+function startChallengePolling() {
+  stopChallengePolling();
+
+  if (!STATE.currentMatch?.id) return;
+
+  challengePollTimer = setInterval(async () => {
+    try {
+      const match = await api(
+        `/matches/${STATE.currentMatch.id}`,
+        'GET',
+        null,
+        true
+      );
+
+      if (!match) return;
+
+      if (match.status === 'ACCEPTED') {
+        stopChallengePolling();
+
+        STATE.currentMatch.status = 'ACCEPTED';
+        localStorage.setItem(
+          'rankd_match',
+          JSON.stringify(STATE.currentMatch)
+        );
+
+        alert('Challenge accepted!');
+        renderMatchActive();
+        go('matchActive');
+      }
+
+      else if (match.status === 'DECLINED') {
+        stopChallengePolling();
+
+        STATE.currentMatch = null;
+        localStorage.removeItem('rankd_match');
+
+        alert('Challenge declined.');
+        go('home');
+      }
+
+      else if (match.status === 'COUNTER_PENDING') {
+        stopChallengePolling();
+
+        STATE.currentMatch.status = 'COUNTER_PENDING';
+        localStorage.setItem(
+          'rankd_match',
+          JSON.stringify(STATE.currentMatch)
+        );
+
+        alert('Your opponent suggested a different time.');
+        go('pendingChallenges');
+      }
+
+    } catch (err) {
+      console.error('Challenge status check failed:', err);
+    }
+  }, 3000);
+}
+
+function stopChallengePolling() {
+  if (challengePollTimer) {
+    clearInterval(challengePollTimer);
+    challengePollTimer = null;
   }
 }
 
