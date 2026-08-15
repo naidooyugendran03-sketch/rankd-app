@@ -206,6 +206,7 @@ body {
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 <div class="phone" id="app">
@@ -2762,6 +2763,7 @@ function goBackFromHow() {
     const prev = document.querySelector('.screen.active');
     go('home');
   }
+}
 
 // ——— UNIVERSAL CHALLENGE FLOW ———
 let viewedProfilePlayer = null;
@@ -2919,7 +2921,7 @@ async function startQuickPlay() {
     return;
   }
 
-  const isLadder = STATE.currentOpponent?.challengeSource === 'ladder';
+  const isLadder = STATE.currentOpponent?.challengeSource === 'leaderboard';
   let context = 'RANKD_CHALLENGE';
   if (selectedMatchType === 'LEAGUE') context = 'LEAGUE';
   else if (selectedMatchType === 'TOURNAMENT') context = 'TOURNAMENT';
@@ -3494,7 +3496,7 @@ async function sendCounter() {
   if (selectedMatchType === 'LEAGUE') context = 'LEAGUE';
   else if (selectedMatchType === 'TOURNAMENT') context = 'TOURNAMENT';
   else if (selectedMatchType === 'FRIENDLY') context = 'FRIENDLY';
-  else if (STATE.currentOpponent?.challengeSource === 'ladder') context = 'LADDER_CHALLENGE';
+  else if (STATE.currentOpponent?.challengeSource === 'leaderboard') context = 'LADDER_CHALLENGE';
 
   setLoading(true);
   try {
@@ -3672,12 +3674,12 @@ async function sendChallenge() {
   if (selectedMatchType === 'LEAGUE') context = 'LEAGUE';
   else if (selectedMatchType === 'TOURNAMENT') context = 'TOURNAMENT';
   else if (selectedMatchType === 'FRIENDLY') context = 'FRIENDLY';
-  else if (STATE.currentOpponent?.challengeSource === 'ladder') context = 'LADDER_CHALLENGE';
+  else if (STATE.currentOpponent?.challengeSource === 'leaderboard') context = 'LADDER_CHALLENGE';
 
   setLoading(true);
   try {
     const venuePayload = selectedVenue === 'other' ? null : selectedVenue;
-    const isLadder = STATE.currentOpponent?.challengeSource === 'ladder';
+    const isLadder = STATE.currentOpponent?.challengeSource === 'leaderboard';
     const result = await api('/matches', 'POST', {
       opponent_id: STATE.currentOpponent.id,
       context: isLadder ? 'LADDER_CHALLENGE' : 'RANKD_CHALLENGE',
