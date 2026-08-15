@@ -2334,8 +2334,11 @@ async function renderHome() {
   try {
     api('/notifications', 'GET', null, true).then(data => {
       const badge = document.getElementById('home-pending-badge');
-      if (badge && data.pending_count > 0) {
-        badge.style.display = 'block';
+      if (badge) {
+        badge.style.display =
+          (data.incoming_challenges || []).length > 0
+            ? 'block'
+            : 'none';
       }
     }).catch(() => {});
   } catch(e) {}
@@ -3981,13 +3984,19 @@ async function loadPendingChallenges() {
 
   try {
     const data = await api('/notifications', 'GET', null, true);
-    if (!data.notifications || data.notifications.length === 0) {
+    const challenges = data.incoming_challenges || [];
+
+    if (challenges.length === 0) {
       container.innerHTML = '';
       if (emptyState) emptyState.style.display = 'block';
+
+      const badge = document.getElementById('home-pending-badge');
+      if (badge) badge.style.display = 'none';
+
       return;
     }
 
-    container.innerHTML = data.notifications.map(n => {
+    container.innerHTML = challenges.map(n => {
       const fromName = n.from?.name || 'Someone';
       const venue = n.venue || 'TBD';
       const dateTime = n.proposed_datetime ? new Date(n.proposed_datetime).toLocaleString('en-ZA', {weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : 'TBD';
