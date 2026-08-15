@@ -221,6 +221,7 @@ body {
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 <div class="phone" id="app">
@@ -897,7 +898,7 @@ body {
       <div style="text-align:center;"><div class="avatar" style="width:56px;height:56px;font-size:20px;margin:0 auto 6px;">JP</div><div style="font-weight:700;">Jason</div><div style="font-size:12px;color:var(--danger);font-weight:700;">1,911 &#8594; 1,898</div></div>
     </div>
     <div style="font-size:13px;color:var(--text-sec);margin-bottom:4px;">Time Out Restaurant & Bar &#8226; 12 Aug 2026 &#8226; 21:34</div>
-    <div style="font-size:12px;color:var(--text-muted);">Best of 5 &#8226; Rated</div>
+    <div style="font-size:12px;color:var(--text-muted);">Race to 5 &#8226; Rated</div>
   </div>
   <div class="card">
     <div class="card-title">Rating Impact</div>
@@ -1223,7 +1224,7 @@ body {
         <div style="font-size:20px;font-weight:800;color:var(--text-muted);">VS</div>
         <div style="text-align:center;"><div class="avatar" style="margin:0 auto 6px;background:var(--border);color:var(--text-muted);">?</div><div style="font-weight:700;">You</div><div style="font-size:13px;color:var(--text-muted);font-weight:700;">&#8212;</div></div>
       </div>
-      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;"><div style="font-weight:700;color:white;margin-bottom:4px;">Ranked Match &#8226; Best of 5</div><div>Time Out Restaurant & Bar &#8226; Tonight</div></div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;"><div style="font-weight:700;color:white;margin-bottom:4px;">Ranked Match &#8226; Race to 5</div><div>Time Out Restaurant & Bar &#8226; Tonight</div></div>
       <button class="btn-gold" onclick="go('guestSignup')">ACCEPT CHALLENGE</button>
     </div>
     <div style="text-align:center;font-size:12px;color:var(--text-muted);padding:0 16px;">No app download required. Works in your browser.</div>
@@ -1717,7 +1718,7 @@ body {
       <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">YOUR CHALLENGE</div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span>&#127921;</span><span id="cw-venue" style="font-size:14px;font-weight:700;">TBD</span></div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span>&#128197;</span><span id="cw-datetime" style="font-size:14px;">Friday, 15 Aug &#8226; 19:00</span></div>
-      <div style="display:flex;align-items:center;gap:8px;"><span>&#9874;</span><span style="font-size:14px;">RANKD Challenge &#8226; Best of 5</span></div>
+      <div style="display:flex;align-items:center;gap:8px;"><span>&#9874;</span><span style="font-size:14px;">RANKD Challenge &#8226; Race to 5</span></div>
     </div>
 
     <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">They can accept, decline, or suggest a better time.</div>
@@ -2293,7 +2294,7 @@ async function renderHome() {
           <div style="width:40px;height:40px;border-radius:50%;background:${isLive ? 'var(--success)' : 'var(--text-muted)'};display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--black);font-weight:800;">${isLive ? '●' : 'II'}</div>
           <div style="flex:1;">
             <div style="font-size:14px;font-weight:700;">${escapeHtml(opp.name || 'Opponent')}</div>
-            <div style="font-size:12px;color:var(--text-muted);">${activeMatch.venue || 'TBD'} &#8226; Best of ${activeMatch.format_value || 5}</div>
+            <div style="font-size:12px;color:var(--text-muted);">${activeMatch.venue || 'TBD'} &#8226; Race to ${activeMatch.format_value || 5}</div>
           </div>
           <div style="text-align:right;">
             <div style="font-size:20px;font-weight:900;color:var(--gold);">${activeMatch.score?.me || 0} – ${activeMatch.score?.opponent || 0}</div>
@@ -2468,7 +2469,7 @@ function renderGuestLanding(invite) {
         </div>
       </div>
       <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;">
-        <div style="font-weight:700;color:white;margin-bottom:4px;">Ranked Match &#8226; Best of ${format}</div>
+        <div style="font-weight:700;color:white;margin-bottom:4px;">Ranked Match &#8226; Race to ${format}</div>
         <div>${getVenueName(invite.venue_id)} &#8226; Tonight</div>
       </div>
       <button class="btn-gold" onclick="go('guestSignup')">ACCEPT CHALLENGE</button>
@@ -2574,7 +2575,7 @@ function renderMatchActive() {
             <div style="font-size:12px;color:var(--gold);font-weight:700;">${isPlacement ? 'PLACEMENT' : myRating.toLocaleString()}</div>
           </div>
         </div>
-        <div style="font-size:12px;color:var(--text-sec);">Best of ${format} &#8226; RANKD Challenge</div>
+        <div style="font-size:12px;color:var(--text-sec);">Race to ${format} &#8226; RANKD Challenge</div>
       </div>
       <div class="card" style="margin-bottom:14px;">
         <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px;">Play your match, then submit the result.</div>
@@ -2700,7 +2701,7 @@ async function createGuestInvite() {
     });
     setLoading(false);
 
-    const text = `🎱 ${STATE.player?.first_name || 'Someone'} challenged you on RANKD!\n\nRanked Pool Match • Best of 5\nThink you can beat them? What's your RANKD?\n\nAccept: ${data.deep_link}`;
+    const text = `🎱 ${STATE.player?.first_name || 'Someone'} challenged you on RANKD!\n\nRanked Pool Match • Race to 5\nThink you can beat them? What's your RANKD?\n\nAccept: ${data.deep_link}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   } catch (err) {
     setLoading(false);
@@ -3346,7 +3347,7 @@ function renderLiveMatch(match) {
 
   const myScore = isPlayer1 ? (match.score?.player_1 || 0) : (match.score?.player_2 || 0);
   const oppScore = isPlayer1 ? (match.score?.player_2 || 0) : (match.score?.player_1 || 0);
-  const target = Math.floor((match.format_value || 5) / 2) + 1;
+  const target = (match.format_value || 5);
 
   const header = document.getElementById('live-match-header');
   const scoreboard = document.getElementById('live-match-scoreboard');
@@ -3382,7 +3383,7 @@ function renderLiveMatch(match) {
     `;
   }
 
-  if (targetEl) targetEl.textContent = `BEST OF ${match.format_value || 5} • FIRST TO ${target}`;
+  if (targetEl) targetEl.textContent = `RACE TO ${target}`;
 
   if (racksEl) {
     if (match.racks && match.racks.length > 0) {
@@ -3963,7 +3964,7 @@ async function loadNotifications() {
             <div class="avatar" style="width:40px;height:40px;font-size:16px;">${fromName.charAt(0)}</div>
             <div style="flex:1;">
               <div style="font-size:14px;font-weight:700;">${fromName} ${n.type === 'challenge' ? 'challenged you' : 'countered'}</div>
-              <div style="font-size:12px;color:var(--text-muted);">RANKD Challenge &#8226; Best of ${n.format_value || 5}</div>
+              <div style="font-size:12px;color:var(--text-muted);">RANKD Challenge &#8226; Race to ${n.format_value || 5}</div>
             </div>
           </div>
           <div style="background:var(--black);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
@@ -3989,7 +3990,7 @@ async function loadNotifications() {
             <div class="avatar">${(opp.name || '?').charAt(0)}</div>
             <div style="flex:1;">
               <div style="font-size:14px;font-weight:700;">${escapeHtml(opp.name || 'Opponent')}</div>
-              <div style="font-size:12px;color:var(--text-muted);">${m.venue || 'TBD'} &#8226; Best of ${m.format_value || 5}</div>
+              <div style="font-size:12px;color:var(--text-muted);">${m.venue || 'TBD'} &#8226; Race to ${m.format_value || 5}</div>
             </div>
             <div style="text-align:right;">
               <div style="font-size:20px;font-weight:900;color:var(--gold);">${m.score?.me || 0} – ${m.score?.opponent || 0}</div>
@@ -4010,7 +4011,7 @@ async function loadNotifications() {
             <div class="avatar" style="background:var(--border);color:var(--text-muted);">${(opp.name || '?').charAt(0)}</div>
             <div style="flex:1;">
               <div style="font-size:14px;font-weight:700;">${escapeHtml(opp.name || 'Opponent')}</div>
-              <div style="font-size:12px;color:var(--text-muted);">${m.venue || 'TBD'} &#8226; Best of ${m.format_value || 5}</div>
+              <div style="font-size:12px;color:var(--text-muted);">${m.venue || 'TBD'} &#8226; Race to ${m.format_value || 5}</div>
             </div>
             <div style="text-align:right;">
               <div style="font-size:20px;font-weight:900;color:var(--gold);">${m.score?.me || 0} – ${m.score?.opponent || 0}</div>
@@ -4032,7 +4033,7 @@ async function loadNotifications() {
             <div class="avatar">${(opp.name || '?').charAt(0)}</div>
             <div style="flex:1;">
               <div style="font-size:14px;font-weight:700;">${escapeHtml(opp.name || 'Opponent')} submitted a result</div>
-              <div style="font-size:12px;color:var(--text-muted);">Best of ${m.format_value || 5}</div>
+              <div style="font-size:12px;color:var(--text-muted);">Race to ${m.format_value || 5}</div>
             </div>
           </div>
           <div style="background:var(--black);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;margin-bottom:12px;">
@@ -4086,7 +4087,7 @@ async function loadPendingChallenges() {
             <div class="avatar">${fromName.charAt(0)}</div>
             <div style="flex:1;">
               <div style="font-size:14px;font-weight:700;">${fromName} ${n.type === 'challenge' ? 'challenged you' : 'countered'}</div>
-              <div style="font-size:12px;color:var(--text-muted);">RANKD Challenge &#8226; Best of ${n.format_value || 5}</div>
+              <div style="font-size:12px;color:var(--text-muted);">RANKD Challenge &#8226; Race to ${n.format_value || 5}</div>
             </div>
           </div>
           <div style="background:var(--black);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
