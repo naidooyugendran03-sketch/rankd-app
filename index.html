@@ -377,17 +377,6 @@ body {
 
   <label class="form-label">Area / Suburb (optional)</label>
   <input type="text" class="form-input" id="suSuburb" placeholder="e.g. Northdale" style="width:calc(100% - 32px);margin-bottom:10px;">
-    <option value="">Select Province</option>
-    <option>KwaZulu-Natal</option>
-    <option>Gauteng</option>
-    <option>Western Cape</option>
-    <option>Eastern Cape</option>
-    <option>Free State</option>
-    <option>Mpumalanga</option>
-    <option>Limpopo</option>
-    <option>North West</option>
-    <option>Northern Cape</option>
-  </select>
 
   <button class="btn-gold" style="margin-top:8px;" onclick="submitSignUp()">CREATE ACCOUNT</button>
 
@@ -1268,18 +1257,9 @@ body {
 
   <label class="form-label">Area / Suburb (optional)</label>
   <input type="text" class="form-input" id="gsSuburb" value="" placeholder="e.g. Northdale" onkeydown="if(event.key==='Enter')document.getElementById('gsAddress').focus()">
-    <option value="">Select Province</option>
-    <option>KwaZulu-Natal</option>
-    <option>Gauteng</option>
-    <option>Western Cape</option>
-    <option>Eastern Cape</option>
-    <option>Free State</option>
-    <option>Mpumalanga</option>
-    <option>Limpopo</option>
-    <option>North West</option>
-    <option>Northern Cape</option>
-  </select>
-  <label class="form-label">Street Address (optional)</label><input type="text" class="form-input" id="gsAddress" value="" placeholder="Street address" onkeydown="if(event.key==='Enter')submitGuestSignup()">
+
+  <label class="form-label">Street Address (optional)</label>
+  <input type="text" class="form-input" id="gsAddress" value="" placeholder="Street address" onkeydown="if(event.key==='Enter')submitGuestSignup()">
   <button class="btn-gold" style="margin-top:8px;" onclick="submitGuestSignup()">CONTINUE</button>
   <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:12px;">Already have RANKD? <span style="color:var(--gold);cursor:pointer;" onclick="go('home')">Sign In</span></div>
 </div>
@@ -4173,8 +4153,13 @@ async function loadCitiesForSignup() {
   }
   try {
     const data = await api('/locations/cities?province=' + encodeURIComponent(province), 'GET', null, false);
+    let cities = data.cities || [];
+    if (province === 'KwaZulu-Natal') {
+      cities = cities.filter(c => c === 'Pietermaritzburg');
+      if (cities.length === 0) cities = ['Pietermaritzburg'];
+    }
     citySelect.innerHTML = '<option value="">Select City</option>' +
-      data.cities.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+      cities.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
   } catch (err) {
     citySelect.innerHTML = '<option value="">Could not load cities</option>';
   }
@@ -4189,8 +4174,13 @@ async function loadCitiesForGuest() {
   }
   try {
     const data = await api('/locations/cities?province=' + encodeURIComponent(province), 'GET', null, false);
+    let cities = data.cities || [];
+    if (province === 'KwaZulu-Natal') {
+      cities = cities.filter(c => c === 'Pietermaritzburg');
+      if (cities.length === 0) cities = ['Pietermaritzburg'];
+    }
     citySelect.innerHTML = '<option value="">Select City</option>' +
-      data.cities.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+      cities.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
   } catch (err) {
     citySelect.innerHTML = '<option value="">Could not load cities</option>';
   }
