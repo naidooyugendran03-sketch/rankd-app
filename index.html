@@ -203,6 +203,9 @@ body {
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
+<base target="_blank">
+<base target="_blank">
 </head>
 <body>
 <div class="phone" id="app">
@@ -338,11 +341,27 @@ body {
   <label class="form-label">Username</label>
   <input type="text" class="form-input" id="suUser" placeholder="@username" style="width:calc(100% - 32px);margin-bottom:10px;">
 
-  <label class="form-label">City</label>
-  <input type="text" class="form-input" id="suCity" placeholder="e.g. Pietermaritzburg" style="width:calc(100% - 32px);margin-bottom:10px;">
-
   <label class="form-label">Province</label>
-  <select class="select-input" id="suProvince" style="width:calc(100% - 32px);margin-bottom:10px;">
+  <select class="select-input" id="suProvince" onchange="loadCitiesForSignup()" style="width:calc(100% - 32px);margin-bottom:10px;">
+    <option value="">Select Province</option>
+    <option>Eastern Cape</option>
+    <option>Free State</option>
+    <option>Gauteng</option>
+    <option>KwaZulu-Natal</option>
+    <option>Limpopo</option>
+    <option>Mpumalanga</option>
+    <option>North West</option>
+    <option>Northern Cape</option>
+    <option>Western Cape</option>
+  </select>
+
+  <label class="form-label">City / Town</label>
+  <select class="select-input" id="suCity" style="width:calc(100% - 32px);margin-bottom:10px;">
+    <option value="">Select Province first</option>
+  </select>
+
+  <label class="form-label">Area / Suburb (optional)</label>
+  <input type="text" class="form-input" id="suSuburb" placeholder="e.g. Northdale" style="width:calc(100% - 32px);margin-bottom:10px;">
     <option value="">Select Province</option>
     <option>KwaZulu-Natal</option>
     <option>Gauteng</option>
@@ -506,28 +525,32 @@ body {
 </div>
 
 <!-- MATCH TYPE SELECTOR -->
+<!-- MATCH TYPE SELECTOR -->
 <div class="screen" id="scr-matchType">
-  <div class="back-bar"><button class="back-btn" onclick="go('search')">&#8592;</button><div class="back-title">What kind of match?</div></div>
+  <div class="back-bar"><button class="back-btn" onclick="go('playerProfile')">&#8592;</button><div class="back-title">Match Type</div></div>
   <div style="text-align:center;padding:16px;">
-    <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Select match type vs <span style="color:var(--gold);font-weight:700;">Jason Pillay</span></div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">vs <span style="color:var(--gold);font-weight:700;" id="match-type-opp-name">Opponent</span></div>
   </div>
-  <div class="match-type-option selected" onclick="selectMatchType(this);go('challengeSetup')">
+
+  <div class="match-type-option" onclick="selectMatchType('RANKED');go('playMode')">
     <div class="match-type-icon">&#11088;</div>
     <div style="flex:1;">
-      <div class="match-type-label">RANKD Challenge</div>
-      <div class="match-type-desc">Rating-impacting match. Counts toward your RANKD.</div>
+      <div class="match-type-label">Ranked</div>
+      <div class="match-type-desc">Counts toward your RANKD rating.</div>
     </div>
     <span class="match-type-badge">RATED</span>
   </div>
-  <div class="match-type-option" onclick="selectMatchType(this);go('challengeSetup')">
+
+  <div class="match-type-option" onclick="selectMatchType('LEAGUE');go('playMode')">
     <div class="match-type-icon" style="background:rgba(0,212,170,0.1);color:var(--teal);">&#127942;</div>
     <div style="flex:1;">
-      <div class="match-type-label">League Match</div>
+      <div class="match-type-label">League</div>
       <div class="match-type-desc">Official league competition. Counts toward RANKD.</div>
     </div>
     <span class="match-type-badge" style="color:var(--teal);background:rgba(0,212,170,0.1);">RATED</span>
   </div>
-  <div class="match-type-option" onclick="selectMatchType(this);go('challengeSetup')">
+
+  <div class="match-type-option" onclick="selectMatchType('TOURNAMENT');go('playMode')">
     <div class="match-type-icon" style="background:rgba(255,71,87,0.1);color:var(--danger);">&#127942;</div>
     <div style="flex:1;">
       <div class="match-type-label">Tournament</div>
@@ -535,7 +558,8 @@ body {
     </div>
     <span class="match-type-badge" style="color:var(--danger);background:rgba(255,71,87,0.1);">RATED</span>
   </div>
-  <div class="match-type-option" onclick="selectMatchType(this);go('challengeSetup')">
+
+  <div class="match-type-option" onclick="selectMatchType('FRIENDLY');go('playMode')">
     <div class="match-type-icon" style="background:rgba(160,160,160,0.1);color:var(--text-sec);">&#127881;</div>
     <div style="flex:1;">
       <div class="match-type-label">Friendly</div>
@@ -545,86 +569,32 @@ body {
   </div>
 </div>
 
-<!-- PLAYER PROFILE -->
-<div class="screen" id="scr-playerProfile">
-  <div class="back-bar"><button class="back-btn" onclick="go('search')">&#8592;</button><div class="back-title">@jaypool</div></div>
+<!-- PLAY MODE -->
+<div class="screen" id="scr-playMode">
+  <div class="back-bar"><button class="back-btn" onclick="go('matchType')">&#8592;</button><div class="back-title">How do you want to play?</div></div>
   <div style="text-align:center;padding:16px;">
-    <div class="avatar avatar-lg" style="margin:0 auto 12px;">JP</div>
-    <div style="font-size:20px;font-weight:800;">Jason Pillay</div>
-    <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">@jaypool &#8226; JPL4K9</div>
-    <div style="font-size:48px;font-weight:900;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;">1,911</div>
-    <div style="font-size:10px;color:var(--text-muted);letter-spacing:4px;text-transform:uppercase;margin-bottom:14px;">RANKD</div>
-    <div style="display:flex;justify-content:center;gap:20px;margin-bottom:16px;">
-      <div style="text-align:center;"><div style="font-size:18px;font-weight:800;">#4</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;">PMB</div></div>
-      <div style="text-align:center;"><div style="font-size:18px;font-weight:800;">#29</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;">KZN</div></div>
-      <div style="text-align:center;"><div style="font-size:18px;font-weight:800;">#312</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;">SA</div></div>
-    </div>
-    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;">
-      <div class="stat-pill">&#9679; ESTABLISHED</div>
-      <div class="stat-pill" style="background:rgba(240,201,74,0.1);color:var(--gold-light);">&#128293; W7</div>
-    </div>
-    <button class="btn-gold" style="width:auto;padding:14px 32px;display:inline-flex;" onclick="go('matchType')">&#9874; CHALLENGE JASON</button>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">vs <span style="color:var(--gold);font-weight:700;" id="play-mode-opp-name">Opponent</span></div>
   </div>
-  <div class="card">
-    <div style="display:flex;justify-content:space-around;text-align:center;">
-      <div><div style="font-size:20px;font-weight:800;">198</div><div style="font-size:10px;color:var(--text-muted);">Wins</div></div>
-      <div><div style="font-size:20px;font-weight:800;">114</div><div style="font-size:10px;color:var(--text-muted);">Losses</div></div>
-      <div><div style="font-size:20px;font-weight:800;color:var(--gold);">63.4%</div><div style="font-size:10px;color:var(--text-muted);">Win Rate</div></div>
-      <div><div style="font-size:20px;font-weight:800;">91</div><div style="font-size:10px;color:var(--text-muted);">Opponents</div></div>
-    </div>
-  </div>
-  <div class="card" style="cursor:pointer;" onclick="go('h2h')"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div class="card-title" style="margin:0 0 4px;">Rivalry vs You</div><div style="font-size:28px;font-weight:900;color:var(--gold);">50 &#8212; 49</div><div style="font-size:12px;color:var(--text-sec);">100 matches &#8226; Bradley leads by 1</div></div><span style="font-size:20px;color:var(--text-muted);">&#8594;</span></div></div>
-  <div class="card"><div class="card-title">League</div><div style="font-size:14px;font-weight:700;">PMB Pool League</div><div style="font-size:12px;color:var(--text-muted);">Sharks &#8226; Premier Division &#8226; 2026</div></div>
-</div>
 
-<!-- RIVALRIES LIST -->
-<div class="screen" id="scr-rivalriesList">
-  <div class="back-bar"><button class="back-btn" onclick="go('profile')">&#8592;</button><div class="back-title">Rivalries</div></div>
-  <div style="font-size:13px;color:var(--text-muted);padding:0 16px 12px;" id="rivalryMeta">63 opponents &#8226; 219 matches</div>
-  <input type="text" class="search-box" id="rivalrySearch" placeholder="Search rivalries..." oninput="renderRivalries()" style="margin-bottom:12px;">
-  <div id="rivalriesContainer"></div>
-  <div style="text-align:center;padding:16px;">
-    <div style="font-size:12px;color:var(--text-muted);" id="rivalryCount">Showing all 63 rivalries</div>
+  <div class="match-type-option" onclick="selectPlayMode('QUICK');go('quickPlay')">
+    <div class="match-type-icon" style="background:rgba(212,160,23,0.15);color:var(--gold);font-size:24px;">&#9889;</div>
+    <div style="flex:1;">
+      <div class="match-type-label">Quick Play</div>
+      <div class="match-type-desc">Playing now. Set up and start immediately.</div>
+    </div>
+  </div>
+
+  <div class="match-type-option" onclick="selectPlayMode('SCHEDULED');go('challengeSetup')">
+    <div class="match-type-icon" style="background:rgba(0,212,170,0.1);color:var(--teal);font-size:24px;">&#128197;</div>
+    <div style="flex:1;">
+      <div class="match-type-label">Set Up Match</div>
+      <div class="match-type-desc">Arrange a match for later. Pick date, time, venue.</div>
+    </div>
   </div>
 </div>
 
-<!-- H2H / RIVALRY -->
-<div class="screen" id="scr-h2h">
-  <div class="back-bar"><button class="back-btn" onclick="go('rivalriesList')">&#8592;</button><div class="back-title">Bradley vs Jason</div></div>
-  <div class="h2h-big">
-    <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:12px;">
-      <div style="text-align:center;"><div class="avatar" style="margin:0 auto 6px;">B</div><div style="font-weight:700;">Bradley</div></div>
-      <div class="h2h-score gold-text">50 &#8212; 49</div>
-      <div style="text-align:center;"><div class="avatar" style="margin:0 auto 6px;">JP</div><div style="font-weight:700;">Jason</div></div>
-    </div>
-    <div class="h2h-sub">100 Matches &#8226; Bradley win rate 50.5%</div>
-    <div style="margin-top:12px;"><span class="stat-pill">&#128293; Bradley +1</span></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Breakdown</div>
-    <div class="row-between"><span class="row-label">Overall</span><span class="row-value">50 &#8212; 49</span></div>
-    <div class="row-between"><span class="row-label">Ranked</span><span class="row-value">42 &#8212; 38</span></div>
-    <div class="row-between"><span class="row-label">League</span><span class="row-value">5 &#8212; 7</span></div>
-    <div class="row-between"><span class="row-label">Tournament</span><span class="row-value">2 &#8212; 3</span></div>
-    <div class="row-between"><span class="row-label">Friendly</span><span class="row-value">1 &#8212; 1</span></div>
-    <div class="row-between"><span class="row-label">Last 10</span><span class="row-value">6 &#8212; 4</span></div>
-    <div class="row-between"><span class="row-label">By Venue</span><span class="row-value">28 &#8212; 24</span></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Rivalry Stats</div>
-    <div class="row-between"><span class="row-label">First match</span><span class="row-value">14 Jan 2026</span></div>
-    <div class="row-between"><span class="row-label">Latest match</span><span class="row-value">12 Aug 2026</span></div>
-    <div class="row-between"><span class="row-label">Longest streak (Bradley)</span><span class="row-value">W8</span></div>
-    <div class="row-between"><span class="row-label">Longest streak (Jason)</span><span class="row-value">W6</span></div>
-    <div class="row-between"><span class="row-label">Current streak</span><span class="row-value" style="color:var(--gold);">Bradley W4</span></div>
-    <div class="row-between"><span class="row-label">Biggest win</span><span class="row-value">Bradley 5&#8211;0</span></div>
-    <div class="row-between"><span class="row-label">Closest match</span><span class="row-value">5&#8211;4 (&#215;12)</span></div>
-    <div class="row-between"><span class="row-label">Total frames</span><span class="row-value">284 &#8212; 241</span></div>
-  </div>
-  <button class="btn-gold" onclick="go('matchType')">&#128293; REMATCH JASON</button>
-</div>
 
-<!-- MATCH SETUP -->
+
 <div class="screen" id="scr-matchSetup">
   <div class="back-bar"><button class="back-btn" onclick="go('matchType')">&#8592;</button><div class="back-title">Challenge Jason</div></div>
   <div class="card" style="text-align:center;padding:14px;">
@@ -964,7 +934,8 @@ body {
   <label class="form-label">Last Name</label><input type="text" class="form-input" id="epLast" value="">
   <label class="form-label">Username</label><input type="text" class="form-input" id="epUser" value="">
   <label class="form-label">Bio</label><input type="text" class="form-input" id="epBio" value="" placeholder="Short bio">
-  <label class="form-label">City</label><input type="text" class="form-input" id="epCity" value="">
+  <label class="form-label">City</label><input type="text" class="form-input" id="epCity" value="" readonly style="opacity:0.6;">
+  <label class="form-label">Area / Suburb</label><input type="text" class="form-input" id="epSuburb" value="">
   <label class="form-label">Province</label>
   <select class="select-input" id="epProvince">
     <option value="">Select Province</option>
@@ -1079,9 +1050,27 @@ body {
   <label class="form-label">Last Name</label><input type="text" class="form-input" id="gsLast" value="" placeholder="Last Name" onkeydown="if(event.key==='Enter')document.getElementById('gsMobile').focus()">
   <label class="form-label">Mobile Number</label><input type="tel" class="form-input" id="gsMobile" value="" placeholder="+27 82 000 0000" onkeydown="if(event.key==='Enter')document.getElementById('gsUser').focus()">
   <label class="form-label">Username</label><input type="text" class="form-input" id="gsUser" value="" placeholder="@username" onkeydown="if(event.key==='Enter')document.getElementById('gsCity').focus()">
-  <label class="form-label">City</label><input type="text" class="form-input" id="gsCity" value="" placeholder="e.g. Pietermaritzburg" onkeydown="if(event.key==='Enter')document.getElementById('gsProvince').focus()">
   <label class="form-label">Province</label>
-  <select class="select-input" id="gsProvince" onkeydown="if(event.key==='Enter')document.getElementById('gsAddress').focus()">
+  <select class="select-input" id="gsProvince" onchange="loadCitiesForGuest()" onkeydown="if(event.key==='Enter')document.getElementById('gsCity').focus()">
+    <option value="">Select Province</option>
+    <option>Eastern Cape</option>
+    <option>Free State</option>
+    <option>Gauteng</option>
+    <option>KwaZulu-Natal</option>
+    <option>Limpopo</option>
+    <option>Mpumalanga</option>
+    <option>North West</option>
+    <option>Northern Cape</option>
+    <option>Western Cape</option>
+  </select>
+
+  <label class="form-label">City / Town</label>
+  <select class="select-input" id="gsCity" onkeydown="if(event.key==='Enter')document.getElementById('gsSuburb').focus()">
+    <option value="">Select Province first</option>
+  </select>
+
+  <label class="form-label">Area / Suburb (optional)</label>
+  <input type="text" class="form-input" id="gsSuburb" value="" placeholder="e.g. Northdale" onkeydown="if(event.key==='Enter')document.getElementById('gsAddress').focus()">
     <option value="">Select Province</option>
     <option>KwaZulu-Natal</option>
     <option>Gauteng</option>
@@ -1188,7 +1177,7 @@ body {
   <label class="form-label">Street Address</label><input type="text" class="form-input" id="leagueAddress" placeholder="Full street address">
   <label class="form-label">Division / Tier</label><input type="text" class="form-input" id="leagueDivision" placeholder="e.g. Premier Division">
   <label class="form-label">Season</label><input type="text" class="form-input" id="leagueSeason" value="2026">
-  <button class="btn-gold" style="margin-top:8px;" onclick="go('leagueDetail')">CREATE LEAGUE</button>
+  <button class="btn-gold" style="margin-top:8px;" onclick="submitCreateLeague()">CREATE LEAGUE</button>
   <div style="text-align:center;padding:12px;font-size:11px;color:var(--text-muted);">Players can join via invite link or search</div>
 </div>
 
@@ -1371,9 +1360,61 @@ body {
   </div>
 </div>
 
+<!-- QUICK PLAY -->
+<div class="screen" id="scr-quickPlay">
+  <div class="back-bar"><button class="back-btn" onclick="go('playMode')">&#8592;</button><div class="back-title">Quick Play</div></div>
+
+  <div class="card" style="text-align:center;padding:14px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:8px;">
+      <div style="text-align:center;">
+        <div class="avatar" style="width:48px;height:48px;font-size:18px;margin:0 auto 4px;" id="qp-avatar-a">B</div>
+        <div style="font-size:14px;font-weight:700;" id="qp-name-a">You</div>
+        <div style="font-size:12px;color:var(--gold);font-weight:700;" id="qp-rating-a">1,842</div>
+      </div>
+      <div style="font-size:18px;font-weight:800;color:var(--text-muted);">VS</div>
+      <div style="text-align:center;">
+        <div class="avatar" style="width:48px;height:48px;font-size:18px;margin:0 auto 4px;" id="qp-avatar-b">?</div>
+        <div style="font-size:14px;font-weight:700;" id="qp-name-b">Opponent</div>
+        <div style="font-size:12px;color:var(--gold);font-weight:700;" id="qp-rating-b">--</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--text-muted);" id="qp-match-type-label">Ranked Match</div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px;">
+    <div class="card-title">Race To</div>
+    <div class="segmented" style="margin-bottom:12px;">
+      <button class="seg-btn" onclick="selectRaceTo(this,3)">3</button>
+      <button class="seg-btn active" onclick="selectRaceTo(this,5)">5</button>
+      <button class="seg-btn" onclick="selectRaceTo(this,7)">7</button>
+      <button class="seg-btn" onclick="selectRaceTo(this,9)">9</button>
+    </div>
+    <div style="font-size:12px;color:var(--text-muted);">First to this number of frames wins.</div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px;">
+    <div class="card-title">Break</div>
+    <div class="segmented" style="margin-bottom:12px;">
+      <button class="seg-btn active" onclick="selectBreak(this,'random')">Random</button>
+      <button class="seg-btn" onclick="selectBreak(this,'challenger')">Challenger</button>
+      <button class="seg-btn" onclick="selectBreak(this,'opponent')">Opponent</button>
+    </div>
+    <div style="font-size:12px;color:var(--text-muted);">Who breaks first in frame 1.</div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px;">
+    <div class="row-between"><span class="row-label">Venue</span><span class="row-value" id="qp-venue" style="cursor:pointer;" onclick="go('challengeSetup')">Time Out Restaurant & Bar &#9662;</span></div>
+  </div>
+
+  <button class="btn-gold" onclick="startQuickPlay()">START MATCH</button>
+  <button class="btn-text" onclick="go('playMode')">Cancel</button>
+</div>
+
+
+
 <!-- CHALLENGE SETUP (with Venue + DateTime) -->
 <div class="screen" id="scr-challengeSetup">
-  <div class="back-bar"><button class="back-btn" onclick="go('search')">&#8592;</button><div class="back-title">Challenge Details</div></div>
+  <div class="back-bar"><button class="back-btn" onclick="go('playMode')">&#8592;</button><div class="back-title">Challenge Details</div></div>
 
   <div class="card" style="text-align:center;padding:14px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:8px;">
@@ -1503,7 +1544,7 @@ body {
 
     <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">They can accept, decline, or suggest a better time.</div>
 
-    <button class="btn-text" onclick="go('home')" style="color:var(--danger);">Cancel Challenge</button>
+    <button class="btn-text" onclick="cancelChallenge()" style="color:var(--danger);">Cancel Challenge</button>
   </div>
 </div>
 
@@ -1553,6 +1594,13 @@ function getVenueName(venueId) {
   return VENUE_MAP[venueId] || venueId;
 }
 
+function normalizeMobile(raw) {
+  let num = raw.replace(/\s+/g, '').replace(/-/g, '');
+  if (num.startsWith('0')) num = '+27' + num.slice(1);
+  if (!num.startsWith('+')) num = '+' + num;
+  return num;
+}
+
 function formatStatus(status) {
   if (status === 'PROVISIONAL') return 'PROVISIONALLY RANKED';
   if (status === 'ESTABLISHED') return 'ESTABLISHED';
@@ -1572,10 +1620,8 @@ async function api(endpoint, method='GET', body=null, needsAuth=true) {
     method, 
     headers: { 'Content-Type': 'application/json' } 
   };
-  // Send token BOTH as query param AND Authorization header (backend accepts either)
+  // Send token via Authorization header only
   if (needsAuth && STATE.token) {
-    const sep = url.includes('?') ? '&' : '?';
-    url += `${sep}token=${encodeURIComponent(STATE.token)}`;
     opts.headers['Authorization'] = `Bearer ${STATE.token}`;
   }
   if (body) opts.body = JSON.stringify(body);
@@ -1609,10 +1655,12 @@ function setAuth(token, player) {
 }
 
 function clearAuth() {
-  STATE = { token: null, player: null, currentMatch: null, invite: null, deepLink: null, inviteToken: null, preMatchRating: null };
+  STATE = { token: null, player: null, currentMatch: null, invite: null, deepLink: null, inviteToken: null, preMatchRating: null, currentOpponent: null };
   localStorage.removeItem('rankd_token');
   localStorage.removeItem('rankd_player');
   localStorage.removeItem('rankd_match');
+  localStorage.removeItem('rankd_has_pin');
+  localStorage.removeItem('rankd_opponent');
 }
 
 function logout() {
@@ -1653,7 +1701,7 @@ async function handleDeepLink() {
       alert('Could not verify invite link automatically.\n\nNo problem — create your account and you can still join the match.');
       STATE.invite = {
         inviter: { name: link.inviter || 'Someone', rating: 1800 },
-        format_value: 5,
+        format_value: selectedRaceTo || 5,
         match_id: link.match
       };
       renderGuestLanding(STATE.invite);
@@ -1707,7 +1755,7 @@ function handleDeepLinkFlow() {
 }
 
 async function signInWithPin() {
-  const mobile = document.getElementById('siMobile').value.trim();
+  const mobile = normalizeMobile(document.getElementById('siMobile').value.trim());
   const pin = document.getElementById('siPin').value.trim();
 
   if (!mobile || mobile.length < 10) {
@@ -1720,22 +1768,30 @@ async function signInWithPin() {
   }
 
   setLoading(true);
+  let tempToken = null;
+  let tempPlayer = null;
   try {
-    // Login with mobile
-    const data = await api('/auth/login', 'POST', { mobile_number: mobile }, false);
-    setAuth(data.token, data.player);
+    // Login with mobile (temporary token for PIN verification only)
+    const data = await api('/auth/login', 'POST', { mobile_number: mobile, otp_code: '000000' }, false);
+    tempToken = data.token;
+    tempPlayer = data.player;
 
-    // Verify PIN
-    const pinData = await api('/auth/pin/verify', 'POST', { pin: pin }, true);
-
+    // Verify PIN using temporary token
+    const pinData = await api('/auth/pin/verify', 'POST', { pin: pin }, false);
     if (pinData.token) {
-      setAuth(pinData.token, data.player);
+      // PIN verified — set auth with fresh verified token and fetch latest player data
+      STATE.token = pinData.token;
+      const freshPlayer = await api('/players/me', 'GET', null, true);
+      setAuth(pinData.token, freshPlayer);
       localStorage.setItem('rankd_has_pin', 'true');
       setLoading(false);
       go('home');
     }
   } catch (err) {
     setLoading(false);
+    // Clear any temporary state on failure
+    STATE.token = null;
+    STATE.player = null;
     if (err.message && err.message.includes('not found')) {
       alert('No account found with this number.');
     } else if (err.message && err.message.includes('Incorrect')) {
@@ -1751,7 +1807,7 @@ async function signInWithPin() {
 async function submitSignUp() {
   const firstName = document.getElementById('suFirst').value.trim();
   const lastName = document.getElementById('suLast').value.trim();
-  const mobile = document.getElementById('suMobile').value.trim();
+  const mobile = normalizeMobile(document.getElementById('suMobile').value.trim());
   const username = document.getElementById('suUser').value.trim();
   const city = document.getElementById('suCity').value.trim();
   const province = document.getElementById('suProvince').value;
@@ -1761,9 +1817,10 @@ async function submitSignUp() {
   }
   setLoading(true);
   try {
+    const suburb = document.getElementById('suSuburb').value.trim() || null;
     const data = await api('/auth/signup', 'POST', {
       first_name: firstName, last_name: lastName, mobile_number: mobile,
-      username: username.replace('@', ''), city: city, province: province,
+      username: username.replace('@', ''), city: city, suburb: suburb, province: province,
       country: 'South Africa',
       invite_token: STATE.inviteToken || null
     }, false);
@@ -1782,7 +1839,7 @@ async function submitSignUp() {
 }
 
 // ——— SCREEN NAVIGATION ———
-const navScreens = ['home','challenge','search','rankings','nights','profile','notifications','leagues','pendingChallenges'];
+const navScreens = ['home','challenge','search','rankings','nights','profile','notifications','leagues','pendingChallenges','playerProfile','matchType','playMode','quickPlay'];
 
 function renderCounterProposal() {
   const el = document.getElementById('counter-proposed-line');
@@ -1822,6 +1879,9 @@ function go(screen) {
   if (screen === 'howItWorks') renderHowItWorks();
   if (screen === 'qrProfile') setTimeout(generateProfileQR, 300);
   if (screen === 'guestLanding' && STATE.invite) renderGuestLanding(STATE.invite);
+  if (screen === 'matchType') renderMatchType();
+  if (screen === 'playMode') renderPlayMode();
+  if (screen === 'quickPlay') renderQuickPlay();
 }
 
 // ——— RENDERERS ———
@@ -1931,13 +1991,15 @@ async function loadRankings(scope) {
       } else if (myRank && rank < myRank && (myRank - rank) > 5) {
         // More than 5 spots ABOVE you — LOCKED
         challengeBtn = `<button style="padding:6px 12px;background:var(--border);color:var(--text-muted);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:not-allowed;white-space:nowrap;" disabled title="You can only challenge up to 5 spots above you">&#128274;</button>`;
+      } else if (isDemo) {
+        challengeBtn = `<button style="padding:6px 12px;background:var(--border);color:var(--text-muted);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:not-allowed;white-space:nowrap;" disabled>DEMO</button>`;
       } else {
         // Within 5 spots above, OR below you — FREE TO CHALLENGE
-        challengeBtn = `<button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="challengeFromRankings(${rank}, '${escapeHtml(p.player_id)}', '${escapeHtml(p.username)}', '${escapeHtml(p.name)}', ${p.rating || 800})">&#9874; CHALLENGE</button>`;
+        challengeBtn = `<button style="padding:6px 12px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;" onclick="event.stopPropagation();openChallenge('${escapeHtml(p.player_id)}', 'leaderboard')">&#9874; CHALLENGE</button>`;
       }
 
       return `
-        <div id="ranking-row-${rank}" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);${bgStyle}">
+        <div id="ranking-row-${rank}" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);${bgStyle}" onclick="openChallenge('${escapeHtml(p.player_id)}', 'leaderboard')">
           <div style="width:32px;text-align:center;font-size:15px;font-weight:800;color:${rankColor};">${rank}</div>
           <div class="avatar avatar-sm" style="${isYou ? 'border:2px solid var(--gold);' : ''}">${initial}</div>
           <div style="flex:1;">
@@ -2084,8 +2146,22 @@ function renderProfile() {
   // League card
   const leagueName = document.getElementById('profile-league-name');
   const leagueStatus = document.getElementById('profile-league-status');
-  if (leagueName) leagueName.textContent = 'No League';
-  if (leagueStatus) leagueStatus.textContent = 'Tap to browse or create a league';
+  // Try to load actual league membership
+  if (leagueName) {
+    api('/leagues/my', 'GET', null, true).then(data => {
+      if (data.member_of && data.member_of.length > 0) {
+        const league = data.member_of[0];
+        leagueName.textContent = league.name;
+        if (leagueStatus) leagueStatus.textContent = league.is_verified ? 'Verified Member' : 'Pending Approval';
+      } else {
+        leagueName.textContent = 'No League';
+        if (leagueStatus) leagueStatus.textContent = 'Tap to browse or create a league';
+      }
+    }).catch(() => {
+      if (leagueName) leagueName.textContent = 'No League';
+      if (leagueStatus) leagueStatus.textContent = 'Tap to browse or create a league';
+    });
+  }
 
   // Stats from player data
   const wins = document.getElementById('profile-wins');
@@ -2147,7 +2223,7 @@ function escapeHtml(text) {
 async function submitGuestSignup() {
   const firstName = document.getElementById('gsFirst').value.trim();
   const lastName = document.getElementById('gsLast').value.trim();
-  const mobile = document.getElementById('gsMobile').value.trim();
+  const mobile = normalizeMobile(document.getElementById('gsMobile').value.trim());
   const username = document.getElementById('gsUser').value.trim();
   const city = document.getElementById('gsCity').value.trim();
   const province = document.getElementById('gsProvince').value;
@@ -2158,12 +2234,14 @@ async function submitGuestSignup() {
     return;
   }
 
+  const suburb = document.getElementById('gsSuburb').value.trim() || null;
   const payload = {
     first_name: firstName,
     last_name: lastName,
     mobile_number: mobile,
     username: username.replace('@', ''),
     city: city,
+    suburb: suburb,
     province: province,
     country: 'South Africa',
     street_address: address || null,
@@ -2352,8 +2430,8 @@ async function createGuestInvite() {
   try {
     setLoading(true);
     const data = await api('/invites/guest', 'POST', {
-      context: 'RANKD_CHALLENGE',
-      format_value: 5,
+      context: context,
+      format_value: selectedRaceTo || 5,
       venue_id: selectedVenue === 'other' ? null : selectedVenue
     });
     setLoading(false);
@@ -2373,11 +2451,6 @@ function adj(p, d) {
   let v = parseInt(el.textContent) + d;
   if (v < 0) v = 0; if (v > 9) v = 9;
   el.textContent = v;
-}
-
-function selectMatchType(el) {
-  document.querySelectorAll('.match-type-option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
 }
 
 function handleQRUpload(input) {
@@ -2446,8 +2519,7 @@ async function searchByRankdCodeManual(code) {
     setLoading(false);
     if (players && players.length > 0) {
       const p = players[0];
-      setOpponentAndChallenge(p.player_id || p.id, p.username, p.first_name + ' ' + p.last_name, p.public_rating || 800);
-      go('challengeSetup');
+      openChallenge(p.player_id || p.id, 'qr');
     } else {
       alert('No player found. Check the code or invite them to sign up.');
     }
@@ -2551,7 +2623,7 @@ async function filterPlayers() {
       const initial = (p.first_name || '?').charAt(0);
       const location = p.city ? p.city + ' #' + (p.rank || '?') : '';
       return `
-        <div class="card" style="cursor:pointer;margin-bottom:10px;" onclick="go('playerProfile')">
+        <div class="card" style="cursor:pointer;margin-bottom:10px;" onclick="openPlayerProfile('${escapeHtml(p.player_id || p.id)}', '${escapeHtml(p.username)}')">
           <div style="display:flex;align-items:center;gap:12px;">
             <div class="avatar">${initial}</div>
             <div style="flex:1;">
@@ -2559,7 +2631,7 @@ async function filterPlayers() {
               <div style="font-size:12px;color:var(--text-muted);">@${escapeHtml(p.username)} ${location ? '&#8226; ' + location : ''}</div>
             </div>
             <div style="font-size:18px;font-weight:800;color:var(--gold);">${p.public_rating || 800}</div>
-            <button style="padding:8px 14px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;" onclick="event.stopPropagation();setOpponentAndChallenge('${escapeHtml(p.player_id || p.id)}', '${escapeHtml(p.username)}', '${escapeHtml(p.first_name + ' ' + p.last_name)}', ${p.public_rating || 800})">CHALLENGE</button>
+            <button style="padding:8px 14px;background:var(--gold);color:var(--black);border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;" onclick="event.stopPropagation();openChallenge('${escapeHtml(p.player_id || p.id)}', 'search')">CHALLENGE</button>
           </div>
         </div>
       `;
@@ -2572,28 +2644,7 @@ async function filterPlayers() {
 // ============================================================
 // FULL RIVALRIES
 // ============================================================
-const allRivalries = [
-  { id:'jaypool', name:'Jason Pillay', handle:'@jaypool', location:'PMB #4', rating:1911, wins:50, losses:49, total:99, lastPlayed:'12 Aug', streak:'L1' },
-  { id:'kyle', name:'Kyle Naidoo', handle:'@kylepool', location:'PMB #2', rating:1988, wins:32, losses:28, total:60, lastPlayed:'10 Aug', streak:'W2' },
-  { id:'ryan', name:'Ryan Govender', handle:'@ryg', location:'PMB #3', rating:1954, wins:18, losses:24, total:42, lastPlayed:'8 Aug', streak:'W1' },
-  { id:'siya', name:'Siya Mthembu', handle:'@siya', location:'PMB #9', rating:1854, wins:15, losses:8, total:23, lastPlayed:'2 Aug', streak:'W5' },
-  { id:'thabo', name:'Thabo Dlamini', handle:'@thabo', location:'PMB #10', rating:1842, wins:12, losses:5, total:17, lastPlayed:'28 Jul', streak:'W3' },
-  { id:'nzulu', name:'Nkosinathi Zulu', handle:'@nzulu', location:'PMB #15', rating:1721, wins:8, losses:3, total:11, lastPlayed:'15 Jul', streak:'W1' },
-  { id:'lungelo', name:'Lungelo Mkhize', handle:'@lungelo', location:'PMB #22', rating:1684, wins:6, losses:2, total:8, lastPlayed:'10 Jul', streak:'W2' },
-  { id:'sipho', name:'Sipho Ndlovu', handle:'@sipho', location:'PMB #31', rating:1592, wins:5, losses:1, total:6, lastPlayed:'5 Jul', streak:'W4' },
-  { id:'mike', name:'Mike Peters', handle:'@mikep', location:'PMB #18', rating:1744, wins:4, losses:6, total:10, lastPlayed:'1 Jul', streak:'L2' },
-  { id:'andre', name:'Andre Pretorius', handle:'@andre', location:'PMB #11', rating:1812, wins:3, losses:7, total:10, lastPlayed:'25 Jun', streak:'L1' },
-  { id:'dave', name:'Dave Miller', handle:'@dave', location:'PMB #29', rating:1621, wins:7, losses:4, total:11, lastPlayed:'20 Jun', streak:'W1' },
-  { id:'chris', name:'Chris Daniels', handle:'@chris', location:'PMB #33', rating:1588, wins:2, losses:2, total:4, lastPlayed:'15 Jun', streak:'D1' },
-  { id:'peter', name:'Peter Smith', handle:'@peter', location:'PMB #41', rating:1521, wins:4, losses:0, total:4, lastPlayed:'10 Jun', streak:'W4' },
-  { id:'johan', name:'Johan van Wyk', handle:'@johan', location:'PMB #19', rating:1733, wins:1, losses:5, total:6, lastPlayed:'5 Jun', streak:'L3' },
-  { id:'vusi', name:'Vusi Khumalo', handle:'@vusi', location:'PMB #27', rating:1654, wins:6, losses:6, total:12, lastPlayed:'28 May', streak:'D1' },
-  { id:'kevin', name:'Kevin Brown', handle:'@kevin', location:'PMB #35', rating:1577, wins:3, losses:1, total:4, lastPlayed:'20 May', streak:'W2' },
-  { id:'lee', name:'Lee Thompson', handle:'@lee', location:'PMB #44', rating:1498, wins:2, losses:3, total:5, lastPlayed:'15 May', streak:'L1' },
-  { id:'gary', name:'Gary Wilson', handle:'@gary', location:'PMB #38', rating:1544, wins:5, losses:2, total:7, lastPlayed:'8 May', streak:'W1' },
-  { id:'tom', name:'Tom Harrison', handle:'@tom', location:'PMB #52', rating:1432, wins:1, losses:1, total:2, lastPlayed:'1 May', streak:'D1' },
-  { id:'neil', name:'Neil Adams', handle:'@neil', location:'PMB #48', rating:1467, wins:0, losses:2, total:2, lastPlayed:'25 Apr', streak:'L2' }
-];
+
 
 async function challengeFromRankings(oppRank, playerId, username, name, rating) {
   const myRank = window._myLeaderboardRank || 1;
@@ -2601,39 +2652,17 @@ async function challengeFromRankings(oppRank, playerId, username, name, rating) 
   if (oppRank < myRank) {
     const spotsAbove = myRank - oppRank;
     if (spotsAbove > 5) {
-      alert(`You can only challenge up to 5 spots above you.\n\nThey are #${oppRank}, you are #${myRank}.\n\nBeat players closer to you first!`);
+      alert(`You can only challenge up to 5 spots above you.
+
+They are #${oppRank}, you are #${myRank}.
+
+Beat players closer to you first!`);
       return;
     }
   }
 
-  STATE.currentOpponent = { 
-    id: playerId, 
-    username: username,
-    name: name, 
-    rating: rating,
-    rank: oppRank 
-  };
-  localStorage.setItem('rankd_opponent', JSON.stringify(STATE.currentOpponent));
-
-  const csOppName = document.getElementById('cs-opp-name');
-  const csOppRating = document.getElementById('cs-opp-rating');
-  const csYourRating = document.getElementById('cs-your-rating');
-  if (csOppName) csOppName.textContent = name;
-  if (csOppRating) csOppRating.textContent = rating.toLocaleString();
-  if (csYourRating && STATE.player) {
-    csYourRating.textContent = (STATE.player.public_rating || 0).toLocaleString();
-  }
-
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const challengeDate = document.getElementById('challengeDate');
-  const challengeTime = document.getElementById('challengeTime');
-  if (challengeDate) challengeDate.value = tomorrow.toISOString().split('T')[0];
-  if (challengeTime) challengeTime.value = '19:00';
-
-  go('challengeSetup');
+  openChallenge(playerId, 'leaderboard');
 }
-
 function setOpponentAndChallenge(playerId, username, name, rating) {
   STATE.currentOpponent = { 
     id: playerId, 
@@ -2642,7 +2671,6 @@ function setOpponentAndChallenge(playerId, username, name, rating) {
     rating: rating 
   };
   localStorage.setItem('rankd_opponent', JSON.stringify(STATE.currentOpponent));
-  go('challengeSetup');
 }
 
 function renderChallengeSetup() {
@@ -2651,11 +2679,13 @@ function renderChallengeSetup() {
   const csOppName = document.getElementById('cs-opp-name');
   const csOppRating = document.getElementById('cs-opp-rating');
   const csYourRating = document.getElementById('cs-your-rating');
+  const matchTypeOpp = document.getElementById('match-type-opp-name');
   if (csOppName) csOppName.textContent = opp.name;
   if (csOppRating) csOppRating.textContent = (opp.rating || 0).toLocaleString();
   if (csYourRating && STATE.player) {
     csYourRating.textContent = (STATE.player.public_rating || 0).toLocaleString();
   }
+  if (matchTypeOpp) matchTypeOpp.textContent = opp.name || 'Opponent';
   // Set default date/time if empty
   const challengeDate = document.getElementById('challengeDate');
   const challengeTime = document.getElementById('challengeTime');
@@ -2732,31 +2762,241 @@ function goBackFromHow() {
     const prev = document.querySelector('.screen.active');
     go('home');
   }
+
+// ——— UNIVERSAL CHALLENGE FLOW ———
+let viewedProfilePlayer = null;
+let selectedMatchType = 'RANKED';
+let selectedPlayMode = 'QUICK';
+let selectedRaceTo = 5;
+let selectedBreak = 'random';
+
+function resetChallengeFlow() {
+  selectedMatchType = 'RANKED';
+  selectedPlayMode = 'QUICK';
+  selectedRaceTo = 5;
+  selectedBreak = 'random';
+  selectedVenue = 'time-out';
+  STATE.currentOpponent = null;
+  localStorage.removeItem('rankd_opponent');
 }
 
-function renderRivalries() {
+function openChallenge(playerId, source) {
+  if (!playerId) {
+    alert('Player not found.');
+    return;
+  }
+  resetChallengeFlow();
+  STATE.challengeSource = source || 'search';
+  openPlayerProfile(playerId);
+}
+
+async function openPlayerProfile(playerId, username) {
+  if (!playerId) {
+    alert('Player not found.');
+    return;
+  }
+  setLoading(true);
+  try {
+    const player = await api('/players/' + encodeURIComponent(playerId), 'GET', null, true);
+    viewedProfilePlayer = player;
+
+    document.getElementById('pp-avatar').textContent = (player.first_name || '?').charAt(0).toUpperCase();
+    document.getElementById('pp-name').textContent = `${player.first_name || ''} ${player.last_name || ''}`.trim() || 'Unknown';
+    document.getElementById('pp-handle').textContent = `@${player.username || '--'} ${player.rankd_code ? '&#8226; ' + player.rankd_code : ''}`;
+    document.getElementById('pp-rating').textContent = (player.rating || 800).toLocaleString();
+    document.getElementById('pp-status').innerHTML = `<span>&#9679;</span> ${formatStatus(player.status || 'UNRANKD')}`;
+    document.getElementById('pp-back-title').textContent = `@${player.username || 'player'}`;
+    document.getElementById('pp-wins').textContent = player.wins || 0;
+    document.getElementById('pp-losses').textContent = player.losses || 0;
+    document.getElementById('pp-opponents').textContent = player.unique_opponents || 0;
+
+    const total = (player.wins || 0) + (player.losses || 0);
+    document.getElementById('pp-winrate').textContent = total > 0 ? ((player.wins || 0) / total * 100).toFixed(1) + '%' : '--';
+
+    // Rank displays
+    document.getElementById('pp-rank-pmb').textContent = player.rank_pmb ? `#${player.rank_pmb}` : '--';
+    document.getElementById('pp-rank-kzn').textContent = player.rank_kzn ? `#${player.rank_kzn}` : '--';
+    document.getElementById('pp-rank-sa').textContent = player.rank_sa ? `#${player.rank_sa}` : '--';
+
+    const btn = document.getElementById('pp-challenge-btn');
+    if (btn) {
+      btn.textContent = `&#9874; CHALLENGE ${player.first_name || 'PLAYER'}`;
+      btn.style.display = (player.id === STATE.player?.id) ? 'none' : 'inline-flex';
+    }
+
+    // Set opponent for challenge flow
+    STATE.currentOpponent = {
+      id: player.id,
+      username: player.username,
+      name: `${player.first_name || ''} ${player.last_name || ''}`.trim(),
+      rating: player.rating || 800,
+      challengeSource: STATE.challengeSource || 'profile'
+    };
+    localStorage.setItem('rankd_opponent', JSON.stringify(STATE.currentOpponent));
+
+    setLoading(false);
+    go('playerProfile');
+  } catch (err) {
+    setLoading(false);
+    alert('Could not load player profile: ' + (err.message || 'Unknown error'));
+  }
+}
+
+function challengeProfilePlayer() {
+  if (!viewedProfilePlayer) return;
+  setOpponentAndChallenge(
+    viewedProfilePlayer.id,
+    viewedProfilePlayer.username,
+    `${viewedProfilePlayer.first_name || ''} ${viewedProfilePlayer.last_name || ''}`.trim(),
+    viewedProfilePlayer.rating || 800
+  );
+  go('matchType');
+}
+
+function goBackFromProfile() {
+  viewedProfilePlayer = null;
+  go('search');
+}
+
+function selectMatchType(type) {
+  selectedMatchType = type;
+}
+
+function selectPlayMode(mode) {
+  selectedPlayMode = mode;
+}
+
+function selectRaceTo(btn, frames) {
+  selectedRaceTo = frames;
+  btn.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function selectBreak(btn, who) {
+  selectedBreak = who;
+  btn.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function renderQuickPlay() {
+  if (!STATE.currentOpponent || !STATE.player) return;
+  const opp = STATE.currentOpponent;
+  const p = STATE.player;
+
+  document.getElementById('qp-name-a').textContent = p.first_name || 'You';
+  document.getElementById('qp-rating-a').textContent = (p.public_rating || 0).toLocaleString();
+  document.getElementById('qp-avatar-a').textContent = (p.first_name || 'Y').charAt(0);
+
+  document.getElementById('qp-name-b').textContent = opp.name;
+  document.getElementById('qp-rating-b').textContent = (opp.rating || 0).toLocaleString();
+  document.getElementById('qp-avatar-b').textContent = (opp.name || '?').charAt(0);
+
+  const typeLabels = {
+    'RANKED': 'Ranked Match',
+    'LEAGUE': 'League Match',
+    'TOURNAMENT': 'Tournament Match',
+    'FRIENDLY': 'Friendly Match'
+  };
+  document.getElementById('qp-match-type-label').textContent = typeLabels[selectedMatchType] || 'Match';
+}
+
+function renderMatchType() {
+  if (!STATE.currentOpponent) return;
+  const el = document.getElementById('match-type-opp-name');
+  if (el) el.textContent = STATE.currentOpponent.name || 'Opponent';
+}
+
+function renderPlayMode() {
+  if (!STATE.currentOpponent) return;
+  const el = document.getElementById('play-mode-opp-name');
+  if (el) el.textContent = STATE.currentOpponent.name || 'Opponent';
+}
+
+
+async function startQuickPlay() {
+  if (!STATE.currentOpponent) {
+    alert('No opponent selected.');
+    return;
+  }
+
+  const isLadder = STATE.currentOpponent?.challengeSource === 'ladder';
+  let context = 'RANKD_CHALLENGE';
+  if (selectedMatchType === 'LEAGUE') context = 'LEAGUE';
+  else if (selectedMatchType === 'TOURNAMENT') context = 'TOURNAMENT';
+  else if (selectedMatchType === 'FRIENDLY') context = 'FRIENDLY';
+  else if (isLadder) context = 'LADDER_CHALLENGE';
+
+  setLoading(true);
+  try {
+    const result = await api('/matches', 'POST', {
+      opponent_id: STATE.currentOpponent.id,
+      context: context,
+      format_value: selectedRaceTo,
+      venue_id: selectedVenue === 'other' ? null : selectedVenue
+    }, true);
+
+    // DO NOT auto-accept — opponent must confirm for integrity
+    STATE.currentMatch = {
+      id: result.match_id,
+      status: 'INVITE_PENDING',
+      opponentName: STATE.currentOpponent.name,
+      opponentRating: STATE.currentOpponent.rating,
+      format: selectedRaceTo,
+      type: selectedMatchType
+    };
+    localStorage.setItem('rankd_match', JSON.stringify(STATE.currentMatch));
+
+    setLoading(false);
+    // Show waiting screen — opponent must accept via notification
+    document.getElementById('cw-opp-name').textContent = STATE.currentOpponent.name;
+    document.getElementById('cw-venue').textContent = getVenueName(selectedVenue);
+    const now = new Date();
+    document.getElementById('cw-datetime').textContent = now.toLocaleString('en-ZA', {weekday:'long', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+    go('challengeWaiting');
+  } catch (err) {
+    setLoading(false);
+    alert('Failed to start match: ' + err.message);
+  }
+}
+
+async function renderRivalries() {
   const container = document.getElementById('rivalriesContainer');
   const search = document.getElementById('rivalrySearch').value.toLowerCase();
-  const filtered = allRivalries.filter(r => 
-    r.name.toLowerCase().includes(search) || 
-    r.handle.toLowerCase().includes(search) ||
-    r.location.toLowerCase().includes(search)
+
+  let rivalries = [];
+  try {
+    const data = await api('/players/me/rivalries', 'GET', null, true);
+    rivalries = data.rivalries || [];
+    const totalMatches = rivalries.reduce((s, r) => s + (r.total || 0), 0);
+    document.getElementById('rivalryMeta').textContent = 
+      `${data.total_opponents || 0} opponents &#8226; ${totalMatches} matches`;
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state">Could not load rivalries.</div>';
+    return;
+  }
+
+  const filtered = rivalries.filter(r => 
+    (r.opponent?.name || '').toLowerCase().includes(search) || 
+    (r.opponent?.username || '').toLowerCase().includes(search)
   );
-  document.getElementById('rivalryCount').textContent = `Showing ${filtered.length} of ${allRivalries.length}+ rivalries`;
+
+  document.getElementById('rivalryCount').textContent = `Showing ${filtered.length} of ${rivalries.length} rivalries`;
   if (filtered.length === 0) {
     container.innerHTML = '<div class="empty-state">No rivalries found. Play more matches!</div>';
     return;
   }
+
   container.innerHTML = filtered.map(r => {
     const isWinning = r.wins > r.losses;
     const scoreColor = isWinning ? 'var(--gold)' : (r.wins < r.losses ? 'var(--danger)' : 'var(--text-sec)');
+    const opp = r.opponent || {};
     return `
-      <div class="card" style="cursor:pointer;margin-bottom:10px;" onclick="go('h2h')">
+      <div class="card" style="cursor:pointer;margin-bottom:10px;" onclick="openPlayerProfile('${escapeHtml(opp.id || '')}', '${escapeHtml(opp.username || '')}')">
         <div style="display:flex;align-items:center;gap:12px;">
-          <div class="avatar">${r.name.charAt(0)}</div>
+          <div class="avatar">${(opp.name || '?').charAt(0)}</div>
           <div style="flex:1;">
-            <div style="font-weight:700;font-size:15px;">${r.name}</div>
-            <div style="font-size:12px;color:var(--text-muted);">${r.handle} &#8226; ${r.location} &#8226; RANKD ${r.rating.toLocaleString()}</div>
+            <div style="font-weight:700;font-size:15px;">${escapeHtml(opp.name || 'Unknown')}</div>
+            <div style="font-size:12px;color:var(--text-muted);">@${escapeHtml(opp.username || '')}</div>
           </div>
           <div style="text-align:right;">
             <div style="font-size:20px;font-weight:900;color:${scoreColor};">${r.wins}&#8211;${r.losses}</div>
@@ -2893,7 +3133,10 @@ async function submitPinUnlock(pin) {
   try {
     const pinData = await api('/auth/pin/verify', 'POST', { pin: pin }, true);
     if (pinData.token) {
-      setAuth(pinData.token, STATE.player);
+      // Fetch fresh player data after successful unlock
+      STATE.token = pinData.token;
+      const freshPlayer = await api('/players/me', 'GET', null, true);
+      setAuth(pinData.token, freshPlayer);
       localStorage.setItem('rankd_has_pin', 'true');
       setLoading(false);
       go('home');
@@ -3048,17 +3291,43 @@ function goToLeagueDetail(leagueId) {
 }
 
 function forgotPinFlow() {
-  // Clear PIN-related state but keep the user conceptually "known"
-  // They need to sign in with mobile + OTP again, then set a new PIN
-  localStorage.removeItem('rankd_has_pin');
-  localStorage.removeItem('rankd_token');
-  localStorage.removeItem('rankd_player');
-  STATE.token = null;
-  STATE.player = null;
-  unlockBuffer = '';
-  updateUnlockDots();
-  alert('You will sign in with your mobile number and OTP, then set a new PIN.');
-  go('signIn');
+  // Real forgot-PIN flow: mobile → OTP → reset PIN → new PIN setup
+  const mobile = prompt('Enter your mobile number to reset your PIN:');
+  if (!mobile) return;
+  const normalized = normalizeMobile(mobile.trim());
+  if (!normalized || normalized.length < 10) {
+    alert('Please enter a valid mobile number.');
+    return;
+  }
+  setLoading(true);
+  // Step 1: send OTP
+  api('/auth/otp/send', 'POST', { mobile_number: normalized, channel: 'whatsapp' }, false)
+    .then(() => {
+      // Step 2: verify with OTP (mock 000000 for testing)
+      return api('/auth/login', 'POST', { mobile_number: normalized, otp_code: '000000' }, false);
+    })
+    .then(data => {
+      // Step 3: reset PIN on backend
+      STATE.token = data.token;
+      STATE.player = data.player;
+      return api('/auth/pin/reset', 'POST', {}, true);
+    })
+    .then(() => {
+      setLoading(false);
+      alert('PIN reset. Create a new PIN now.');
+      // Step 4: go to PIN setup
+      pinBuffer = '';
+      pinConfirmBuffer = '';
+      pinMode = 'create';
+      updatePinDots();
+      go('pinSetup');
+    })
+    .catch(err => {
+      setLoading(false);
+      STATE.token = null;
+      STATE.player = null;
+      alert(err.message || 'Failed to reset PIN. Make sure your number is registered.');
+    });
 }
 
 
@@ -3076,6 +3345,8 @@ function renderEditProfile() {
   if (last) last.value = p.last_name || '';
   if (user) user.value = p.username ? '@' + p.username : '';
   if (city) city.value = p.city || '';
+  const suburb = document.getElementById('epSuburb');
+  if (suburb) suburb.value = p.suburb || '';
   if (province) province.value = p.province || '';
 }
 
@@ -3211,17 +3482,28 @@ async function sendCounter() {
   }
   const date = document.getElementById('counterDate').value;
   const time = document.getElementById('counterTime').value;
+  const venueId = document.getElementById('counterVenue').value;
   if (!date || !time) {
     alert('Please select a date and time.');
     return;
   }
   const proposed = new Date(date + 'T' + time);
+
+  // Determine context based on match type and source
+  let context = 'RANKD_CHALLENGE';
+  if (selectedMatchType === 'LEAGUE') context = 'LEAGUE';
+  else if (selectedMatchType === 'TOURNAMENT') context = 'TOURNAMENT';
+  else if (selectedMatchType === 'FRIENDLY') context = 'FRIENDLY';
+  else if (STATE.currentOpponent?.challengeSource === 'ladder') context = 'LADDER_CHALLENGE';
+
   setLoading(true);
   try {
-    await api(`/matches/${currentChallengeMatchId}/counter`, 'POST', {
+    const payload = {
       match_id: currentChallengeMatchId,
       proposed_datetime: proposed.toISOString()
-    }, true);
+    };
+    if (venueId) payload.venue_id = venueId;
+    await api(`/matches/${currentChallengeMatchId}/counter`, 'POST', payload, true);
     setLoading(false);
     alert('Counter proposal sent!');
     go('home');
@@ -3230,6 +3512,146 @@ async function sendCounter() {
     alert(err.message || 'Failed to send counter.');
   }
 }
+
+async function cancelChallenge() {
+  if (!STATE.currentMatch || !STATE.currentMatch.id) {
+    go('home');
+    return;
+  }
+  setLoading(true);
+  try {
+    await api(`/matches/${STATE.currentMatch.id}/decline`, 'POST', {}, true);
+    setLoading(false);
+    STATE.currentMatch = null;
+    localStorage.removeItem('rankd_match');
+    go('home');
+  } catch (err) {
+    setLoading(false);
+    STATE.currentMatch = null;
+    localStorage.removeItem('rankd_match');
+    go('home');
+  }
+}
+
+async function submitCreateLeague() {
+  const name = document.getElementById('leagueName').value.trim();
+  const venueName = document.getElementById('leagueVenue').value.trim();
+  const city = document.getElementById('leagueCity').value.trim();
+  const province = document.getElementById('leagueProvince').value;
+  const address = document.getElementById('leagueAddress').value.trim();
+  const division = document.getElementById('leagueDivision').value.trim();
+  const season = document.getElementById('leagueSeason').value.trim() || '2026';
+  if (!name || !city || !province) {
+    alert('Please fill in league name, city and province.');
+    return;
+  }
+  setLoading(true);
+  try {
+    const result = await api('/leagues', 'POST', {
+      name, city, province,
+      venue_id: venueName || null,
+      sport_id: null,
+      season
+    }, true);
+    setLoading(false);
+    currentLeagueId = result.league_id;
+    alert('League created!');
+    go('leagueDetail');
+  } catch (err) {
+    setLoading(false);
+    alert(err.message || 'Failed to create league.');
+  }
+}
+
+async function loadCitiesForSignup() {
+  const province = document.getElementById('suProvince').value;
+  const citySelect = document.getElementById('suCity');
+  if (!province) {
+    citySelect.innerHTML = '<option value="">Select Province first</option>';
+    return;
+  }
+  try {
+    const data = await api('/locations/cities?province=' + encodeURIComponent(province), 'GET', null, false);
+    citySelect.innerHTML = '<option value="">Select City</option>' +
+      data.cities.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  } catch (err) {
+    citySelect.innerHTML = '<option value="">Could not load cities</option>';
+  }
+}
+
+async function loadCitiesForGuest() {
+  const province = document.getElementById('gsProvince').value;
+  const citySelect = document.getElementById('gsCity');
+  if (!province) {
+    citySelect.innerHTML = '<option value="">Select Province first</option>';
+    return;
+  }
+  try {
+    const data = await api('/locations/cities?province=' + encodeURIComponent(province), 'GET', null, false);
+    citySelect.innerHTML = '<option value="">Select City</option>' +
+      data.cities.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  } catch (err) {
+    citySelect.innerHTML = '<option value="">Could not load cities</option>';
+  }
+}
+
+async function loadVenues() {
+  try {
+    const venues = await api('/venues', 'GET', null, true);
+    // Build venue options for counter proposal
+    const counterSelect = document.getElementById('counterVenue');
+    if (counterSelect && venues && venues.length > 0) {
+      const firstOption = counterSelect.querySelector('option[value=""]');
+      counterSelect.innerHTML = '';
+      if (firstOption) counterSelect.appendChild(firstOption);
+      venues.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.id;
+        opt.textContent = v.name;
+        counterSelect.appendChild(opt);
+      });
+      const otherOpt = document.createElement('option');
+      otherOpt.value = 'other';
+      otherOpt.textContent = 'Other';
+      counterSelect.appendChild(otherOpt);
+    }
+    // Build venue list for challenge setup
+    const venueList = document.getElementById('venue-list');
+    if (venueList && venues && venues.length > 0) {
+      venueList.innerHTML = '';
+      venues.forEach((v, idx) => {
+        const div = document.createElement('div');
+        div.className = 'match-type-option' + (idx === 0 ? ' selected' : '');
+        div.setAttribute('onclick', `selectVenue(this, '${v.id}')`);
+        div.setAttribute('data-venue', v.id);
+        div.innerHTML = `
+          <div class="match-type-icon">&#127921;</div>
+          <div style="flex:1;">
+            <div class="match-type-label">${escapeHtml(v.name)}</div>
+            <div class="match-type-desc">${escapeHtml(v.city || '')} ${v.street_address ? '• ' + escapeHtml(v.street_address) : ''}</div>
+          </div>
+        `;
+        venueList.appendChild(div);
+      });
+      const otherDiv = document.createElement('div');
+      otherDiv.className = 'match-type-option';
+      otherDiv.setAttribute('onclick', "selectVenue(this, 'other')");
+      otherDiv.setAttribute('data-venue', 'other');
+      otherDiv.innerHTML = `
+        <div class="match-type-icon" style="background:rgba(160,160,160,0.1);color:var(--text-sec);">&#128205;</div>
+        <div style="flex:1;">
+          <div class="match-type-label">Other Venue</div>
+          <div class="match-type-desc">Specify location manually</div>
+        </div>
+      `;
+      venueList.appendChild(otherDiv);
+      if (venues.length > 0) selectedVenue = venues[0].id;
+    }
+  } catch (err) {
+    console.error('Failed to load venues:', err);
+  }
+}
+
 
 async function sendChallenge() {
   const date = document.getElementById('challengeDate').value;
@@ -3244,13 +3666,22 @@ async function sendChallenge() {
   }
 
   const proposed = new Date(date + 'T' + time);
+
+  // Determine context based on match type and source
+  let context = 'RANKD_CHALLENGE';
+  if (selectedMatchType === 'LEAGUE') context = 'LEAGUE';
+  else if (selectedMatchType === 'TOURNAMENT') context = 'TOURNAMENT';
+  else if (selectedMatchType === 'FRIENDLY') context = 'FRIENDLY';
+  else if (STATE.currentOpponent?.challengeSource === 'ladder') context = 'LADDER_CHALLENGE';
+
   setLoading(true);
   try {
     const venuePayload = selectedVenue === 'other' ? null : selectedVenue;
+    const isLadder = STATE.currentOpponent?.challengeSource === 'ladder';
     const result = await api('/matches', 'POST', {
       opponent_id: STATE.currentOpponent.id,
-      context: 'RANKD_CHALLENGE',
-      format_value: 5,
+      context: isLadder ? 'LADDER_CHALLENGE' : 'RANKD_CHALLENGE',
+      format_value: selectedRaceTo || 5,
       proposed_datetime: proposed.toISOString(),
       venue_id: venuePayload
     }, true);
@@ -3306,6 +3737,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // No token — show splash
   go('splash');
+
+  // Load venues in background for when user needs them
+  loadVenues();
 });
 </script>
 </body>
