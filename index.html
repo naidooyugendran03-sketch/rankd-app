@@ -1933,51 +1933,91 @@ function handleDeepLinkFlow() {
 }
 
 async function signInWithPin() {
-  const mobile = normalizeMobile(document.getElementById('siMobile').value.trim());
+  const mobile = normalizeMobile(
+    document.getElementById('siMobile').value.trim()
+  );
+
   const pin = document.getElementById('siPin').value.trim();
 
   if (!mobile || mobile.length < 10) {
     alert('Please enter your mobile number.');
     return;
   }
+
   if (!pin || pin.length !== 4) {
     alert('Please enter your 4-digit PIN.');
     return;
   }
 
   setLoading(true);
-  let tempToken = null;
-  let tempPlayer = null;
-  try {
-    // Login with mobile (temporary token for PIN verification only)
-    const data = await api('/auth/login', 'POST', { mobile_number: mobile, otp_code: '000000' }, false);
-    tempToken = data.token;
-    tempPlayer = data.player;
 
-    // Verify PIN using temporary token
-    const pinData = await api('/auth/pin/verify', 'POST', { pin: pin }, false);
-    if (pinData.token) {
-      // PIN verified — set auth with fresh verified token and fetch latest player data
-      STATE.token = pinData.token;
-      const freshPlayer = await api('/players/me', 'GET', null, true);
-      setAuth(pinData.token, freshPlayer);
-      localStorage.setItem('rankd_has_pin', 'true');
-      setLoading(false);
-      go('home');
+  try {
+    // 1. Get temporary token using mobile number
+    const loginData = await api(
+      '/auth/login',
+      'POST',
+      {
+        mobile_number: mobile,
+        otp_code: '000000'
+      },
+      false
+    );
+
+    if (!loginData.token) {
+      throw new Error('Login token was not returned');
     }
+
+    // Temporarily put token into STATE so api() sends it
+    STATE.token = loginData.token;
+
+    // 2. Verify the PIN using the temporary token
+    const pinData = await api(
+      '/auth/pin/verify',
+      'POST',
+      {
+        pin: pin
+      },
+      true
+    );
+
+    if (!pinData.token) {
+      throw new Error('PIN verification failed');
+    }
+
+    // 3. Replace temporary token with verified token
+    STATE.token = pinData.token;
+
+    // 4. Fetch latest profile
+    const freshPlayer = await api(
+      '/players/me',
+      'GET',
+      null,
+      true
+    );
+
+    // 5. Save authenticated session
+    setAuth(pinData.token, freshPlayer);
+
+    localStorage.setItem('rankd_has_pin', 'true');
+
+    setLoading(false);
+    go('home');
+
   } catch (err) {
     setLoading(false);
-    // Clear any temporary state on failure
+
     STATE.token = null;
     STATE.player = null;
-    if (err.message && err.message.includes('not found')) {
-      alert('No account found with this number.');
-    } else if (err.message && err.message.includes('Incorrect')) {
-      alert('Wrong PIN. Try again.');
-      document.getElementById('siPin').value = '';
-      document.getElementById('siPin').focus();
+
+    console.error('PIN login error:', err);
+
+    if (
+      err.message &&
+      err.message.toLowerCase().includes('user not found')
+    ) {
+      alert('No account found with this mobile number.');
     } else {
-      alert(err.message || 'Sign in failed');
+      alert(err.message || 'Unable to sign in.');
     }
   }
 }
