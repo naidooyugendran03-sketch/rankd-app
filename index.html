@@ -174,6 +174,18 @@ body {
 .search-box:focus { outline: none; border-color: var(--gold); }
 .empty-state { text-align: center; padding: 40px 16px; color: var(--text-muted); font-size: 14px; }
 
+/* Live Match */
+.live-indicator { display:inline-flex;align-items:center;gap:6px;background:rgba(212,160,23,0.12);color:var(--gold);padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700; }
+.live-dot { display:inline-block;width:8px;height:8px;background:var(--success);border-radius:50%;animation:pulse 2s infinite; }
+@keyframes pulse { 0%{opacity:1} 50%{opacity:0.5} 100%{opacity:1} }
+.rack-row { display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px; }
+.rack-row:last-child { border-bottom:none; }
+.rack-winner { color:var(--gold);font-weight:700; }
+.rack-num { color:var(--text-muted);font-size:12px;width:60px; }
+.score-big { font-size:48px;font-weight:900;line-height:1; }
+.match-player-card { text-align:center; }
+.match-vs { font-size:20px;font-weight:800;color:var(--text-muted); }
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 0; }
 
@@ -198,6 +210,7 @@ body {
 .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
+<base target="_blank">
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
@@ -768,22 +781,53 @@ body {
 <!-- MATCH ACTIVE -->
 <div class="screen" id="scr-matchActive">
   <div id="match-active-content">
-    <div style="text-align:center;padding:16px;">
-      <div style="font-size:12px;color:var(--gold);font-weight:800;letter-spacing:2px;margin-bottom:14px;">&#9874; MATCH ACTIVE</div>
-      <div class="card" style="margin:0 0 14px;text-align:center;">
-        <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:6px;">
-          <div style="text-align:center;"><div class="avatar" style="width:56px;height:56px;font-size:20px;margin:0 auto 4px;">B</div><div style="font-size:14px;font-weight:700;">Bradley</div><div style="font-size:12px;color:var(--gold);font-weight:700;">1,842</div></div>
-          <div style="font-size:20px;font-weight:800;color:var(--text-muted);">VS</div>
-          <div style="text-align:center;"><div class="avatar" style="width:56px;height:56px;font-size:20px;margin:0 auto 4px;">JP</div><div style="font-size:14px;font-weight:700;">Jason</div><div style="font-size:12px;color:var(--gold);font-weight:700;">1,911</div></div>
+    <div style="padding:16px;">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div class="live-indicator" style="margin-bottom:16px;"><span class="live-dot"></span> LIVE</div>
+        <div id="live-match-header" style="margin-bottom:16px;"></div>
+        <div id="live-match-scoreboard" style="display:flex;justify-content:center;align-items:center;gap:24px;margin-bottom:12px;"></div>
+        <div id="live-match-target" style="font-size:12px;color:var(--text-muted);margin-bottom:20px;"></div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">RACK HISTORY</div>
+        <div id="live-match-racks" style="display:flex;flex-direction:column;gap:0px;"></div>
+      </div>
+
+      <div id="live-match-controls" style="margin-bottom:16px;">
+        <div class="card" style="margin-bottom:12px;">
+          <div id="live-rack-prompt" style="font-size:15px;font-weight:700;text-align:center;margin-bottom:12px;">Who won the next rack?</div>
+          <div id="live-rack-buttons" style="display:flex;gap:12px;justify-content:center;"></div>
         </div>
-        <div style="font-size:12px;color:var(--text-sec);">Best of 5 &#8226; <span id="match-active-venue">Time Out Restaurant & Bar</span> &#8226; RANKD Challenge</div>
       </div>
-      <div class="card" style="margin-bottom:14px;">
-        <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px;">Play your match, then submit the result.</div>
-        <div style="font-size:12px;color:var(--gold);">Both players submit independently</div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn-gold" id="btn-propose-result" onclick="confirmProposeResult()" style="display:none;">SUBMIT SCORE</button>
+        <button class="btn-outline" onclick="pauseCurrentMatch()">PAUSE MATCH</button>
+        <button class="btn-text" onclick="stopLiveMatchPolling(); go('home')">LEAVE MATCH</button>
       </div>
-      <button class="btn-gold" onclick="go('resultSubmit')">SUBMIT RESULT</button>
     </div>
+  </div>
+</div>
+
+<!-- RESULT PROPOSE CONFIRM -->
+<div class="screen" id="scr-resultProposeConfirm">
+  <div style="text-align:center;padding:40px 16px;">
+    <div style="font-size:20px;font-weight:800;margin-bottom:8px;">FINAL RESULT</div>
+    <div id="propose-score-display" style="font-size:32px;font-weight:900;color:var(--gold);margin-bottom:24px;">--</div>
+    <div style="font-size:14px;color:var(--text-sec);margin-bottom:24px;">Submit this result for confirmation?</div>
+    <button class="btn-gold" onclick="proposeResult()">SUBMIT SCORE</button>
+    <button class="btn-text" onclick="go('matchActive')">CANCEL</button>
+  </div>
+</div>
+
+<!-- RESULT WAITING -->
+<div class="screen" id="scr-resultWaiting">
+  <div style="text-align:center;padding:40px 16px;">
+    <div style="font-size:20px;font-weight:800;margin-bottom:8px;">RESULT SUBMITTED</div>
+    <div style="font-size:14px;color:var(--text-sec);margin-bottom:8px;">Waiting for opponent to confirm...</div>
+    <div id="result-waiting-score" style="font-size:28px;font-weight:900;color:var(--gold);margin-bottom:24px;"></div>
+    <button class="btn-text" onclick="go('home')">BACK TO HOME</button>
   </div>
 </div>
 
@@ -2038,6 +2082,8 @@ function go(screen) {
   if (screen === 'matchType') renderMatchType();
   if (screen === 'playMode') renderPlayMode();
   if (screen === 'quickPlay') renderQuickPlay();
+  if (screen === 'matchActive') startLiveMatchPolling();
+  else stopLiveMatchPolling();
 }
 
 // ——— RENDERERS ———
@@ -2200,6 +2246,41 @@ async function renderHome() {
   if (!STATE.player) return;
   const p = STATE.player;
   const isPlacement = p.status === 'UNRANKD' && (p.placement_matches || 0) < (p.placement_total || 10);
+
+  // Check for active/paused matches
+  try {
+    const activeData = await api('/matches/my/active', 'GET', null, true);
+    const activeMatch = activeData.matches?.[0];
+    if (activeMatch) {
+      const homeContent = document.getElementById('home-content');
+      let banner = document.getElementById('home-active-match-banner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'home-active-match-banner';
+        banner.className = 'card';
+        banner.style.cursor = 'pointer';
+        banner.style.marginBottom = '12px';
+        homeContent.insertBefore(banner, homeContent.children[1]);
+      }
+      const isLive = activeMatch.status === 'ACTIVE';
+      const opp = activeMatch.opponent || {};
+      banner.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;" onclick="openLiveMatch('${activeMatch.match_id}')">
+          <div style="width:40px;height:40px;border-radius:50%;background:${isLive ? 'var(--success)' : 'var(--text-muted)'};display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--black);font-weight:800;">${isLive ? '●' : 'II'}</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:700;">${escapeHtml(opp.name || 'Opponent')}</div>
+            <div style="font-size:12px;color:var(--text-muted);">${activeMatch.venue || 'TBD'} &#8226; Best of ${activeMatch.format_value || 5}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:20px;font-weight:900;color:var(--gold);">${activeMatch.score?.me || 0} – ${activeMatch.score?.opponent || 0}</div>
+            <div style="font-size:10px;color:${isLive ? 'var(--success)' : 'var(--text-muted)'};font-weight:700;">${isLive ? 'LIVE' : 'PAUSED'}</div>
+          </div>
+        </div>
+      `;
+      const emptyState = document.getElementById('home-empty-state');
+      if (emptyState) emptyState.style.display = 'none';
+    }
+  } catch (e) {}
 
   // Player name
   const nameEl = document.getElementById('home-player-name');
@@ -3166,6 +3247,283 @@ async function renderRivalries() {
   }).join('');
 }
 
+// ——— LIVE MATCH ———
+let liveMatchPollTimer = null;
+
+function startLiveMatchPolling() {
+  stopLiveMatchPolling();
+  if (!STATE.currentMatch?.id) return;
+  liveMatchPollTimer = setInterval(async () => {
+    try {
+      const match = await api(`/matches/${STATE.currentMatch.id}`, 'GET', null, true);
+      if (!match) return;
+      STATE.currentMatch = { ...STATE.currentMatch, ...match };
+      if (match.status === 'RESULT_PENDING' && match.result_proposed_by && match.result_proposed_by !== STATE.player?.id) {
+        stopLiveMatchPolling();
+        go('notifications');
+      } else if (match.status === 'CONFIRMED') {
+        stopLiveMatchPolling();
+        renderResultConfirmedFromMatch(match);
+        go('resultConfirmed');
+      } else if (match.status === 'ACTIVE' || match.status === 'PAUSED') {
+        renderLiveMatch(match);
+      }
+    } catch (err) {
+      console.error('Live match poll error:', err);
+    }
+  }, 3000);
+}
+
+function stopLiveMatchPolling() {
+  if (liveMatchPollTimer) {
+    clearInterval(liveMatchPollTimer);
+    liveMatchPollTimer = null;
+  }
+}
+
+function renderLiveMatch(match) {
+  if (!match || !STATE.player) return;
+  const me = STATE.player;
+  const isPlayer1 = match.player_1_id === me.id || match.player_1?.id === me.id;
+  const opponent = isPlayer1 ? (match.player_2 || STATE.currentMatch?.opponent) : (match.player_1 || STATE.currentMatch?.opponent);
+  const myScore = isPlayer1 ? (match.score?.player_1 || 0) : (match.score?.player_2 || 0);
+  const oppScore = isPlayer1 ? (match.score?.player_2 || 0) : (match.score?.player_1 || 0);
+  const target = Math.floor((match.format_value || 5) / 2) + 1;
+
+  const header = document.getElementById('live-match-header');
+  const scoreboard = document.getElementById('live-match-scoreboard');
+  const targetEl = document.getElementById('live-match-target');
+  const racksEl = document.getElementById('live-match-racks');
+  const promptEl = document.getElementById('live-rack-prompt');
+  const buttonsEl = document.getElementById('live-rack-buttons');
+  const proposeBtn = document.getElementById('btn-propose-result');
+
+  if (header) {
+    header.innerHTML = `
+      <div style="display:flex;justify-content:center;align-items:center;gap:20px;">
+        <div class="match-player-card">
+          <div class="avatar" style="width:56px;height:56px;font-size:20px;margin:0 auto 6px;">${(me.first_name || 'Y').charAt(0)}</div>
+          <div style="font-size:14px;font-weight:700;">${escapeHtml(me.first_name || 'You')}</div>
+          <div style="font-size:12px;color:var(--gold);font-weight:700;">${(me.public_rating || 0).toLocaleString()}</div>
+        </div>
+        <div class="match-vs">VS</div>
+        <div class="match-player-card">
+          <div class="avatar" style="width:56px;height:56px;font-size:20px;margin:0 auto 6px;">${(opponent?.name || '?').charAt(0)}</div>
+          <div style="font-size:14px;font-weight:700;">${escapeHtml(opponent?.name || 'Opponent')}</div>
+          <div style="font-size:12px;color:var(--gold);font-weight:700;">${(opponent?.rating || 0).toLocaleString()}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (scoreboard) {
+    scoreboard.innerHTML = `
+      <div style="text-align:center;"><div class="score-big" style="color:var(--gold);">${myScore}</div></div>
+      <div style="font-size:24px;font-weight:800;color:var(--text-muted);">—</div>
+      <div style="text-align:center;"><div class="score-big" style="color:var(--gold);">${oppScore}</div></div>
+    `;
+  }
+
+  if (targetEl) targetEl.textContent = `BEST OF ${match.format_value || 5} • FIRST TO ${target}`;
+
+  if (racksEl) {
+    if (match.racks && match.racks.length > 0) {
+      racksEl.innerHTML = match.racks.map(r => `
+        <div class="rack-row">
+          <div class="rack-num">Rack ${r.rack_number}</div>
+          <div class="rack-winner">${escapeHtml(r.winner_name || 'Unknown')}</div>
+        </div>
+      `).join('');
+    } else {
+      racksEl.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px 0;">No racks recorded yet</div>';
+    }
+  }
+
+  const targetReached = myScore >= target || oppScore >= target;
+  if (proposeBtn) proposeBtn.style.display = targetReached ? 'flex' : 'none';
+
+  if (match.status === 'PAUSED') {
+    if (promptEl) promptEl.textContent = 'MATCH PAUSED';
+    if (buttonsEl) buttonsEl.innerHTML = '<div style="font-size:13px;color:var(--text-muted);text-align:center;">Resume from Notifications</div>';
+  } else if (match.status === 'ACTIVE') {
+    if (targetReached) {
+      if (promptEl) promptEl.textContent = 'Target reached — submit score';
+      if (buttonsEl) buttonsEl.innerHTML = '';
+    } else {
+      const nextRack = (match.racks?.length || 0) + 1;
+      if (promptEl) promptEl.textContent = `Who won Rack ${nextRack}?`;
+      if (buttonsEl) {
+        buttonsEl.innerHTML = `
+          <button class="btn-gold" style="flex:1;max-width:140px;" onclick="recordRackWinner('${me.id}')">${escapeHtml(me.first_name || 'You')}</button>
+          <button class="btn-outline" style="flex:1;max-width:140px;" onclick="recordRackWinner('${opponent?.id || opponent?.player_id || ''}')">${escapeHtml(opponent?.name || 'Opponent')}</button>
+        `;
+      }
+    }
+  } else if (match.status === 'RESULT_PENDING') {
+    if (promptEl) promptEl.textContent = 'Result submitted — waiting for opponent';
+    if (buttonsEl) buttonsEl.innerHTML = '';
+    if (proposeBtn) proposeBtn.style.display = 'none';
+  }
+}
+
+async function recordRackWinner(winnerId) {
+  if (!STATE.currentMatch?.id) return;
+  setLoading(true);
+  try {
+    const match = await api(`/matches/${STATE.currentMatch.id}/racks`, 'POST', { winner_player_id: winnerId }, true);
+    STATE.currentMatch = { ...STATE.currentMatch, ...match };
+    setLoading(false);
+    renderLiveMatch(match);
+  } catch (err) {
+    setLoading(false);
+    alert(err.message || 'Failed to record rack');
+  }
+}
+
+async function pauseCurrentMatch() {
+  if (!STATE.currentMatch?.id) return;
+  setLoading(true);
+  try {
+    const match = await api(`/matches/${STATE.currentMatch.id}/pause`, 'POST', {}, true);
+    STATE.currentMatch = { ...STATE.currentMatch, ...match };
+    setLoading(false);
+    stopLiveMatchPolling();
+    go('home');
+  } catch (err) {
+    setLoading(false);
+    alert(err.message || 'Failed to pause match');
+  }
+}
+
+async function resumeMatch(matchId) {
+  setLoading(true);
+  try {
+    await api(`/matches/${matchId}/resume`, 'POST', {}, true);
+    const match = await api(`/matches/${matchId}`, 'GET', null, true);
+    STATE.currentMatch = { ...STATE.currentMatch, ...match };
+    setLoading(false);
+    renderLiveMatch(match);
+    go('matchActive');
+    startLiveMatchPolling();
+  } catch (err) {
+    setLoading(false);
+    alert(err.message || 'Failed to resume match');
+  }
+}
+
+function confirmProposeResult() {
+  if (!STATE.currentMatch) return;
+  const match = STATE.currentMatch;
+  const me = STATE.player;
+  const isPlayer1 = match.player_1_id === me.id || match.player_1?.id === me.id;
+  const opponent = isPlayer1 ? (match.player_2 || match.opponent) : (match.player_1 || match.opponent);
+  const myScore = isPlayer1 ? (match.score?.player_1 || 0) : (match.score?.player_2 || 0);
+  const oppScore = isPlayer1 ? (match.score?.player_2 || 0) : (match.score?.player_1 || 0);
+
+  const display = document.getElementById('propose-score-display');
+  if (display) {
+    display.innerHTML = `${escapeHtml(me.first_name || 'You')} <span style="color:var(--text-muted)">${myScore} – ${oppScore}</span> ${escapeHtml(opponent?.name || 'Opponent')}`;
+  }
+  go('resultProposeConfirm');
+}
+
+async function proposeResult() {
+  if (!STATE.currentMatch?.id) return;
+  setLoading(true);
+  try {
+    const match = await api(`/matches/${STATE.currentMatch.id}/result/propose`, 'POST', {}, true);
+    STATE.currentMatch = { ...STATE.currentMatch, ...match };
+    setLoading(false);
+
+    const me = STATE.player;
+    const isPlayer1 = match.player_1_id === me.id || match.player_1?.id === me.id;
+    const myScore = isPlayer1 ? (match.score?.player_1 || 0) : (match.score?.player_2 || 0);
+    const oppScore = isPlayer1 ? (match.score?.player_2 || 0) : (match.score?.player_1 || 0);
+
+    const display = document.getElementById('result-waiting-score');
+    if (display) display.textContent = `${myScore} – ${oppScore}`;
+
+    go('resultWaiting');
+    stopLiveMatchPolling();
+  } catch (err) {
+    setLoading(false);
+    alert(err.message || 'Failed to submit result');
+  }
+}
+
+async function acceptResult(matchId) {
+  setLoading(true);
+  try {
+    const match = await api(`/matches/${matchId}/result/accept`, 'POST', {}, true);
+    setLoading(false);
+    alert('Result accepted!');
+    go('home');
+  } catch (err) {
+    setLoading(false);
+    alert(err.message || 'Failed to accept result');
+  }
+}
+
+async function denyResult(matchId) {
+  setLoading(true);
+  try {
+    const match = await api(`/matches/${matchId}/result/deny`, 'POST', {}, true);
+    STATE.currentMatch = { ...STATE.currentMatch, ...match };
+    setLoading(false);
+    alert('Result denied. Match is back in progress.');
+    renderLiveMatch(match);
+    go('matchActive');
+    startLiveMatchPolling();
+  } catch (err) {
+    setLoading(false);
+    alert(err.message || 'Failed to deny result');
+  }
+}
+
+async function openLiveMatch(matchId) {
+  setLoading(true);
+  try {
+    const match = await api(`/matches/${matchId}`, 'GET', null, true);
+    STATE.currentMatch = { ...STATE.currentMatch, ...match };
+    localStorage.setItem('rankd_match', JSON.stringify(STATE.currentMatch));
+    setLoading(false);
+    renderLiveMatch(match);
+    go('matchActive');
+    startLiveMatchPolling();
+  } catch (err) {
+    setLoading(false);
+    alert(err.message || 'Failed to open match');
+  }
+}
+
+function renderResultConfirmedFromMatch(match) {
+  const container = document.getElementById('result-confirmed-content');
+  if (!container || !STATE.player) return;
+  const p = STATE.player;
+  const me = p;
+  const isPlayer1 = match.player_1_id === me.id || match.player_1?.id === me.id;
+  const opponent = isPlayer1 ? (match.player_2 || match.opponent) : (match.player_1 || match.opponent);
+  const myScore = isPlayer1 ? (match.score?.player_1 || 0) : (match.score?.player_2 || 0);
+  const oppScore = isPlayer1 ? (match.score?.player_2 || 0) : (match.score?.player_1 || 0);
+  const oldRating = STATE.preMatchRating || p.public_rating || 800;
+  const newRating = p.public_rating || 800;
+  const delta = newRating - oldRating;
+
+  container.innerHTML = `
+    <div style="text-align:center;padding:32px 16px;">
+      <div style="width:72px;height:72px;border-radius:50%;background:rgba(212,160,23,0.12);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px;border:2px solid rgba(212,160,23,0.3);">&#10003;</div>
+      <div style="font-size:20px;font-weight:800;margin-bottom:4px;">MATCH CONFIRMED</div>
+      <div style="font-size:16px;color:var(--text-sec);margin-bottom:24px;">${escapeHtml(me.first_name || 'You')} ${myScore} &#8212; ${escapeHtml(opponent?.name || 'Opponent')} ${oppScore}</div>
+      <div style="font-size:52px;font-weight:900;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:4px;">${delta > 0 ? '+' : ''}${delta}</div>
+      <div style="font-size:13px;color:var(--text-sec);margin-bottom:20px;">${oldRating.toLocaleString()} &#8594; ${newRating.toLocaleString()}</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px;"><span style="color:var(--text-muted);">Status</span> <span style="color:var(--gold);">${p.status || 'UNRANKD'}</span></div>
+    </div>
+    <button class="btn-gold" onclick="openShareCard('rankUp', {name:'${escapeHtml(me.first_name || 'Player')}', rating:${newRating}, matches:${p.matches_played || 1}, opponents:${p.unique_opponents || 1}})">&#128293; SHARE THIS WIN</button>
+    <button class="btn-outline" onclick="go('challenge')">FIND NEXT MATCH</button>
+    <button class="btn-text" onclick="go('home')">Back to Home</button>
+  `;
+}
+
 // Clock
 setInterval(() => {
   const now = new Date();
@@ -3519,24 +3877,30 @@ async function loadNotifications() {
 
   try {
     const data = await api('/notifications', 'GET', null, true);
-    if (!data.notifications || data.notifications.length === 0) {
+    const incoming = data.incoming_challenges || [];
+    const active = data.active_matches || [];
+    const paused = data.paused_matches || [];
+    const results = data.results_waiting_for_me || [];
+
+    if (incoming.length === 0 && active.length === 0 && paused.length === 0 && results.length === 0) {
       container.innerHTML = '<div class="empty-state"><div style="font-size:48px;margin-bottom:12px;">&#127942;</div><div style="font-size:16px;font-weight:700;">No notifications</div><div style="font-size:13px;color:var(--text-muted);">Check back after playing matches!</div></div>';
       return;
     }
 
-    container.innerHTML = data.notifications.map(n => {
-      const borderColor = n.type === 'challenge' ? 'var(--gold)' : 'var(--border)';
-      const icon = n.type === 'challenge' ? '&#9874;' : (n.type === 'counter' ? '&#128172;' : '&#127942;');
-      const fromName = n.from?.name || 'Someone';
-      const venue = n.venue || 'TBD';
-      const dateTime = n.proposed_datetime ? new Date(n.proposed_datetime).toLocaleString('en-ZA', {weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : 'TBD';
+    let html = '';
 
-      return `
-        <div class="card" style="border-left:3px solid ${borderColor};margin-bottom:12px;">
+    if (incoming.length > 0) {
+      html += `<div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;margin:16px 16px 8px;">Challenges</div>`;
+      html += incoming.map(n => {
+        const fromName = n.from?.name || 'Someone';
+        const venue = n.venue || 'TBD';
+        const dateTime = n.proposed_datetime ? new Date(n.proposed_datetime).toLocaleString('en-ZA', {weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : 'TBD';
+        return `
+        <div class="card" style="border-left:3px solid var(--gold);margin-bottom:12px;">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
             <div class="avatar" style="width:40px;height:40px;font-size:16px;">${fromName.charAt(0)}</div>
             <div style="flex:1;">
-              <div style="font-size:14px;font-weight:700;">${icon} ${fromName} ${n.type === 'challenge' ? 'challenged you' : 'countered your challenge'}</div>
+              <div style="font-size:14px;font-weight:700;">${fromName} ${n.type === 'challenge' ? 'challenged you' : 'countered'}</div>
               <div style="font-size:12px;color:var(--text-muted);">RANKD Challenge &#8226; Best of ${n.format_value || 5}</div>
             </div>
           </div>
@@ -3549,9 +3913,79 @@ async function loadNotifications() {
             <button class="btn-outline" style="flex:1;" onclick="goToCounter('${n.match_id}', '${escapeHtml(fromName)}', '${escapeHtml(venue)}', '${escapeHtml(dateTime)}')">COUNTER</button>
             <button class="btn-danger" style="flex:1;padding:14px 8px;font-size:12px;" onclick="respondToChallenge('${n.match_id}', 'decline')">DECLINE</button>
           </div>
-        </div>
-      `;
-    }).join('');
+        </div>`;
+      }).join('');
+    }
+
+    if (active.length > 0) {
+      html += `<div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;margin:16px 16px 8px;">Matches In Progress</div>`;
+      html += active.map(m => {
+        const opp = m.opponent || {};
+        return `
+        <div class="card" style="cursor:pointer;border-left:3px solid var(--success);margin-bottom:12px;" onclick="openLiveMatch('${m.match_id}')">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="avatar">${(opp.name || '?').charAt(0)}</div>
+            <div style="flex:1;">
+              <div style="font-size:14px;font-weight:700;">${escapeHtml(opp.name || 'Opponent')}</div>
+              <div style="font-size:12px;color:var(--text-muted);">${m.venue || 'TBD'} &#8226; Best of ${m.format_value || 5}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:20px;font-weight:900;color:var(--gold);">${m.score?.me || 0} – ${m.score?.opponent || 0}</div>
+              <div style="font-size:10px;color:var(--success);font-weight:700;">● LIVE</div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    if (paused.length > 0) {
+      html += `<div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;margin:16px 16px 8px;">Paused Matches</div>`;
+      html += paused.map(m => {
+        const opp = m.opponent || {};
+        return `
+        <div class="card" style="cursor:pointer;border-left:3px solid var(--text-muted);margin-bottom:12px;" onclick="resumeMatch('${m.match_id}')">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="avatar" style="background:var(--border);color:var(--text-muted);">${(opp.name || '?').charAt(0)}</div>
+            <div style="flex:1;">
+              <div style="font-size:14px;font-weight:700;">${escapeHtml(opp.name || 'Opponent')}</div>
+              <div style="font-size:12px;color:var(--text-muted);">${m.venue || 'TBD'} &#8226; Best of ${m.format_value || 5}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:20px;font-weight:900;color:var(--gold);">${m.score?.me || 0} – ${m.score?.opponent || 0}</div>
+              <div style="font-size:10px;color:var(--text-muted);font-weight:700;">PAUSED</div>
+            </div>
+          </div>
+          <button class="btn-gold" style="margin-top:10px;width:100%;" onclick="event.stopPropagation();resumeMatch('${m.match_id}')">CONTINUE</button>
+        </div>`;
+      }).join('');
+    }
+
+    if (results.length > 0) {
+      html += `<div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;margin:16px 16px 8px;">Results to Confirm</div>`;
+      html += results.map(m => {
+        const opp = m.opponent || {};
+        return `
+        <div class="card" style="border-left:3px solid var(--gold);margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+            <div class="avatar">${(opp.name || '?').charAt(0)}</div>
+            <div style="flex:1;">
+              <div style="font-size:14px;font-weight:700;">${escapeHtml(opp.name || 'Opponent')} submitted a result</div>
+              <div style="font-size:12px;color:var(--text-muted);">Best of ${m.format_value || 5}</div>
+            </div>
+          </div>
+          <div style="background:var(--black);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;margin-bottom:12px;">
+            <div style="font-size:28px;font-weight:900;color:var(--gold);margin-bottom:4px;">${m.score?.me || 0} – ${m.score?.opponent || 0}</div>
+            <div style="font-size:12px;color:var(--text-muted);">Do you accept this result?</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-gold" style="flex:1;" onclick="acceptResult('${m.match_id}')">ACCEPT RESULT</button>
+            <button class="btn-danger" style="flex:1;padding:14px 8px;font-size:12px;" onclick="denyResult('${m.match_id}')">DENY RESULT</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    container.innerHTML = html;
   } catch (err) {
     container.innerHTML = '<div class="empty-state">Could not load notifications.</div>';
   }
@@ -3607,15 +4041,23 @@ async function loadPendingChallenges() {
 async function respondToChallenge(matchId, action) {
   setLoading(true);
   try {
-    let result;
     if (action === 'accept') {
-      result = await api(`/matches/${matchId}/accept`, 'POST', {}, true);
-      alert('Challenge accepted! Match is on.');
+      await api(`/matches/${matchId}/accept`, 'POST', {}, true);
+      const match = await api(`/matches/${matchId}`, 'GET', null, true);
+      STATE.currentMatch = { ...STATE.currentMatch, ...match };
+      localStorage.setItem('rankd_match', JSON.stringify(STATE.currentMatch));
+      setLoading(false);
+      renderLiveMatch(match);
+      go('matchActive');
+      startLiveMatchPolling();
+      return;
     } else if (action === 'decline') {
-      result = await api(`/matches/${matchId}/decline`, 'POST', {}, true);
+      await api(`/matches/${matchId}/decline`, 'POST', {}, true);
+      setLoading(false);
       alert('Challenge declined.');
+      go('home');
+      return;
     } else if (action === 'counter') {
-      // Handled by goToCounter directly
       setLoading(false);
       return;
     }
@@ -3863,57 +4305,31 @@ let challengePollTimer = null;
 
 function startChallengePolling() {
   stopChallengePolling();
-
   if (!STATE.currentMatch?.id) return;
-
   challengePollTimer = setInterval(async () => {
     try {
-      const match = await api(
-        `/matches/${STATE.currentMatch.id}`,
-        'GET',
-        null,
-        true
-      );
-
+      const match = await api(`/matches/${STATE.currentMatch.id}`, 'GET', null, true);
       if (!match) return;
-
-      if (match.status === 'ACCEPTED') {
+      if (match.status === 'ACTIVE') {
         stopChallengePolling();
-
-        STATE.currentMatch.status = 'ACCEPTED';
-        localStorage.setItem(
-          'rankd_match',
-          JSON.stringify(STATE.currentMatch)
-        );
-
-        alert('Challenge accepted!');
-        renderMatchActive();
+        STATE.currentMatch = { ...STATE.currentMatch, ...match };
+        localStorage.setItem('rankd_match', JSON.stringify(STATE.currentMatch));
+        renderLiveMatch(match);
         go('matchActive');
-      }
-
-      else if (match.status === 'DECLINED') {
+        startLiveMatchPolling();
+      } else if (match.status === 'DECLINED' || match.status === 'CANCELLED') {
         stopChallengePolling();
-
         STATE.currentMatch = null;
         localStorage.removeItem('rankd_match');
-
-        alert('Challenge declined.');
+        alert('Challenge was declined or cancelled.');
         go('home');
-      }
-
-      else if (match.status === 'COUNTER_PENDING') {
+      } else if (match.status === 'COUNTER_PENDING') {
         stopChallengePolling();
-
-        STATE.currentMatch.status = 'COUNTER_PENDING';
-        localStorage.setItem(
-          'rankd_match',
-          JSON.stringify(STATE.currentMatch)
-        );
-
+        STATE.currentMatch = { ...STATE.currentMatch, ...match };
+        localStorage.setItem('rankd_match', JSON.stringify(STATE.currentMatch));
         alert('Your opponent suggested a different time.');
         go('pendingChallenges');
       }
-
     } catch (err) {
       console.error('Challenge status check failed:', err);
     }
