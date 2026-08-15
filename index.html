@@ -2299,7 +2299,6 @@ async function renderHome() {
   }
 
   const p = STATE.player;
-  const isPlacement = p.status === 'UNRANKD' && (p.placement_matches || 0) < (p.placement_total || 10);
 
   // Update player name and stats
   const nameEl = document.getElementById('home-player-name');
@@ -2311,19 +2310,21 @@ async function renderHome() {
 
   if (nameEl) nameEl.textContent = (p.first_name || 'PLAYER').toUpperCase();
 
+  const matchesPlayed = p.matches_played || p.placement_matches || 0;
+
   if (ratingEl) {
-    if (isPlacement) {
+    if (matchesPlayed === 0) {
       ratingEl.innerHTML = '<span style="font-size:32px;">—</span>';
     } else {
-      ratingEl.textContent = Math.round(p.public_rating || 800);
+      ratingEl.textContent = Math.round(p.public_rating || 800).toLocaleString();
     }
   }
 
   if (statusEl) {
-    if (isPlacement) {
-      const pm = p.placement_matches || 0;
-      const pt = p.placement_total || 10;
-      statusEl.innerHTML = `<span style="color:var(--gold);font-weight:700;">PLACEMENT ${pm}/${pt}</span>`;
+    if (matchesPlayed === 0) {
+      statusEl.textContent = 'UNRANKD';
+    } else if (p.status === 'UNRANKD') {
+      statusEl.textContent = 'PLACEMENT';
     } else {
       statusEl.textContent = p.status || 'UNRANKD';
     }
@@ -2451,10 +2452,9 @@ async function renderHome() {
         </div>
       `;
 
-      const existingList = document.getElementById('home-recent-matches-list');
-      const existingFooter = document.getElementById('home-view-all-footer');
-      if (existingList) existingList.outerHTML = listHtml;
-      else if (historyContainer) historyContainer.innerHTML = listHtml;
+      if (historyContainer) {
+        historyContainer.innerHTML = listHtml;
+      }
     }
   } catch (e) {
     console.error('Recent matches load failed:', e);
@@ -2641,7 +2641,6 @@ function renderMatchActive() {
   const format = m.format || 5;
 
   const myRating = p.public_rating || 800;
-  const isPlacement = p.status === 'UNRANKD' && (p.placement_matches || 0) < (p.placement_total || 10);
 
   container.innerHTML = `
     <div style="text-align:center;padding:16px;">
@@ -2725,7 +2724,6 @@ function renderResultConfirmed(scoreA, scoreB) {
   const oldRating = STATE.preMatchRating || 800;
   const newRating = p.public_rating || 800;
   const delta = newRating - oldRating;
-  const isPlacement = p.status === 'UNRANKD' && (p.placement_matches || 0) < (p.placement_total || 10);
   const isFirstReveal = isPlacement && (p.placement_matches || 0) === 1;
 
   let ratingHTML;
