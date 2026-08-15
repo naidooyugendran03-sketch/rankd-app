@@ -2274,7 +2274,6 @@ async function renderHome() {
 
   try {
     // Always fetch latest player state when Home opens.
-    // This also ensures newly calculated ratings appear immediately.
     const freshPlayer = await api(
       '/players/me',
       'GET',
@@ -2283,22 +2282,19 @@ async function renderHome() {
     );
 
     STATE.player = freshPlayer;
-
     localStorage.setItem(
       'rankd_player',
       JSON.stringify(freshPlayer)
     );
-
   } catch (err) {
     console.error('Failed to refresh Home player:', err);
-
-    // Only fall back to cached data if available
     if (!STATE.player) {
       return;
     }
   }
 
   const p = STATE.player;
+  const matchesPlayed = p.matches_played || p.placement_matches || 0;
 
   // Update player name and stats
   const nameEl = document.getElementById('home-player-name');
@@ -2309,8 +2305,6 @@ async function renderHome() {
   const rankPmb = document.getElementById('home-rank-pmb');
 
   if (nameEl) nameEl.textContent = (p.first_name || 'PLAYER').toUpperCase();
-
-  const matchesPlayed = p.matches_played || p.placement_matches || 0;
 
   if (ratingEl) {
     if (matchesPlayed === 0) {
@@ -2334,30 +2328,28 @@ async function renderHome() {
   if (rankKzn) rankKzn.textContent = p.rank_kzn ? `#${p.rank_kzn}` : '—';
   if (rankSa) rankSa.textContent = p.rank_sa ? `#${p.rank_sa}` : '—';
 
+  // Remove stale active/paused banner BEFORE fetching
+  const staleBanner = document.getElementById('home-active-match-banner');
+  if (staleBanner) {
+    staleBanner.remove();
+  }
+
   // Check for active/paused matches
   try {
     const activeData = await api('/matches/my/active', 'GET', null, true);
     const activeMatch = activeData.matches?.[0];
 
-    const existingBanner = document.getElementById('home-active-match-banner');
-
     if (!activeMatch) {
-      if (existingBanner) {
-        existingBanner.remove();
-      }
       STATE.currentMatch = null;
       localStorage.removeItem('rankd_match');
     } else {
       const homeContent = document.getElementById('home-content');
-      let banner = existingBanner;
 
-      if (!banner) {
-        banner = document.createElement('div');
-        banner.id = 'home-active-match-banner';
-        banner.className = 'card';
-        banner.style.marginBottom = '12px';
-        homeContent.insertBefore(banner, homeContent.children[2]);
-      }
+      const banner = document.createElement('div');
+      banner.id = 'home-active-match-banner';
+      banner.className = 'card';
+      banner.style.marginBottom = '12px';
+      homeContent.insertBefore(banner, homeContent.children[2]);
 
       const isLive = activeMatch.status === 'ACTIVE';
       const opp = activeMatch.opponent || {};
@@ -2383,6 +2375,8 @@ async function renderHome() {
     }
   } catch (e) {
     console.error('Active match load failed:', e);
+    STATE.currentMatch = null;
+    localStorage.removeItem('rankd_match');
   }
 
   // Load recent matches (up to 10)
@@ -2397,7 +2391,6 @@ async function renderHome() {
       if (emptyState) {
         emptyState.style.display = 'block';
       }
-      // Remove any existing match list
       const existingList = document.getElementById('home-recent-matches-list');
       if (existingList) existingList.remove();
       const existingFooter = document.getElementById('home-view-all-footer');
@@ -4458,7 +4451,7 @@ async function sendChallenge() {
     const isLadder = STATE.currentOpponent?.challengeSource === 'leaderboard';
     const result = await api('/matches', 'POST', {
       opponent_id: STATE.currentOpponent.id,
-      context: isLadder ? 'LADDER_CHALLENGE' : 'RANKD_CHALLENGE',
+      context: context,
       format_value: selectedRaceTo || 5,
       proposed_datetime: proposed.toISOString(),
       venue_id: venuePayload
