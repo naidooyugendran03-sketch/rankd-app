@@ -207,6 +207,7 @@ body {
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 <div class="phone" id="app">
@@ -522,6 +523,157 @@ body {
   <input type="text" class="search-box" id="playerSearchInput" placeholder="Search name, username, code..." oninput="filterPlayers()">
   <div id="playerSearchResults">
     <div class="empty-state">Type at least 2 characters to search...</div>
+  </div>
+</div>
+
+<!-- PLAYER PROFILE -->
+<div class="screen" id="scr-playerProfile">
+
+  <div class="back-bar">
+    <button class="back-btn" onclick="goBackFromProfile()">&#8592;</button>
+    <div class="back-title" id="pp-back-title">@player</div>
+  </div>
+
+  <div style="padding:24px 18px;text-align:center;">
+
+    <div
+      class="avatar"
+      id="pp-avatar"
+      style="
+        width:82px;
+        height:82px;
+        margin:0 auto 14px;
+        font-size:32px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+      "
+    >
+      ?
+    </div>
+
+    <div
+      id="pp-name"
+      style="font-size:24px;font-weight:900;margin-bottom:4px;"
+    >
+      Player
+    </div>
+
+    <div
+      id="pp-handle"
+      style="font-size:13px;color:var(--text-muted);margin-bottom:20px;"
+    >
+      @player
+    </div>
+
+    <div
+      id="pp-rating"
+      style="
+        font-size:46px;
+        line-height:1;
+        font-weight:900;
+        color:var(--gold);
+        margin-bottom:8px;
+      "
+    >
+      800
+    </div>
+
+    <div
+      id="pp-status"
+      style="
+        font-size:12px;
+        font-weight:800;
+        color:var(--text-muted);
+        margin-bottom:28px;
+      "
+    >
+      &#9679; UNRANKD
+    </div>
+
+
+    <!-- STATS -->
+    <div
+      style="
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:8px;
+        margin-bottom:20px;
+      "
+    >
+
+      <div class="card" style="padding:12px 4px;">
+        <div id="pp-wins" style="font-size:20px;font-weight:900;">0</div>
+        <div style="font-size:9px;color:var(--text-muted);">WINS</div>
+      </div>
+
+      <div class="card" style="padding:12px 4px;">
+        <div id="pp-losses" style="font-size:20px;font-weight:900;">0</div>
+        <div style="font-size:9px;color:var(--text-muted);">LOSSES</div>
+      </div>
+
+      <div class="card" style="padding:12px 4px;">
+        <div id="pp-winrate" style="font-size:20px;font-weight:900;">--</div>
+        <div style="font-size:9px;color:var(--text-muted);">WIN RATE</div>
+      </div>
+
+      <div class="card" style="padding:12px 4px;">
+        <div id="pp-opponents" style="font-size:20px;font-weight:900;">0</div>
+        <div style="font-size:9px;color:var(--text-muted);">OPPONENTS</div>
+      </div>
+
+    </div>
+
+
+    <!-- RANKS -->
+    <div class="card" style="margin-bottom:20px;text-align:left;">
+
+      <div
+        style="
+          display:flex;
+          justify-content:space-between;
+          padding:12px 0;
+          border-bottom:1px solid var(--border);
+        "
+      >
+        <span style="color:var(--text-sec);">Pietermaritzburg</span>
+        <strong id="pp-rank-pmb">--</strong>
+      </div>
+
+      <div
+        style="
+          display:flex;
+          justify-content:space-between;
+          padding:12px 0;
+          border-bottom:1px solid var(--border);
+        "
+      >
+        <span style="color:var(--text-sec);">KwaZulu-Natal</span>
+        <strong id="pp-rank-kzn">--</strong>
+      </div>
+
+      <div
+        style="
+          display:flex;
+          justify-content:space-between;
+          padding:12px 0;
+        "
+      >
+        <span style="color:var(--text-sec);">South Africa</span>
+        <strong id="pp-rank-sa">--</strong>
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn-gold"
+      id="pp-challenge-btn"
+      onclick="challengeProfilePlayer()"
+    >
+      &#9874; CHALLENGE PLAYER
+    </button>
+
   </div>
 </div>
 
@@ -2822,7 +2974,7 @@ async function openPlayerProfile(playerId, username) {
 
     const btn = document.getElementById('pp-challenge-btn');
     if (btn) {
-      btn.textContent = `&#9874; CHALLENGE ${player.first_name || 'PLAYER'}`;
+      btn.innerHTML = `&#9874; CHALLENGE ${player.first_name || 'PLAYER'}`;
       btn.style.display = (player.id === STATE.player?.id) ? 'none' : 'inline-flex';
     }
 
