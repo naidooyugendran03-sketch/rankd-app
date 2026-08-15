@@ -479,7 +479,7 @@ body {
   </div>
   <div id="home-content">
     <div class="gold-card">
-      <div id="home-player-name" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:4px;margin-bottom:8px;">Loading...</div>
+      <div id="home-player-name" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:4px;margin-bottom:8px;">PLAYER</div>
       <div id="home-rating-display" style="font-size:56px;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-variant-numeric:tabular-nums;">--</div>
       <div id="home-rating-label" style="font-size:10px;color:var(--text-muted);letter-spacing:5px;text-transform:uppercase;margin-bottom:14px;">RANKD</div>
       <div id="home-rank-display" style="font-size:14px;font-weight:800;color:var(--gold);margin-bottom:10px;display:none;"></div>
@@ -488,7 +488,7 @@ body {
         <div style="text-align:center;"><div id="home-rank-kzn" style="font-size:18px;font-weight:800;">--</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;">KZN</div></div>
         <div style="text-align:center;"><div id="home-rank-sa" style="font-size:18px;font-weight:800;">--</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;">SA</div></div>
       </div>
-      <div id="home-status-badge" style="display:inline-flex;align-items:center;gap:6px;background:rgba(212,160,23,0.12);color:var(--gold);padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;"><span>&#9679;</span> <span id="home-status-text">Loading...</span></div>
+      <div id="home-status-badge" style="display:inline-flex;align-items:center;gap:6px;background:rgba(212,160,23,0.12);color:var(--gold);padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;"><span>&#9679;</span> <span id="home-status-text">—</span></div>
     </div>
     <button class="btn-gold" onclick="go('challenge')">&#9874; CHALLENGE</button>
     <div class="card" style="cursor:pointer;" onclick="go('howItWorks')">
@@ -501,11 +501,13 @@ body {
         <span style="color:var(--text-muted);font-size:18px;">&#8594;</span>
       </div>
     </div>
-    <div class="card" id="home-empty-state">
-      <div style="text-align:center;padding:20px;color:var(--text-muted);">
-        <div style="font-size:32px;margin-bottom:8px;">&#127921;</div>
-        <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Welcome to RANKD</div>
-        <div style="font-size:12px;">Play your first match to see your rating and results here.</div>
+    <div id="home-match-history">
+      <div class="card" id="home-empty-state">
+        <div style="text-align:center;padding:20px;color:var(--text-muted);">
+          <div style="font-size:32px;margin-bottom:8px;">&#127921;</div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px;">No matches yet</div>
+          <div style="font-size:12px;">Play your first match and it will appear here.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -2265,208 +2267,53 @@ function switchRankingTab(btn, scope) {
 }
 
 async function renderHome() {
-  if (!STATE.player) return;
+  if (!STATE.token) {
+    go('signIn');
+    return;
+  }
+
+  try {
+    // Always fetch latest player state when Home opens.
+    // This also ensures newly calculated ratings appear immediately.
+    const freshPlayer = await api(
+      '/players/me',
+      'GET',
+      null,
+      true
+    );
+
+    STATE.player = freshPlayer;
+
+    localStorage.setItem(
+      'rankd_player',
+      JSON.stringify(freshPlayer)
+    );
+
+  } catch (err) {
+    console.error('Failed to refresh Home player:', err);
+
+    // Only fall back to cached data if available
+    if (!STATE.player) {
+      return;
+    }
+  }
+
   const p = STATE.player;
   const isPlacement = p.status === 'UNRANKD' && (p.placement_matches || 0) < (p.placement_total || 10);
 
-  // Check for active/paused matches
-  try {
-    const activeData = await api('/matches/my/active', 'GET', null, true);
-    const activeMatch = activeData.matches?.[0];
-
-    const existingBanner = document.getElementById('home-active-match-banner');
-
-    if (!activeMatch) {
-      // Remove stale live/paused match from Home
-      if (existingBanner) {
-        existingBanner.remove();
-      }
-
-      STATE.currentMatch = null;
-      localStorage.removeItem('rankd_match');
-
-    } else {
-      const homeContent = document.getElementById('home-content');
-
-      let banner = existingBanner;
-
-      if (!banner) {
-        banner = document.createElement('div');
-        banner.id = 'home-active-match-banner';
-        banner.className = 'card';
-        banner.style.marginBottom = '12px';
-
-        homeContent.insertBefore(
-          banner,
-          homeContent.children[1]
-        );
-      }
-
-      const isLive = activeMatch.status === 'ACTIVE';
-
-      const opp = activeMatch.opponent || {};
-
-      const bannerAction = isLive
-        ? `openLiveMatch('${activeMatch.match_id}')`
-        : `resumeMatch('${activeMatch.match_id}')`;
-
-      banner.innerHTML = `
-        <div
-          style="display:flex;align-items:center;gap:12px;"
-          onclick="${bannerAction}"
-        >
-          <div style="
-            width:40px;
-            height:40px;
-            border-radius:50%;
-            background:${isLive ? 'var(--success)' : 'var(--text-muted)'};
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-weight:800;
-          ">
-            ${isLive ? '●' : 'II'}
-          </div>
-
-          <div style="flex:1;">
-            <div style="font-size:14px;font-weight:700;">
-              ${escapeHtml(opp.name || 'Opponent')}
-            </div>
-
-            <div style="font-size:12px;color:var(--text-muted);">
-              ${activeMatch.venue || 'TBD'}
-              • Race to ${activeMatch.format_value || 5}
-            </div>
-          </div>
-
-          <div style="text-align:right;">
-            <div style="
-              font-size:20px;
-              font-weight:900;
-              color:var(--gold);
-            ">
-              ${activeMatch.score?.me || 0}
-              –
-              ${activeMatch.score?.opponent || 0}
-            </div>
-
-            <div style="
-              font-size:10px;
-              font-weight:700;
-            ">
-              ${isLive ? 'LIVE' : 'PAUSED'}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-  } catch (e) {
-    console.error('Active match load failed:', e);
-  }
-
-  // Load recent matches
-  try {
-    const historyData = await api('/matches/my/history?limit=5', 'GET', null, true);
-    const matches = historyData.matches || [];
-
-    let recentHtml = '';
-
-    if (matches.length > 0) {
-      recentHtml = `
-        <div style="margin-top:24px;">
-          <div style="
-            font-size:12px;
-            font-weight:700;
-            color:var(--text-muted);
-            margin-bottom:10px;
-            text-transform:uppercase;
-            letter-spacing:0.5px;
-          ">
-            Recent Matches
-          </div>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            ${matches.map(m => {
-              const isWin = m.result === 'WIN';
-              const isDraw = m.result === 'DRAW';
-              const resultColor = isWin ? 'var(--success)' : (isDraw ? 'var(--gold)' : 'var(--danger)');
-              const ratingText = m.rated
-                ? (m.rating_change >= 0 ? `+${m.rating_change}` : `${m.rating_change}`)
-                : 'NO RATING';
-              const ratingColor = m.rated
-                ? (m.rating_change >= 0 ? 'var(--success)' : 'var(--danger)')
-                : 'var(--text-muted)';
-              const dateStr = m.played_at
-                ? new Date(m.played_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-                : '';
-
-              return `
-                <div class="card" style="padding:12px;">
-                  <div style="display:flex;align-items:center;gap:10px;">
-                    <div style="
-                      font-size:11px;
-                      font-weight:800;
-                      color:${resultColor};
-                      min-width:36px;
-                    ">
-                      ${m.result}
-                    </div>
-                    <div style="flex:1;">
-                      <div style="font-size:13px;font-weight:700;">
-                        ${escapeHtml(p.first_name || 'You')} ${m.score.me} – ${m.score.opponent} ${escapeHtml(m.opponent?.name || 'Opponent')}
-                      </div>
-                      <div style="font-size:11px;color:var(--text-muted);">
-                        ${m.context || 'Match'} • Race to ${m.race_to || 5}
-                      </div>
-                    </div>
-                    <div style="text-align:right;">
-                      <div style="font-size:12px;font-weight:700;color:${ratingColor};">
-                        ${ratingText}
-                      </div>
-                      <div style="font-size:10px;color:var(--text-muted);">
-                        ${dateStr}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-          <button
-            class="btn btn-secondary"
-            style="margin-top:10px;width:100%;"
-            onclick="go('matches')"
-          >
-            View All Matches
-          </button>
-        </div>
-      `;
-    }
-
-    const existingRecent = document.getElementById('home-recent-matches');
-    if (existingRecent) {
-      existingRecent.outerHTML = `<div id="home-recent-matches">${recentHtml}</div>`;
-    } else {
-      const homeContent = document.getElementById('home-content');
-      const recentDiv = document.createElement('div');
-      recentDiv.id = 'home-recent-matches';
-      recentDiv.innerHTML = recentHtml;
-      homeContent.appendChild(recentDiv);
-    }
-
-  } catch (e) {
-    console.error('Recent matches load failed:', e);
-  }
-
-  // Update stats
-  const ratingEl = document.getElementById('home-rating');
-  const statusEl = document.getElementById('home-status');
+  // Update player name and stats
+  const nameEl = document.getElementById('home-player-name');
+  const ratingEl = document.getElementById('home-rating-display');
+  const statusEl = document.getElementById('home-status-text');
   const rankKzn = document.getElementById('home-rank-kzn');
   const rankSa = document.getElementById('home-rank-sa');
+  const rankPmb = document.getElementById('home-rank-pmb');
+
+  if (nameEl) nameEl.textContent = (p.first_name || 'PLAYER').toUpperCase();
 
   if (ratingEl) {
     if (isPlacement) {
-      ratingEl.innerHTML = `<span style="font-size:32px;">—</span>`;
+      ratingEl.innerHTML = '<span style="font-size:32px;">—</span>';
     } else {
       ratingEl.textContent = Math.round(p.public_rating || 800);
     }
@@ -2476,16 +2323,142 @@ async function renderHome() {
     if (isPlacement) {
       const pm = p.placement_matches || 0;
       const pt = p.placement_total || 10;
-      statusEl.innerHTML = `
-        <span style="color:var(--gold);font-weight:700;">PLACEMENT ${pm}/${pt}</span>
-      `;
+      statusEl.innerHTML = `<span style="color:var(--gold);font-weight:700;">PLACEMENT ${pm}/${pt}</span>`;
     } else {
       statusEl.textContent = p.status || 'UNRANKD';
     }
   }
 
+  if (rankPmb) rankPmb.textContent = p.rank_pmb ? `#${p.rank_pmb}` : '—';
   if (rankKzn) rankKzn.textContent = p.rank_kzn ? `#${p.rank_kzn}` : '—';
   if (rankSa) rankSa.textContent = p.rank_sa ? `#${p.rank_sa}` : '—';
+
+  // Check for active/paused matches
+  try {
+    const activeData = await api('/matches/my/active', 'GET', null, true);
+    const activeMatch = activeData.matches?.[0];
+
+    const existingBanner = document.getElementById('home-active-match-banner');
+
+    if (!activeMatch) {
+      if (existingBanner) {
+        existingBanner.remove();
+      }
+      STATE.currentMatch = null;
+      localStorage.removeItem('rankd_match');
+    } else {
+      const homeContent = document.getElementById('home-content');
+      let banner = existingBanner;
+
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'home-active-match-banner';
+        banner.className = 'card';
+        banner.style.marginBottom = '12px';
+        homeContent.insertBefore(banner, homeContent.children[2]);
+      }
+
+      const isLive = activeMatch.status === 'ACTIVE';
+      const opp = activeMatch.opponent || {};
+      const bannerAction = isLive
+        ? `openLiveMatch('${activeMatch.match_id}')`
+        : `resumeMatch('${activeMatch.match_id}')`;
+
+      banner.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;" onclick="${bannerAction}">
+          <div style="width:40px;height:40px;border-radius:50%;background:${isLive ? 'var(--success)' : 'var(--text-muted)'};display:flex;align-items:center;justify-content:center;font-weight:800;">
+            ${isLive ? '&#9679;' : 'II'}
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:700;">${escapeHtml(opp.name || 'Opponent')}</div>
+            <div style="font-size:12px;color:var(--text-muted);">${activeMatch.venue || 'TBD'} &#8226; Race to ${activeMatch.format_value || 5}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:20px;font-weight:900;color:var(--gold);">${activeMatch.score?.me || 0} &#8211; ${activeMatch.score?.opponent || 0}</div>
+            <div style="font-size:10px;font-weight:700;">${isLive ? 'LIVE' : 'PAUSED'}</div>
+          </div>
+        </div>
+      `;
+    }
+  } catch (e) {
+    console.error('Active match load failed:', e);
+  }
+
+  // Load recent matches (up to 10)
+  try {
+    const historyData = await api('/matches/my/history?limit=10', 'GET', null, true);
+    const matches = historyData.matches || [];
+
+    const historyContainer = document.getElementById('home-match-history');
+    const emptyState = document.getElementById('home-empty-state');
+
+    if (matches.length === 0) {
+      if (emptyState) {
+        emptyState.style.display = 'block';
+      }
+      // Remove any existing match list
+      const existingList = document.getElementById('home-recent-matches-list');
+      if (existingList) existingList.remove();
+      const existingFooter = document.getElementById('home-view-all-footer');
+      if (existingFooter) existingFooter.remove();
+    } else {
+      if (emptyState) {
+        emptyState.style.display = 'none';
+      }
+
+      let listHtml = `
+        <div id="home-recent-matches-list" style="display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Recent Matches</div>
+          ${matches.map(m => {
+            const isWin = m.result === 'WIN';
+            const isDraw = m.result === 'DRAW';
+            const resultColor = isWin ? 'var(--success)' : (isDraw ? 'var(--gold)' : 'var(--danger)');
+            const ratingText = m.rated
+              ? (m.rating_change >= 0 ? `+${m.rating_change}` : `${m.rating_change}`)
+              : 'NO RATING';
+            const ratingColor = m.rated
+              ? (m.rating_change >= 0 ? 'var(--success)' : 'var(--danger)')
+              : 'var(--text-muted)';
+            const dateStr = m.played_at
+              ? new Date(m.played_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+              : '';
+
+            return `
+              <div class="card" style="padding:12px;cursor:pointer;" onclick="go('matchHistory')">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="font-size:11px;font-weight:800;color:${resultColor};min-width:24px;">${m.result === 'WIN' ? 'W' : (m.result === 'DRAW' ? 'D' : 'L')}</div>
+                  <div style="flex:1;">
+                    <div style="font-size:13px;font-weight:700;">${escapeHtml(m.opponent?.name || 'Opponent')}</div>
+                    <div style="font-size:11px;color:var(--text-muted);">${m.context || 'Match'} &#8226; Race to ${m.race_to || 5}</div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="font-size:13px;font-weight:800;">${m.score.me} &#8211; ${m.score.opponent}</div>
+                    <div style="font-size:11px;font-weight:700;color:${ratingColor};">${ratingText}</div>
+                  </div>
+                </div>
+                <div style="font-size:10px;color:var(--text-muted);text-align:right;margin-top:4px;">${dateStr}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        <div
+          id="home-view-all-footer"
+          onclick="go('matches')"
+          style="display:flex;align-items:center;justify-content:space-between;padding:16px 4px 4px;cursor:pointer;color:var(--gold);font-size:12px;font-weight:800;letter-spacing:1px;"
+        >
+          <span>VIEW ALL MATCHES</span>
+          <span style="font-size:18px;">&#8594;</span>
+        </div>
+      `;
+
+      const existingList = document.getElementById('home-recent-matches-list');
+      const existingFooter = document.getElementById('home-view-all-footer');
+      if (existingList) existingList.outerHTML = listHtml;
+      else if (historyContainer) historyContainer.innerHTML = listHtml;
+    }
+  } catch (e) {
+    console.error('Recent matches load failed:', e);
+  }
 
   // Check for pending challenges
   try {
