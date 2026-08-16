@@ -3607,10 +3607,13 @@ async function acceptResult(matchId) {
     STATE.player = freshPlayer;
     localStorage.setItem('rankd_player', JSON.stringify(freshPlayer));
 
+    // Reload notifications to show remaining confirmations
+    await loadNotifications();
+
     setLoading(false);
 
     alert('Result confirmed!');
-    go('home');
+    go('notifications');
 
   } catch (err) {
     setLoading(false);
@@ -3623,6 +3626,10 @@ async function denyResult(matchId) {
   try {
     const match = await api(`/matches/${matchId}/result/deny`, 'POST', {}, true);
     STATE.currentMatch = { ...STATE.currentMatch, ...match };
+
+    // Reload notifications to show remaining confirmations
+    await loadNotifications();
+
     setLoading(false);
     alert('Result denied. Match is back in progress.');
     renderLiveMatch(match);
