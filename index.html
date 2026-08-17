@@ -1987,22 +1987,15 @@ async function signInWithPin() {
       throw new Error('PIN verification failed');
     }
 
-    // 3. Replace temporary token with verified token
-    STATE.token = pinData.token;
-
-    // 4. Fetch latest profile
-    const freshPlayer = await api(
-      '/players/me',
-      'GET',
-      null,
-      true
-    );
-
-    // 5. Save authenticated session
-    setAuth(pinData.token, freshPlayer);
+    // 3. Save the verified session immediately.
+    // The backend now includes the latest player in the PIN response,
+    // so we do NOT make another blocking /players/me request here.
+    const verifiedPlayer = pinData.player || loginData.player || STATE.player;
+    setAuth(pinData.token, verifiedPlayer);
 
     localStorage.setItem('rankd_has_pin', 'true');
 
+    // Remove the blocking overlay before Home starts its background refreshes.
     setLoading(false);
     go('home');
 
@@ -2266,37 +2259,11 @@ function switchRankingTab(btn, scope) {
   loadRankings(scope);
 }
 
-async function renderHome() {
-  if (!STATE.token) {
-    go('signIn');
-    return;
-  }
-
-  try {
-    // Always fetch latest player state when Home opens.
-    const freshPlayer = await api(
-      '/players/me',
-      'GET',
-      null,
-      true
-    );
-
-    STATE.player = freshPlayer;
-    localStorage.setItem(
-      'rankd_player',
-      JSON.stringify(freshPlayer)
-    );
-  } catch (err) {
-    console.error('Failed to refresh Home player:', err);
-    if (!STATE.player) {
-      return;
-    }
-  }
-
-  const p = STATE.player;
+function paintHomePlayer(p) {
+  if (!p) return;
   const matchesPlayed = p.matches_played || p.placement_matches || 0;
 
-  // Update player name and stats
+  // Update player name and stats immediately from cached/auth response data.
   const nameEl = document.getElementById('home-player-name');
   const ratingEl = document.getElementById('home-rating-display');
   const statusEl = document.getElementById('home-status-text');
@@ -2327,6 +2294,27 @@ async function renderHome() {
   if (rankPmb) rankPmb.textContent = p.rank_pmb ? `#${p.rank_pmb}` : '—';
   if (rankKzn) rankKzn.textContent = p.rank_kzn ? `#${p.rank_kzn}` : '—';
   if (rankSa) rankSa.textContent = p.rank_sa ? `#${p.rank_sa}` : '—';
+}
+
+async function renderHome() {
+  if (!STATE.token) {
+    go('signIn');
+    return;
+  }
+
+  // Paint Home immediately. Do not hold the screen behind a network request.
+  paintHomePlayer(STATE.player);
+
+  // Refresh the profile in the background and repaint when it arrives.
+  api('/players/me', 'GET', null, true)
+    .then(freshPlayer => {
+      STATE.player = freshPlayer;
+      localStorage.setItem('rankd_player', JSON.stringify(freshPlayer));
+      paintHomePlayer(freshPlayer);
+    })
+    .catch(err => {
+      console.error('Failed to refresh Home player:', err);
+    });
 
   // Remove stale active/paused banner BEFORE fetching
   const staleBanner = document.getElementById('home-active-match-banner');
@@ -3810,10 +3798,10 @@ async function submitPinUnlock(pin) {
   try {
     const pinData = await api('/auth/pin/verify', 'POST', { pin: pin }, true);
     if (pinData.token) {
-      // Fetch fresh player data after successful unlock
-      STATE.token = pinData.token;
-      const freshPlayer = await api('/players/me', 'GET', null, true);
-      setAuth(pinData.token, freshPlayer);
+      // PIN verification now returns the current player as well,
+      // so unlock no longer waits for a second API request.
+      const verifiedPlayer = pinData.player || STATE.player;
+      setAuth(pinData.token, verifiedPlayer);
       localStorage.setItem('rankd_has_pin', 'true');
       setLoading(false);
       go('home');
