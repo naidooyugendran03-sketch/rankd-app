@@ -2647,9 +2647,12 @@ async function submitMatchResult() {
       setLoading(false);
       renderResultConfirmed(scoreA, scoreB);
       go('resultConfirmed');
-    } else if (data.status === 'RESULT_PARTIAL') {
+    } else if (data.status === 'RESULT_PENDING' || data.status === 'RESULT_PARTIAL') {
       setLoading(false);
-      alert('Result submitted! Waiting for opponent to confirm...');
+      const waitScore = document.getElementById('result-waiting-score');
+      if (waitScore) waitScore.textContent = `${scoreA} – ${scoreB}`;
+      alert('Result sent to your opponent. They must ACCEPT or DISPUTE it before the match is confirmed.');
+      go('resultWaiting');
     } else if (data.status === 'RESULT_MISMATCH') {
       setLoading(false);
       go('resultMismatch');
@@ -3587,7 +3590,7 @@ async function denyResult(matchId) {
     await loadNotifications();
 
     setLoading(false);
-    alert('Result denied. Match is back in progress.');
+    alert('Result disputed. The match is not confirmed. Submit the corrected score or continue the match.');
     renderLiveMatch(match);
     go('matchActive');
     startLiveMatchPolling();
@@ -4162,7 +4165,7 @@ async function loadNotifications() {
           </div>
           <div style="display:flex;gap:8px;">
             <button class="btn-gold" style="flex:1;" onclick="acceptResult('${m.match_id}')">ACCEPT RESULT</button>
-            <button class="btn-danger" style="flex:1;padding:14px 8px;font-size:12px;" onclick="denyResult('${m.match_id}')">DENY RESULT</button>
+            <button class="btn-danger" style="flex:1;padding:14px 8px;font-size:12px;" onclick="denyResult('${m.match_id}')">DISPUTE RESULT</button>
           </div>
         </div>`;
       }).join('');
