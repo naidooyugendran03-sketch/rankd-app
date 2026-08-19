@@ -474,7 +474,7 @@ body {
   <div class="header">
     <div class="logo-sm">RANK<span>D</span></div>
     <button style="width:36px;height:36px;border-radius:10px;background:var(--elevated);border:1px solid var(--border);color:white;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;position:relative;" onclick="go('pendingChallenges')">
-      &#128276;<span id="home-pending-badge" style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:var(--danger);border-radius:50%;border:2px solid var(--black);display:none;"></span>
+      &#128276;<span id="home-pending-badge" style="position:absolute;top:-7px;right:-7px;min-width:20px;height:20px;padding:0 5px;background:var(--danger);color:#fff;border-radius:10px;border:2px solid var(--black);display:none;align-items:center;justify-content:center;font-size:10px;font-weight:900;line-height:16px;"></span>
     </button>
   </div>
   <div id="home-content">
@@ -1939,78 +1939,39 @@ async function signInWithPin() {
   const mobile = normalizeMobile(
     document.getElementById('siMobile').value.trim()
   );
-
   const pin = document.getElementById('siPin').value.trim();
 
   if (!mobile || mobile.length < 10) {
     alert('Please enter your mobile number.');
     return;
   }
-
   if (!pin || pin.length !== 4) {
     alert('Please enter your 4-digit PIN.');
     return;
   }
 
   setLoading(true);
-
   try {
-    // 1. Get temporary token using mobile number
-    const loginData = await api(
-      '/auth/login',
-      'POST',
-      {
-        mobile_number: mobile,
-        otp_code: '000000'
-      },
-      false
-    );
+    // One request only: mobile + PIN -> verified session.
+    const data = await api('/auth/pin/login', 'POST', {
+      mobile_number: mobile,
+      pin: pin
+    }, false);
 
-    if (!loginData.token) {
-      throw new Error('Login token was not returned');
-    }
+    if (!data.token) throw new Error('PIN verification failed');
 
-    // Temporarily put token into STATE so api() sends it
-    STATE.token = loginData.token;
-
-    // 2. Verify the PIN using the temporary token
-    const pinData = await api(
-      '/auth/pin/verify',
-      'POST',
-      {
-        pin: pin
-      },
-      true
-    );
-
-    if (!pinData.token) {
-      throw new Error('PIN verification failed');
-    }
-
-    // 3. Save the verified session immediately.
-    // The backend now includes the latest player in the PIN response,
-    // so we do NOT make another blocking /players/me request here.
-    const verifiedPlayer = pinData.player || loginData.player || STATE.player;
-    setAuth(pinData.token, verifiedPlayer);
-
+    setAuth(data.token, data.player);
     localStorage.setItem('rankd_has_pin', 'true');
 
-    // Remove the blocking overlay before Home starts its background refreshes.
+    // Remove Working before Home performs its background refreshes.
     setLoading(false);
     go('home');
-
   } catch (err) {
     setLoading(false);
-
     STATE.token = null;
     STATE.player = null;
-
     console.error('PIN login error:', err);
-
-    if (
-      err.message &&
-      err.message.toLowerCase().includes('user not found')
-    ) {
+    if (err.message && err.message.toLowerCase().includes('user not found')) {
       alert('No account found with this mobile number.');
     } else {
       alert(err.message || 'Unable to sign in.');
@@ -2259,11 +2220,37 @@ function switchRankingTab(btn, scope) {
   loadRankings(scope);
 }
 
-function paintHomePlayer(p) {
-  if (!p) return;
+async function renderHome() {
+  if (!STATE.token) {
+    go('signIn');
+    return;
+  }
+
+  try {
+    // Always fetch latest player state when Home opens.
+    const freshPlayer = await api(
+      '/players/me',
+      'GET',
+      null,
+      true
+    );
+
+    STATE.player = freshPlayer;
+    localStorage.setItem(
+      'rankd_player',
+      JSON.stringify(freshPlayer)
+    );
+  } catch (err) {
+    console.error('Failed to refresh Home player:', err);
+    if (!STATE.player) {
+      return;
+    }
+  }
+
+  const p = STATE.player;
   const matchesPlayed = p.matches_played || p.placement_matches || 0;
 
-  // Update player name and stats immediately from cached/auth response data.
+  // Update player name and stats
   const nameEl = document.getElementById('home-player-name');
   const ratingEl = document.getElementById('home-rating-display');
   const statusEl = document.getElementById('home-status-text');
@@ -2294,27 +2281,6 @@ function paintHomePlayer(p) {
   if (rankPmb) rankPmb.textContent = p.rank_pmb ? `#${p.rank_pmb}` : '—';
   if (rankKzn) rankKzn.textContent = p.rank_kzn ? `#${p.rank_kzn}` : '—';
   if (rankSa) rankSa.textContent = p.rank_sa ? `#${p.rank_sa}` : '—';
-}
-
-async function renderHome() {
-  if (!STATE.token) {
-    go('signIn');
-    return;
-  }
-
-  // Paint Home immediately. Do not hold the screen behind a network request.
-  paintHomePlayer(STATE.player);
-
-  // Refresh the profile in the background and repaint when it arrives.
-  api('/players/me', 'GET', null, true)
-    .then(freshPlayer => {
-      STATE.player = freshPlayer;
-      localStorage.setItem('rankd_player', JSON.stringify(freshPlayer));
-      paintHomePlayer(freshPlayer);
-    })
-    .catch(err => {
-      console.error('Failed to refresh Home player:', err);
-    });
 
   // Remove stale active/paused banner BEFORE fetching
   const staleBanner = document.getElementById('home-active-match-banner');
@@ -2441,18 +2407,8 @@ async function renderHome() {
     console.error('Recent matches load failed:', e);
   }
 
-  // Check for pending challenges
-  try {
-    api('/notifications', 'GET', null, true).then(data => {
-      const badge = document.getElementById('home-pending-badge');
-      if (badge) {
-        badge.style.display =
-          (data.incoming_challenges || []).length > 0
-            ? 'block'
-            : 'none';
-      }
-    }).catch(() => {});
-  } catch(e) {}
+  // Check for pending challenges without blocking Home.
+  refreshChallengeIndicator();
 }
 
 function renderProfile() {
@@ -3798,10 +3754,7 @@ async function submitPinUnlock(pin) {
   try {
     const pinData = await api('/auth/pin/verify', 'POST', { pin: pin }, true);
     if (pinData.token) {
-      // PIN verification now returns the current player as well,
-      // so unlock no longer waits for a second API request.
-      const verifiedPlayer = pinData.player || STATE.player;
-      setAuth(pinData.token, verifiedPlayer);
+      setAuth(pinData.token, pinData.player || STATE.player);
       localStorage.setItem('rankd_has_pin', 'true');
       setLoading(false);
       go('home');
@@ -4018,6 +3971,73 @@ function renderEditProfile() {
 // ——— NOTIFICATIONS & CHALLENGES ———
 let currentChallengeMatchId = null;
 let currentCounterProposal = null;
+
+function renderHomeChallengeBanner(challenges) {
+  const home = document.getElementById('home-content');
+  if (!home) return;
+
+  let banner = document.getElementById('home-challenge-banner');
+  if (!challenges || challenges.length === 0) {
+    if (banner) banner.remove();
+    return;
+  }
+
+  const n = challenges[0];
+  const fromName = n.from?.name || 'Someone';
+  const venue = n.venue || 'Venue to be confirmed';
+  const dateTime = n.proposed_datetime
+    ? new Date(n.proposed_datetime).toLocaleString('en-ZA', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
+    : 'Time to be confirmed';
+  const extra = challenges.length > 1 ? ` +${challenges.length - 1} more` : '';
+
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'home-challenge-banner';
+    home.insertBefore(banner, home.firstChild);
+  }
+
+  banner.className = 'card';
+  banner.style.cssText = 'margin:0 16px 14px;border:1px solid rgba(212,160,23,.65);box-shadow:0 0 0 1px rgba(212,160,23,.12),0 10px 28px rgba(0,0,0,.32);background:linear-gradient(135deg,rgba(212,160,23,.14),rgba(17,17,17,.98));';
+  banner.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <div style="width:34px;height:34px;border-radius:50%;background:var(--gold);color:var(--black);display:flex;align-items:center;justify-content:center;font-weight:900;">${escapeHtml(fromName.charAt(0).toUpperCase())}</div>
+      <div style="flex:1;">
+        <div style="font-size:10px;letter-spacing:1.5px;color:var(--gold);font-weight:900;">NEW CHALLENGE${escapeHtml(extra)}</div>
+        <div style="font-size:16px;font-weight:900;">${escapeHtml(fromName)} challenged you</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--text-sec);line-height:1.65;margin-bottom:12px;">
+      <div><b style="color:#fff;">Race to ${n.format_value || 5}</b></div>
+      <div>${escapeHtml(venue)}</div>
+      <div>${escapeHtml(dateTime)}</div>
+    </div>
+    <div style="display:flex;gap:7px;">
+      <button class="btn-gold" style="flex:1;padding:11px 7px;font-size:11px;" onclick="respondToChallenge('${n.match_id}','accept')">ACCEPT</button>
+      <button class="btn-outline" style="flex:1;padding:11px 7px;font-size:11px;" onclick="goToCounter('${n.match_id}', ${JSON.stringify(fromName)}, ${JSON.stringify(venue)}, ${JSON.stringify(dateTime)})">COUNTER</button>
+      <button class="btn-danger" style="flex:1;padding:11px 7px;font-size:11px;" onclick="respondToChallenge('${n.match_id}','decline')">DECLINE</button>
+    </div>`;
+}
+
+async function refreshChallengeIndicator() {
+  if (!STATE.token) return;
+  try {
+    const data = await api('/notifications', 'GET', null, true);
+    const challenges = data.incoming_challenges || [];
+    const badge = document.getElementById('home-pending-badge');
+    if (badge) {
+      if (challenges.length > 0) {
+        badge.textContent = challenges.length > 9 ? '9+' : String(challenges.length);
+        badge.style.display = 'flex';
+      } else {
+        badge.textContent = '';
+        badge.style.display = 'none';
+      }
+    }
+    if (currentScreen === 'home') renderHomeChallengeBanner(challenges);
+  } catch (err) {
+    console.error('Challenge indicator refresh failed:', err);
+  }
+}
 
 async function loadNotifications() {
   const container = document.getElementById('notifications-list');
@@ -4551,6 +4571,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load venues in background for when user needs them
   loadVenues();
 });
+// Keep challenge alerts current while RANKD is open.
+setInterval(() => {
+  if (STATE.token) refreshChallengeIndicator();
+}, 15000);
+
 </script>
 </body>
 </html>
