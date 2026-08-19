@@ -1757,7 +1757,8 @@ let STATE = {
   invite: null,
   deepLink: null,
   inviteToken: null,
-  preMatchRating: null
+  preMatchRating: null,
+  homeBootstrap: null
 };
 
 let currentScreen = 'splash';
@@ -1836,12 +1837,13 @@ function setAuth(token, player) {
 }
 
 function clearAuth() {
-  STATE = { token: null, player: null, currentMatch: null, invite: null, deepLink: null, inviteToken: null, preMatchRating: null, currentOpponent: null };
+  STATE = { token: null, player: null, currentMatch: null, invite: null, deepLink: null, inviteToken: null, preMatchRating: null, currentOpponent: null, homeBootstrap: null };
   localStorage.removeItem('rankd_token');
   localStorage.removeItem('rankd_player');
   localStorage.removeItem('rankd_match');
   localStorage.removeItem('rankd_has_pin');
   localStorage.removeItem('rankd_opponent');
+  localStorage.removeItem('rankd_home_bootstrap');
 }
 
 function logout() {
@@ -1961,9 +1963,11 @@ async function signInWithPin() {
     if (!data.token) throw new Error('PIN verification failed');
 
     setAuth(data.token, data.player);
+    STATE.homeBootstrap = data.home || null;
+    if (data.home) localStorage.setItem('rankd_home_bootstrap', JSON.stringify(data.home));
     localStorage.setItem('rankd_has_pin', 'true');
 
-    // Remove Working before Home performs its background refreshes.
+    // Everything Home needs for first paint arrived with the PIN response.
     setLoading(false);
     go('home');
   } catch (err) {
@@ -2226,26 +2230,13 @@ async function renderHome() {
     return;
   }
 
-  try {
-    // Always fetch latest player state when Home opens.
-    const freshPlayer = await api(
-      '/players/me',
-      'GET',
-      null,
-      true
-    );
-
-    STATE.player = freshPlayer;
-    localStorage.setItem(
-      'rankd_player',
-      JSON.stringify(freshPlayer)
-    );
-  } catch (err) {
-    console.error('Failed to refresh Home player:', err);
-    if (!STATE.player) {
-      return;
-    }
+  // First paint uses data already returned by PIN login. Never block Home on /players/me.
+  if (!STATE.homeBootstrap) {
+    try {
+      STATE.homeBootstrap = JSON.parse(localStorage.getItem('rankd_home_bootstrap') || 'null');
+    } catch (e) {}
   }
+  if (!STATE.player) return;
 
   const p = STATE.player;
   const matchesPlayed = p.matches_played || p.placement_matches || 0;
@@ -2290,7 +2281,7 @@ async function renderHome() {
 
   // Check for active/paused matches
   try {
-    const activeData = await api('/matches/my/active', 'GET', null, true);
+    const activeData = STATE.homeBootstrap?.active || await api('/matches/my/active', 'GET', null, true);
     const activeMatch = activeData.matches?.[0];
 
     if (!activeMatch) {
@@ -2335,7 +2326,7 @@ async function renderHome() {
 
   // Load recent matches (up to 10)
   try {
-    const historyData = await api('/matches/my/history?limit=10', 'GET', null, true);
+    const historyData = STATE.homeBootstrap?.history || await api('/matches/my/history?limit=10', 'GET', null, true);
     const matches = historyData.matches || [];
 
     const historyContainer = document.getElementById('home-match-history');
@@ -2408,7 +2399,28 @@ async function renderHome() {
   }
 
   // Check for pending challenges without blocking Home.
-  refreshChallengeIndicator();
+  refreshChallengeIndicator(STATE.homeBootstrap?.notifications || null);
+
+  // Bootstrap is one-use. Refresh fresh data silently in parallel for the next visit.
+  const oldBootstrap = STATE.homeBootstrap;
+  STATE.homeBootstrap = null;
+  Promise.allSettled([
+    api('/players/me', 'GET', null, true),
+    api('/matches/my/active', 'GET', null, true),
+    api('/matches/my/history?limit=10', 'GET', null, true),
+    api('/notifications', 'GET', null, true)
+  ]).then(results => {
+    if (results[0].status === 'fulfilled') {
+      STATE.player = results[0].value;
+      localStorage.setItem('rankd_player', JSON.stringify(STATE.player));
+    }
+    const fresh = {
+      active: results[1].status === 'fulfilled' ? results[1].value : oldBootstrap?.active,
+      history: results[2].status === 'fulfilled' ? results[2].value : oldBootstrap?.history,
+      notifications: results[3].status === 'fulfilled' ? results[3].value : oldBootstrap?.notifications
+    };
+    localStorage.setItem('rankd_home_bootstrap', JSON.stringify(fresh));
+  });
 }
 
 function renderProfile() {
@@ -3755,6 +3767,8 @@ async function submitPinUnlock(pin) {
     const pinData = await api('/auth/pin/verify', 'POST', { pin: pin }, true);
     if (pinData.token) {
       setAuth(pinData.token, pinData.player || STATE.player);
+      STATE.homeBootstrap = pinData.home || null;
+      if (pinData.home) localStorage.setItem('rankd_home_bootstrap', JSON.stringify(pinData.home));
       localStorage.setItem('rankd_has_pin', 'true');
       setLoading(false);
       go('home');
@@ -4018,10 +4032,10 @@ function renderHomeChallengeBanner(challenges) {
     </div>`;
 }
 
-async function refreshChallengeIndicator() {
+async function refreshChallengeIndicator(prefetchedData = null) {
   if (!STATE.token) return;
   try {
-    const data = await api('/notifications', 'GET', null, true);
+    const data = prefetchedData || await api('/notifications', 'GET', null, true);
     const challenges = data.incoming_challenges || [];
     const badge = document.getElementById('home-pending-badge');
     if (badge) {
