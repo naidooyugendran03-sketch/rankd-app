@@ -1796,31 +1796,62 @@ function selectVenue(el, venueId) {
 }
 
 // ——— API ———
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+function isNetworkFailure(err) {
+  const msg = String(err?.message || err || '').toLowerCase();
+  return msg.includes('failed to fetch') ||
+         msg.includes('networkerror') ||
+         msg.includes('load failed') ||
+         msg.includes('network request failed');
+}
+
 async function api(endpoint, method='GET', body=null, needsAuth=true) {
-  let url = API_BASE + endpoint;
-  const opts = { 
-    method, 
-    headers: { 'Content-Type': 'application/json' } 
+  const url = API_BASE + endpoint;
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' }
   };
-  // Send token via Authorization header only
+
   if (needsAuth && STATE.token) {
     opts.headers['Authorization'] = `Bearer ${STATE.token}`;
   }
   if (body) opts.body = JSON.stringify(body);
-  console.log('API CALL:', method, url, 'token?', !!STATE.token);
 
-  try {
-    const res = await fetch(url, opts);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || JSON.stringify(data));
-    return data;
-  } catch (err) {
-    console.error('API Error:', err);
-    // Better error for user
-    if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
-      throw new Error('Cannot connect to server. Check your internet or try again.');
+  // GETs are safe to retry. PIN login is also safe/idempotent for this purpose.
+  // Other POSTs are never auto-retried to avoid duplicate challenges/results.
+  const retryable = method === 'GET' || endpoint === '/auth/pin/login' || endpoint === '/auth/pin/verify';
+  const maxAttempts = retryable ? 3 : 1;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      console.log('API CALL:', method, url, 'attempt', attempt, 'token?', !!STATE.token);
+      const res = await fetch(url, opts);
+
+      let data = {};
+      const text = await res.text();
+      if (text) {
+        try { data = JSON.parse(text); }
+        catch (_) { data = { detail: text }; }
+      }
+
+      if (!res.ok) {
+        throw new Error(data.detail || `Server error (${res.status})`);
+      }
+      return data;
+    } catch (err) {
+      console.error('API Error:', err);
+      if (!isNetworkFailure(err) || attempt === maxAttempts) {
+        if (isNetworkFailure(err)) {
+          throw new Error('Cannot connect to server. Please try again.');
+        }
+        throw err;
+      }
+
+      // Short retry window for a transient Render/network hand-off.
+      // The external uptime monitor should prevent true cold starts.
+      await sleep(attempt === 1 ? 700 : 1400);
     }
-    throw err;
   }
 }
 
@@ -4592,6 +4623,39 @@ document.addEventListener('DOMContentLoaded', () => {
 setInterval(() => {
   if (STATE.token) refreshChallengeIndicator();
 }, 15000);
+
+
+
+// ——— TEMPORARY RENDER KEEP-AWAKE ———
+// Keeps the free Render backend warm while this RANKD page is open.
+// Remove this once the API is moved to an always-on paid service.
+const RENDER_KEEPALIVE_MS = 8 * 60 * 1000; // 8 minutes
+
+async function keepRenderAwake() {
+  try {
+    await fetch(API_BASE + '/health', {
+      method: 'GET',
+      cache: 'no-store',
+      mode: 'cors'
+    });
+  } catch (err) {
+    // Silent by design: this must never interrupt normal RANKD use.
+    console.debug('Keep-alive ping failed:', err?.message || err);
+  }
+}
+
+// Wake/refresh the backend when the app loads.
+keepRenderAwake();
+
+// Then ping every 8 minutes while the page remains open.
+setInterval(keepRenderAwake, RENDER_KEEPALIVE_MS);
+
+// Also ping when the user returns to the app after it was backgrounded.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    keepRenderAwake();
+  }
+});
 
 </script>
 </body>
